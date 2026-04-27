@@ -165,6 +165,39 @@ function IndexChart({
   );
 }
 
+function RegisterCard() {
+  return (
+    <div className="bg-gradient-to-br from-emerald-950/60 to-[#1c1c1e] border border-emerald-500/20 rounded-2xl p-6 mt-4">
+      <div className="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
+      <h3 className="text-white font-bold text-lg leading-snug mb-2">
+        Ready to invest or trade?
+      </h3>
+      <p className="text-white/50 text-sm leading-relaxed mb-5">
+        Open your Aspora account in under 15 minutes — no paperwork, no minimums, and no fees to get started.
+      </p>
+      <div className="space-y-2.5 mb-5">
+        {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
+          <div key={item} className="flex items-center gap-2.5">
+            <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <path d="M1.5 4L3 5.5L6.5 2" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="text-white/60 text-xs">{item}</span>
+          </div>
+        ))}
+      </div>
+      <a
+        href="https://aspora.com/register"
+        className="block w-full text-center rounded-xl bg-emerald-500 text-white font-bold py-3 text-sm hover:bg-emerald-400 transition-colors"
+      >
+        Create free account →
+      </a>
+      <p className="text-white/30 text-xs text-center mt-3">Takes less than 15 minutes</p>
+    </div>
+  );
+}
+
 function IndexSummaryCard({ index }: { index: IndexData }) {
   const isPositive = index.change >= 0;
   const isYtdPositive = index.ytdChangePct >= 0;
@@ -279,13 +312,6 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
   const expiries = getExpiries(optSymbol);
   const firstExpiry = expiries[0];
 
-  const greeks = [
-    { label: "Delta", desc: "Price sensitivity" },
-    { label: "Theta", desc: "Time decay per day" },
-    { label: "IV", desc: "Implied volatility" },
-    { label: "Gamma", desc: "Delta change rate" },
-  ];
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       {/* Left — Popular options */}
@@ -341,17 +367,6 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
           <div className="flex flex-wrap gap-2">
             {expiries.slice(0, 4).map((e) => (
               <span key={e.label} className="px-2.5 py-1 rounded-lg bg-white/[0.06] text-white/70 text-xs">{e.label}</span>
-            ))}
-          </div>
-        </div>
-        <div className="border-t border-white/[0.08] pt-4">
-          <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-3">Greeks at a Glance</div>
-          <div className="grid grid-cols-2 gap-2">
-            {greeks.map((g) => (
-              <div key={g.label} className="bg-white/[0.04] rounded-lg px-3 py-2">
-                <div className="text-white text-xs font-semibold">{g.label}</div>
-                <div className="text-white/40 text-[11px] mt-0.5">{g.desc}</div>
-              </div>
             ))}
           </div>
         </div>
@@ -494,6 +509,7 @@ export default function IndexDetailPage() {
           {/* Right column */}
           <div className="w-full md:w-80 shrink-0 md:sticky md:top-6">
             <IndexSummaryCard index={index} />
+            <RegisterCard />
           </div>
         </div>
       </div>

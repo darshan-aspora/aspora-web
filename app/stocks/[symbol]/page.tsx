@@ -210,57 +210,35 @@ function KeyMetricsCard({ stock }: { stock: StockData }) {
   );
 }
 
-function AnalystCard({ stock }: { stock: StockData }) {
-  const total = stock.analystBuy + stock.analystHold + stock.analystSell;
-  const buyPct = (stock.analystBuy / total) * 100;
-  const holdPct = (stock.analystHold / total) * 100;
-  const sellPct = (stock.analystSell / total) * 100;
-  const rating = buyPct >= 60 ? "Strong Buy" : buyPct >= 40 ? "Buy" : holdPct >= 50 ? "Hold" : "Underperform";
-  const ratingColor =
-    buyPct >= 60
-      ? "text-green-400 bg-green-400/10"
-      : buyPct >= 40
-      ? "text-green-300 bg-green-400/10"
-      : holdPct >= 50
-      ? "text-yellow-400 bg-yellow-400/10"
-      : "text-red-400 bg-red-400/10";
-
+function RegisterCard() {
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 mt-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-semibold">Analyst Consensus</h3>
-        <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full", ratingColor)}>{rating}</span>
+    <div className="bg-gradient-to-br from-emerald-950/60 to-[#1c1c1e] border border-emerald-500/20 rounded-2xl p-6 mt-4">
+      <div className="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
+      <h3 className="text-white font-bold text-lg leading-snug mb-2">
+        Ready to invest or trade?
+      </h3>
+      <p className="text-white/50 text-sm leading-relaxed mb-5">
+        Open your Aspora account in under 15 minutes — no paperwork, no minimums, and no fees to get started.
+      </p>
+      <div className="space-y-2.5 mb-5">
+        {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
+          <div key={item} className="flex items-center gap-2.5">
+            <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <path d="M1.5 4L3 5.5L6.5 2" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <span className="text-white/60 text-xs">{item}</span>
+          </div>
+        ))}
       </div>
-      <div className="flex rounded-full overflow-hidden h-2.5 mb-3">
-        <div className="bg-green-400" style={{ width: `${buyPct}%` }} />
-        <div className="bg-yellow-400" style={{ width: `${holdPct}%` }} />
-        <div className="bg-red-400" style={{ width: `${sellPct}%` }} />
-      </div>
-      <div className="flex justify-between text-xs">
-        <div className="text-center">
-          <div className="text-green-400 font-semibold">{stock.analystBuy}</div>
-          <div className="text-white/40">Buy</div>
-        </div>
-        <div className="text-center">
-          <div className="text-yellow-400 font-semibold">{stock.analystHold}</div>
-          <div className="text-white/40">Hold</div>
-        </div>
-        <div className="text-center">
-          <div className="text-red-400 font-semibold">{stock.analystSell}</div>
-          <div className="text-white/40">Sell</div>
-        </div>
-      </div>
-      <div className="mt-4 pt-4 border-t border-white/[0.08] flex justify-between items-center">
-        <span className="text-white/50 text-sm">Avg. Target</span>
-        <span className="text-white font-semibold">${stock.avgTarget}</span>
-      </div>
-      <div className="flex justify-between items-center mt-1">
-        <span className="text-white/40 text-xs">vs current price</span>
-        <span className={cn("text-xs font-medium", stock.avgTarget > stock.price ? "text-green-400" : "text-red-400")}>
-          {stock.avgTarget > stock.price ? "+" : ""}
-          {(((stock.avgTarget - stock.price) / stock.price) * 100).toFixed(1)}%
-        </span>
-      </div>
+      <a
+        href="https://aspora.com/register"
+        className="block w-full text-center rounded-xl bg-emerald-500 text-white font-bold py-3 text-sm hover:bg-emerald-400 transition-colors"
+      >
+        Create free account →
+      </a>
+      <p className="text-white/30 text-xs text-center mt-3">Takes less than 15 minutes</p>
     </div>
   );
 }
@@ -464,23 +442,6 @@ function OptionsTab({ symbol }: { symbol: string }) {
             ))}
           </div>
         </div>
-        {/* Greeks legend */}
-        <div className="pt-2 border-t border-white/[0.06]">
-          <div className="text-white/40 text-xs mb-3 uppercase tracking-wider">What to look for</div>
-          <div className="space-y-2 text-xs">
-            {[
-              { g: "Delta", desc: "Price sensitivity to underlying moves" },
-              { g: "IV",    desc: "Implied volatility — market's expectation" },
-              { g: "OI",    desc: "Open interest — total active contracts" },
-              { g: "Theta", desc: "Daily time decay cost" },
-            ].map(({ g, desc }) => (
-              <div key={g} className="flex gap-2">
-                <span className="text-white/70 font-semibold w-10 shrink-0">{g}</span>
-                <span className="text-white/40">{desc}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -621,7 +582,7 @@ export default function StockDetailPage() {
           {/* Right column */}
           <div className="w-full md:w-80 shrink-0 md:sticky md:top-6">
             <KeyMetricsCard stock={stock} />
-            <AnalystCard stock={stock} />
+            <RegisterCard />
           </div>
         </div>
       </div>
