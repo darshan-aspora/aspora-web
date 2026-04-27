@@ -1,334 +1,252 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { useAI } from "@/contexts/ai-context";
-import { StatusBar, HomeIndicator } from "@/components/iphone-frame";
-import { type TickerItem } from "@/components/ticker";
-import { getETFInfo } from "../../shared-components/mock-data";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
+import { createChart, ColorType, AreaSeries } from "lightweight-charts";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { SiteNav } from "@/components/marketing/site-nav";
+import { hashSymbol, seededRandom } from "@/app/shared-components/mock-data";
+import { getPopularOptions, getExpiries } from "@/app/options/_data/options-data";
 
-import { StockHeader } from "../../shared-components/stock-header";
-import { StockHero } from "../../shared-components/stock-hero";
-import { BuySellBar } from "../../shared-components/buy-sell-bar";
-import { type StockTab } from "../../shared-components/stock-tabs";
+// ─── Types ──────────────────────────────────────────────────────────────────
 
-// Tab: Overview
-import { PositionCard } from "../../shared-components/position-card";
-import { AIBriefingSection } from "../../shared-components/ai-briefing";
-import { Performance } from "../../shared-components/performance";
-import { KeyMetrics } from "../../shared-components/key-metrics";
-import { SimilarStocks } from "../../shared-components/similar-stocks";
-import AboutSection from "../../shared-components/about";
-import { MarketDepth } from "../../shared-components/market-depth";
-
-// Tab: Revenue
-import RevenueTab from "../../shared-components/revenue";
-
-// Tab: Technicals
-import { Technicals } from "../../shared-components/technicals";
-
-// Tab: News
-import { NewsEvents } from "../../shared-components/news-events";
-
-// Tab: Ownership
-import { Ownership } from "../../shared-components/ownership";
-
-// Tab: Options (data only — no separate component imports needed)
-
-// Analyst Ratings
-import { AnalystRatings } from "../../shared-components/analyst-ratings";
-
-// Tab: My Orders
-import MyOrdersTab from "../../shared-components/my-orders";
-
-// ─── ETF-specific tab list ────────────────────────────────────────────────────
-
-const ETF_TABS = [
-  "Overview",
-  "Revenue",
-  "Technicals",
-  "Ownership",
-  "News",
-  "Options",
-  "My Orders",
-] as const satisfies readonly StockTab[];
-
-type ETFTab = (typeof ETF_TABS)[number];
-
-function ETFTabs({
-  activeTab,
-  onTabChange,
-}: {
-  activeTab: ETFTab;
-  onTabChange: (tab: ETFTab) => void;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const activeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (activeRef.current && scrollRef.current) {
-      const container = scrollRef.current;
-      const el = activeRef.current;
-      const left = el.offsetLeft - container.offsetWidth / 2 + el.offsetWidth / 2;
-      container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-    }
-  }, [activeTab]);
-
-  return (
-    <div className="border-b border-border/50">
-      <div ref={scrollRef} className="no-scrollbar flex gap-0.5 overflow-x-auto px-3">
-        {ETF_TABS.map((tab) => {
-          const active = tab === activeTab;
-          return (
-            <button
-              key={tab}
-              ref={active ? activeRef : undefined}
-              onClick={() => onTabChange(tab)}
-              className={cn(
-                "relative shrink-0 whitespace-nowrap px-3 pb-3 pt-2 text-[14px] font-medium transition-colors",
-                active ? "text-foreground" : "text-muted-foreground",
-              )}
-            >
-              {tab}
-              {active && (
-                <motion.div
-                  layoutId="etf-tab-underline"
-                  className="absolute bottom-0 left-2 right-2 h-[2.5px] rounded-full bg-foreground"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+interface ETFData {
+  symbol: string;
+  name: string;
+  issuer: string;
+  price: number;
+  dayChange: number;
+  dayChangePct: number;
+  aum: string;
+  expenseRatio: string;
+  return1y: number;
+  return3y: number;
+  return5y: number;
+  nav: number;
+  premium: number;
+  description: string;
+  topHoldings: string[];
+  avgVolume: string;
+  inceptionDate: string;
 }
 
-// ─── ETF About: AboutSection + fund metadata grid ────────────────────────────
+// ─── Mock Data ──────────────────────────────────────────────────────────────
 
-function ETFAbout({ symbol, name }: { symbol: string; name: string }) {
-  const meta = getETFInfo(symbol);
-  return (
-    <div>
-      <AboutSection symbol={symbol} name={name} />
-      <div className="px-5 pb-5 -mt-1">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-4 border-t border-border/30 pt-4">
-          <div>
-            <p className="text-[12px] text-muted-foreground">Index Tracked</p>
-            <p className="mt-0.5 text-[15px] font-semibold text-foreground">{meta.indexTracked}</p>
-          </div>
-          <div>
-            <p className="text-[12px] text-muted-foreground">Issuer</p>
-            <p className="mt-0.5 text-[15px] font-semibold text-foreground">{meta.issuer}</p>
-          </div>
-          <div>
-            <p className="text-[12px] text-muted-foreground">Number of Holdings</p>
-            <p className="mt-0.5 text-[15px] font-semibold text-foreground">{meta.holdings.toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-[12px] text-muted-foreground">Inception Date</p>
-            <p className="mt-0.5 text-[15px] font-semibold text-foreground">{meta.inceptionYear}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const ETFS: Record<string, ETFData> = {
+  SPY: { symbol: "SPY", name: "SPDR S&P 500 ETF Trust", issuer: "State Street", price: 524.18, dayChange: 3.86, dayChangePct: 0.74, aum: "$549B", expenseRatio: "0.0945%", return1y: 24.2, return3y: 31.8, return5y: 87.4, nav: 524.12, premium: 0.01, description: "Tracks the S&P 500 index, providing exposure to 500 of the largest US companies.", topHoldings: ["AAPL 7.1%", "MSFT 6.8%", "NVDA 6.2%", "AMZN 3.8%", "META 2.4%"], avgVolume: "68.2M", inceptionDate: "Jan 22, 1993" },
+  QQQ: { symbol: "QQQ", name: "Invesco QQQ Trust", issuer: "Invesco", price: 441.32, dayChange: -2.22, dayChangePct: -0.50, aum: "$245B", expenseRatio: "0.20%", return1y: 28.7, return3y: 38.2, return5y: 114.8, nav: 441.28, premium: 0.01, description: "Tracks the NASDAQ-100 Index, including 100 of the largest non-financial companies listed on the NASDAQ.", topHoldings: ["NVDA 8.6%", "AAPL 8.1%", "MSFT 7.4%", "AMZN 5.2%", "GOOGL 4.8%"], avgVolume: "44.1M", inceptionDate: "Mar 10, 1999" },
+  VTI: { symbol: "VTI", name: "Vanguard Total Stock Market ETF", issuer: "Vanguard", price: 248.65, dayChange: 1.52, dayChangePct: 0.61, aum: "$387B", expenseRatio: "0.03%", return1y: 22.8, return3y: 27.4, return5y: 78.9, nav: 248.63, premium: 0.01, description: "Tracks the CRSP US Total Market Index, covering nearly all investable US equities.", topHoldings: ["AAPL 5.8%", "MSFT 5.6%", "NVDA 5.0%", "AMZN 3.1%", "META 2.0%"], avgVolume: "4.2M", inceptionDate: "May 24, 2001" },
+  IWM: { symbol: "IWM", name: "iShares Russell 2000 ETF", issuer: "BlackRock", price: 198.42, dayChange: -2.42, dayChangePct: -1.21, aum: "$56B", expenseRatio: "0.19%", return1y: 11.4, return3y: 8.2, return5y: 34.6, nav: 198.38, premium: 0.02, description: "Tracks the Russell 2000 Index of US small-cap stocks, providing broad small-cap exposure.", topHoldings: ["SMCI 0.4%", "CGNX 0.3%", "KRYS 0.3%", "ARWR 0.3%", "CELH 0.3%"], avgVolume: "32.4M", inceptionDate: "May 22, 2000" },
+  GLD: { symbol: "GLD", name: "SPDR Gold Shares", issuer: "State Street", price: 224.87, dayChange: 0.85, dayChangePct: 0.38, aum: "$58B", expenseRatio: "0.40%", return1y: 18.3, return3y: 21.4, return5y: 56.2, nav: 224.80, premium: 0.03, description: "Tracks the price of gold bullion, offering investors direct exposure to gold returns without physical storage.", topHoldings: ["Gold Bullion 100%"], avgVolume: "8.4M", inceptionDate: "Nov 18, 2004" },
+  TLT: { symbol: "TLT", name: "iShares 20+ Year Treasury Bond ETF", issuer: "BlackRock", price: 89.24, dayChange: -0.20, dayChangePct: -0.22, aum: "$51B", expenseRatio: "0.15%", return1y: -8.4, return3y: -28.1, return5y: -32.4, nav: 89.22, premium: 0.02, description: "Tracks long-term US Treasury bonds with maturities of 20 years or more.", topHoldings: ["US Treasury 30Y 18.2%", "US Treasury 20Y 14.8%", "US Treasury 25Y 12.4%"], avgVolume: "42.8M", inceptionDate: "Jul 22, 2002" },
+  XLK: { symbol: "XLK", name: "Technology Select Sector SPDR", issuer: "State Street", price: 214.56, dayChange: 2.40, dayChangePct: 1.12, aum: "$64B", expenseRatio: "0.09%", return1y: 32.1, return3y: 44.8, return5y: 134.2, nav: 214.52, premium: 0.02, description: "Tracks technology stocks within the S&P 500, providing concentrated tech sector exposure.", topHoldings: ["MSFT 22.4%", "AAPL 21.8%", "NVDA 14.2%", "AVGO 4.8%", "AMD 2.8%"], avgVolume: "14.2M", inceptionDate: "Dec 16, 1998" },
+  ARKK: { symbol: "ARKK", name: "ARK Innovation ETF", issuer: "ARK Invest", price: 48.73, dayChange: 1.34, dayChangePct: 2.84, aum: "$7.2B", expenseRatio: "0.75%", return1y: -12.6, return3y: -62.4, return5y: -18.4, nav: 48.70, premium: 0.06, description: "Actively managed ETF focusing on disruptive innovation across genomics, automation, energy storage, AI, and fintech.", topHoldings: ["TSLA 9.8%", "COIN 8.4%", "RKLB 8.2%", "ROKU 7.8%", "PLTR 6.4%"], avgVolume: "12.8M", inceptionDate: "Oct 31, 2014" },
+};
 
-// ─── ETF ticker data ─────────────────────────────────────────────────────────
-
-function etfToTickerItem(symbol: string): TickerItem {
-  const e = getETFInfo(symbol);
+function getFallbackETF(symbol: string): ETFData {
+  const h = hashSymbol(symbol);
+  const rng = seededRandom(h);
+  const price = parseFloat((20 + rng() * 300).toFixed(2));
+  const change = parseFloat(((rng() - 0.5) * price * 0.03).toFixed(2));
   return {
     symbol,
-    name: e.name,
-    price: e.price,
-    change: e.change,
-    changePercent: e.changePercent,
-    category: "watchlist",
-    type: "ETF",
-    logo: e.logoAbbr,
-    logoColor: e.logoColor,
-    exchange: e.exchange,
+    name: `${symbol} ETF`,
+    issuer: "Unknown Issuer",
+    price,
+    dayChange: change,
+    dayChangePct: parseFloat(((change / price) * 100).toFixed(2)),
+    aum: `$${(rng() * 50 + 1).toFixed(1)}B`,
+    expenseRatio: `${(rng() * 0.5 + 0.03).toFixed(2)}%`,
+    return1y: parseFloat(((rng() - 0.3) * 40).toFixed(1)),
+    return3y: parseFloat(((rng() - 0.2) * 60).toFixed(1)),
+    return5y: parseFloat(((rng() - 0.1) * 100).toFixed(1)),
+    nav: parseFloat((price - rng() * 0.1).toFixed(2)),
+    premium: parseFloat((rng() * 0.1).toFixed(2)),
+    description: `${symbol} is an exchange-traded fund listed on major US exchanges.`,
+    topHoldings: ["N/A"],
+    avgVolume: `${(rng() * 10 + 0.5).toFixed(1)}M`,
+    inceptionDate: "N/A",
   };
 }
 
-// ─── ETF Options Tab ─────────────────────────────────────────────────────────
+// ─── Chart helpers ───────────────────────────────────────────────────────────
 
-type OptionExpiryFilter = "Daily Expiry" | "Weekly" | "Monthly" | "Quarterly";
-const OPTION_EXPIRY_FILTERS: OptionExpiryFilter[] = ["Daily Expiry", "Weekly", "Monthly", "Quarterly"];
+type Timeframe = "1D" | "1W" | "1M" | "3M" | "1Y" | "All";
 
-interface PopularOptionTemplate {
-  strikeFactor: number;
-  callOrPut: "CALL" | "PUT";
-  oi: number;
-  priceFactor: number;
-  changePct: number;
+function generatePriceData(symbol: string, price: number, tf: Timeframe) {
+  const h = hashSymbol(symbol + tf);
+  const rng = seededRandom(h);
+  const now = Math.floor(Date.now() / 1000);
+  const configs: Record<Timeframe, { count: number; step: number }> = {
+    "1D": { count: 78, step: 300 },
+    "1W": { count: 390, step: 300 },
+    "1M": { count: 30, step: 86400 },
+    "3M": { count: 90, step: 86400 },
+    "1Y": { count: 252, step: 86400 },
+    "All": { count: 1260, step: 86400 },
+  };
+  const { count, step } = configs[tf];
+  const points: { time: number; value: number }[] = [];
+  let v = price * (0.7 + rng() * 0.3);
+  for (let i = count; i >= 0; i--) {
+    v = v * (1 + (rng() - 0.48) * 0.012);
+    if (v < price * 0.3) v = price * 0.3;
+    points.push({ time: now - i * step, value: parseFloat(v.toFixed(2)) });
+  }
+  if (points.length > 0) points[points.length - 1].value = price;
+  return points;
 }
 
-const POPULAR_OPTION_TEMPLATES: Record<OptionExpiryFilter, PopularOptionTemplate[]> = {
-  "Daily Expiry": [
-    { strikeFactor: 1.01, callOrPut: "CALL", oi: 1_210_000, priceFactor: 0.052, changePct: 18.1 },
-    { strikeFactor: 0.99, callOrPut: "PUT",  oi: 895_000,   priceFactor: 0.047, changePct: 14.6 },
-    { strikeFactor: 1.03, callOrPut: "CALL", oi: 750_000,   priceFactor: 0.039, changePct: 22.6 },
-    { strikeFactor: 0.97, callOrPut: "PUT",  oi: 620_000,   priceFactor: 0.034, changePct: -10.8 },
-    { strikeFactor: 1.05, callOrPut: "CALL", oi: 290_000,   priceFactor: 0.026, changePct: 17.2 },
-    { strikeFactor: 0.95, callOrPut: "PUT",  oi: 190_000,   priceFactor: 0.024, changePct: -7.4 },
-    { strikeFactor: 1.08, callOrPut: "CALL", oi: 250_000,   priceFactor: 0.029, changePct: 13.1 },
-  ],
-  Weekly: [
-    { strikeFactor: 1.02, callOrPut: "CALL", oi: 990_000, priceFactor: 0.061, changePct: 12.8 },
-    { strikeFactor: 0.98, callOrPut: "PUT",  oi: 840_000, priceFactor: 0.056, changePct: 9.4 },
-    { strikeFactor: 1.05, callOrPut: "CALL", oi: 610_000, priceFactor: 0.045, changePct: 16.2 },
-    { strikeFactor: 0.95, callOrPut: "PUT",  oi: 530_000, priceFactor: 0.041, changePct: -6.8 },
-    { strikeFactor: 1.08, callOrPut: "CALL", oi: 355_000, priceFactor: 0.036, changePct: 11.3 },
-  ],
-  Monthly: [
-    { strikeFactor: 1.03, callOrPut: "CALL", oi: 780_000, priceFactor: 0.074, changePct: 8.7 },
-    { strikeFactor: 0.97, callOrPut: "PUT",  oi: 690_000, priceFactor: 0.070, changePct: 6.1 },
-    { strikeFactor: 1.10, callOrPut: "CALL", oi: 470_000, priceFactor: 0.054, changePct: 9.9 },
-    { strikeFactor: 0.90, callOrPut: "PUT",  oi: 410_000, priceFactor: 0.051, changePct: -4.4 },
-    { strikeFactor: 1.15, callOrPut: "CALL", oi: 305_000, priceFactor: 0.043, changePct: 7.6 },
-  ],
-  Quarterly: [
-    { strikeFactor: 1.05, callOrPut: "CALL", oi: 620_000, priceFactor: 0.092, changePct: 7.1 },
-    { strikeFactor: 0.95, callOrPut: "PUT",  oi: 560_000, priceFactor: 0.087, changePct: 5.2 },
-    { strikeFactor: 1.12, callOrPut: "CALL", oi: 380_000, priceFactor: 0.063, changePct: 8.6 },
-    { strikeFactor: 0.88, callOrPut: "PUT",  oi: 335_000, priceFactor: 0.058, changePct: -3.8 },
-  ],
-};
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
-function formatOptionOI(value: number) {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
-  if (value >= 1_000) return `${Math.round(value / 1_000)}K`;
-  return `${value}`;
-}
+function ETFChart({
+  etf,
+  timeframe,
+  onTimeframeChange,
+}: {
+  etf: ETFData;
+  timeframe: Timeframe;
+  onTimeframeChange: (tf: Timeframe) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isPositive = etf.dayChange >= 0;
+  const lineColor = isPositive ? "#22c55e" : "#ef4444";
 
-function ETFOptionsTab({ symbol, name, price }: { symbol: string; name: string; price: number }) {
-  const router = useRouter();
-  const [expiryFilter, setExpiryFilter] = useState<OptionExpiryFilter>("Daily Expiry");
-
-  const rows = useMemo(() => {
-    const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const baseDate =
-      expiryFilter === "Daily Expiry" ? new Date(now.getFullYear(), now.getMonth(), now.getDate())
-      : expiryFilter === "Weekly" ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + (5 - now.getDay()))
-      : expiryFilter === "Monthly" ? new Date(now.getFullYear(), now.getMonth() + 1, 0)
-      : new Date(now.getFullYear(), now.getMonth() + 3, 0);
-
-    return POPULAR_OPTION_TEMPLATES[expiryFilter].map((t, i) => {
-      const strike = Math.round(price * t.strikeFactor * 2) / 2;
-      const optionPrice = +(price * t.priceFactor).toFixed(2);
-      const changeAbs = +(optionPrice * t.changePct / 100).toFixed(2);
-      const expiryLabel = `${months[baseDate.getMonth()]} ${pad(baseDate.getDate())}`;
-      const expiryDate = `${baseDate.getFullYear()}-${pad(baseDate.getMonth() + 1)}-${pad(baseDate.getDate())}`;
-      return {
-        id: `${expiryFilter}-${i}`,
-        underlyingLabel: price.toFixed(2),
-        optionLabel: `${expiryLabel} ${strike} ${t.callOrPut}`,
-        oiLabel: formatOptionOI(t.oi),
-        optionPriceLabel: `$${optionPrice.toFixed(2)}`,
-        changeLabel: `${changeAbs >= 0 ? "+" : ""}$${Math.abs(changeAbs).toFixed(2)} (${t.changePct >= 0 ? "+" : ""}${t.changePct.toFixed(1)}%)`,
-        positive: t.changePct >= 0,
-        strikeValue: strike,
-        side: t.callOrPut.toLowerCase(),
-        expiryDate,
-        ltp: optionPrice,
-      };
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const chart = createChart(containerRef.current, {
+      width: containerRef.current.clientWidth,
+      height: 400,
+      layout: { background: { type: ColorType.Solid, color: "#0f0f11" }, textColor: "rgba(255,255,255,0.5)" },
+      grid: { vertLines: { color: "rgba(255,255,255,0.06)" }, horzLines: { color: "rgba(255,255,255,0.06)" } },
+      crosshair: { vertLine: { color: "rgba(255,255,255,0.3)" }, horzLine: { color: "rgba(255,255,255,0.3)" } },
+      timeScale: { borderColor: "rgba(255,255,255,0.1)", timeVisible: true },
+      rightPriceScale: { borderColor: "rgba(255,255,255,0.1)" },
     });
-  }, [expiryFilter, price]);
 
-  const shortName = name.replace(/\b(ETF|Trust|Fund|Inc\.?|Corp\.?)\b/gi, "").replace(/\s+/g, " ").trim().split(" ").slice(0, 2).join(" ");
+    const series = chart.addSeries(AreaSeries, {
+      lineColor,
+      topColor: lineColor + "40",
+      bottomColor: "rgba(0,0,0,0)",
+      lineWidth: 2,
+    });
+
+    series.setData(generatePriceData(etf.symbol, etf.price, timeframe) as Parameters<typeof series.setData>[0]);
+    chart.timeScale().fitContent();
+
+    const ro = new ResizeObserver(() => {
+      if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth });
+    });
+    ro.observe(containerRef.current);
+
+    return () => {
+      ro.disconnect();
+      chart.remove();
+    };
+  }, [etf.symbol, etf.price, timeframe, lineColor]);
+
+  const TFS: Timeframe[] = ["1D", "1W", "1M", "3M", "1Y", "All"];
 
   return (
-    <div className="flex min-h-full flex-col pb-6">
-      {/* Header */}
-      <div className="border-b border-border/60 px-4 pb-5 pt-4">
-        <h2 className="text-[20px] font-semibold tracking-[-0.3px] text-foreground">Option Chain and Prices</h2>
-        <p className="mt-2 max-w-[360px] text-[14px] leading-[1.38] text-muted-foreground">
-          Explore options data like calls, puts, and strike prices. Understand market expectations for future price movements.
-        </p>
-        <Button
-          onClick={() => router.push(`/options-chain/${encodeURIComponent(symbol)}`)}
-          className="mt-4 h-12 w-full rounded-[10px] bg-black text-[16px] font-medium text-white hover:bg-black/95"
-        >
-          Option Chain
-        </Button>
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
+      <div ref={containerRef} className="w-full" />
+      <div className="flex gap-1 mt-4">
+        {TFS.map((tf) => (
+          <button
+            key={tf}
+            onClick={() => onTimeframeChange(tf)}
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+              timeframe === tf ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
+            )}
+          >
+            {tf}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KeyMetricsCard({ etf }: { etf: ETFData }) {
+  const isPositive = etf.dayChange >= 0;
+
+  return (
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+      <div className="text-white/50 text-sm mb-1">{etf.issuer}</div>
+      <div className="text-4xl font-semibold text-white">${etf.price.toFixed(2)}</div>
+      <div className={cn("mt-1 text-sm font-medium", isPositive ? "text-green-400" : "text-red-400")}>
+        {isPositive ? "+" : ""}{etf.dayChange.toFixed(2)} ({isPositive ? "+" : ""}{etf.dayChangePct.toFixed(2)}%) today
       </div>
 
-      {/* Popular options section */}
-      <div className="px-4 pt-5">
-        <h3 className="text-[20px] font-semibold tracking-[-0.4px] text-foreground">Popular {shortName} Options</h3>
-      </div>
-
-      {/* Expiry filter pills */}
-      <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-3 pt-4">
-        {OPTION_EXPIRY_FILTERS.map((filter) => {
-          const active = filter === expiryFilter;
-          return (
-            <button
-              key={filter}
-              onClick={() => setExpiryFilter(filter)}
-              className={cn(
-                "shrink-0 rounded-full px-3 py-1.5 text-[13px] font-semibold tracking-[-0.26px] transition-colors",
-                active ? "bg-[#2a2a2a] text-white" : "bg-muted text-foreground",
-              )}
-            >
-              {filter}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Options rows */}
-      <div className="overflow-x-auto pb-4">
-        <div className="min-w-[360px] px-4">
-          <div className="grid grid-cols-[minmax(0,1fr)_72px_132px] border-b border-border/70 pb-3 text-[12px] uppercase tracking-[0.04em] text-muted-foreground">
-            <span>Options</span>
-            <span className="text-right">OI</span>
-            <span className="text-right">Opt. Price</span>
+      <div className="mt-5 space-y-3">
+        {[
+          { label: "NAV", value: `$${etf.nav.toFixed(2)}` },
+          { label: "Premium/Discount", value: `${etf.premium > 0 ? "+" : ""}${etf.premium.toFixed(2)}%` },
+          { label: "AUM", value: etf.aum },
+          { label: "Expense Ratio", value: etf.expenseRatio },
+        ].map((item) => (
+          <div key={item.label} className="flex justify-between border-b border-white/[0.05] pb-3">
+            <span className="text-white/50 text-sm">{item.label}</span>
+            <span className="text-white text-sm font-medium">{item.value}</span>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-          {rows.map((row) => (
-            <button
-              key={row.id}
-              onClick={() => {
-                const params = new URLSearchParams({
-                  strike: row.strikeValue.toFixed(1),
-                  side: row.side,
-                  expiry: row.expiryDate,
-                  ltp: row.ltp.toFixed(2),
-                });
-                router.push(`/options-chain/${encodeURIComponent(symbol)}/leg?${params.toString()}`);
-              }}
-              className="grid w-full grid-cols-[minmax(0,1fr)_72px_132px] items-center border-b border-border/60 py-4 text-left text-[14px] tracking-[-0.28px] text-foreground transition-opacity active:opacity-70"
-            >
-              <div className="flex min-w-0 items-center gap-3 pr-3">
-                <div className="h-12 w-1 shrink-0 rounded-full bg-foreground/80" />
-                <div className="min-w-0">
-                  <p className="truncate text-[12px] font-medium uppercase tracking-[0.04em] text-muted-foreground">
-                    Underlying {row.underlyingLabel}
-                  </p>
-                  <p className="truncate text-[17px] font-semibold tracking-[-0.34px] text-foreground">
-                    {row.optionLabel}
-                  </p>
-                </div>
-              </div>
-              <span className="whitespace-nowrap text-right text-[15px] font-medium">{row.oiLabel}</span>
-              <span className="whitespace-nowrap text-right text-[15px] font-medium">
-                {row.optionPriceLabel}
-                <br />
-                <span className={cn("text-[13px]", row.positive ? "text-gain" : "text-loss")}>
-                  {row.changeLabel}
-                </span>
-              </span>
-            </button>
+function PerformanceCard({ etf }: { etf: ETFData }) {
+  const returns = [
+    { label: "1Y Return", value: etf.return1y },
+    { label: "3Y Return", value: etf.return3y },
+    { label: "5Y Return", value: etf.return5y },
+  ];
+
+  return (
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 mt-4">
+      <h3 className="text-white font-semibold mb-4">Performance</h3>
+      <div className="space-y-3">
+        {returns.map((r) => (
+          <div key={r.label} className="flex justify-between items-center">
+            <span className="text-white/50 text-sm">{r.label}</span>
+            <span className={cn("text-sm font-semibold", r.value >= 0 ? "text-green-400" : "text-red-400")}>
+              {r.value >= 0 ? "+" : ""}{r.value.toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OverviewTab({ etf }: { etf: ETFData }) {
+  const stats = [
+    { label: "Issuer", value: etf.issuer },
+    { label: "NAV", value: `$${etf.nav.toFixed(2)}` },
+    { label: "Premium/Discount", value: `${etf.premium >= 0 ? "+" : ""}${etf.premium.toFixed(2)}%` },
+    { label: "Inception Date", value: etf.inceptionDate },
+    { label: "AUM", value: etf.aum },
+    { label: "Expense Ratio", value: etf.expenseRatio },
+    { label: "Avg Volume", value: etf.avgVolume },
+    { label: "1Y Return", value: `${etf.return1y >= 0 ? "+" : ""}${etf.return1y}%` },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+        <h3 className="text-white font-semibold mb-3">About</h3>
+        <p className="text-white/60 text-sm leading-relaxed">{etf.description}</p>
+      </div>
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+        <h3 className="text-white font-semibold mb-4">Fund Details</h3>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+          {stats.map((s) => (
+            <div key={s.label} className="flex justify-between border-b border-white/[0.05] pb-3">
+              <span className="text-white/50 text-sm">{s.label}</span>
+              <span className="text-white text-sm font-medium">{s.value}</span>
+            </div>
           ))}
         </div>
       </div>
@@ -336,128 +254,208 @@ function ETFOptionsTab({ symbol, name, price }: { symbol: string; name: string; 
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
-
-export default function ETFPage() {
-  const router = useRouter();
-  const params = useParams();
-  const SYMBOL = (typeof params?.symbol === "string" ? params.symbol : "QQQ").toUpperCase();
-  const { setAISource } = useAI();
-
-  const ticker: TickerItem = etfToTickerItem(SYMBOL);
-
-  useEffect(() => {
-    setAISource({ type: "stock-detail", symbol: SYMBOL, name: ticker.name });
-  }, [setAISource, ticker.name, SYMBOL]);
-
-  const [activeTab, setActiveTab] = useState<ETFTab>("Overview");
-  const [isWatchlisted, setIsWatchlisted] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return;
-    const scrollTop = scrollRef.current.scrollTop;
-    const progress = Math.min(1, scrollTop / 200);
-    setScrollProgress(progress);
-  }, []);
-
+function HoldingsTab({ etf }: { etf: ETFData }) {
   return (
-    <div className="relative mx-auto flex h-dvh max-w-[430px] flex-col overflow-hidden bg-background">
-      <StatusBar />
-      <StockHeader
-        ticker={ticker}
-        scrollProgress={scrollProgress}
-        isWatchlisted={isWatchlisted}
-        onToggleWatchlist={() => setIsWatchlisted(!isWatchlisted)}
-        onShare={() => {
-          if (navigator.share) {
-            navigator.share({ title: `${ticker.name} (${ticker.symbol})`, url: window.location.href });
-          }
-        }}
-        onCompare={() => router.push(`/compare?symbols=${SYMBOL}`)}
-        onSetAlert={() => router.push(`/stocks/${SYMBOL}/alerts`)}
-      />
-
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="no-scrollbar flex-1 overflow-y-auto"
-      >
-        <StockHero ticker={ticker} />
-
-        <ETFTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-        <div className="min-h-[400px]">
-          {activeTab === "Overview" && (
-            <div>
-              <PositionCard symbol={SYMBOL} />
-              <Divider />
-              <KeyMetrics symbol={SYMBOL} />
-              <Divider />
-              <Performance symbol={SYMBOL} />
-              <Divider />
-              <ETFAbout symbol={SYMBOL} name={ticker.name} />
-              <Divider />
-              <SimilarStocks symbol={SYMBOL} />
-              <Divider />
-              <AIBriefingSection symbol={SYMBOL} />
-              <Divider />
-              <AnalystRatings symbol={SYMBOL} />
-              <Divider />
-              <MarketDepth symbol={SYMBOL} currentPrice={ticker.price} />
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+      <h3 className="text-white font-semibold mb-4">Top Holdings</h3>
+      <div className="space-y-3">
+        {etf.topHoldings.map((holding, i) => {
+          const [ticker, weight] = holding.split(" ");
+          const weightNum = parseFloat(weight?.replace("%", "") ?? "0");
+          const maxWeight = parseFloat(etf.topHoldings[0]?.split(" ")[1]?.replace("%", "") ?? "10");
+          return (
+            <div key={i}>
+              <div className="flex justify-between items-center mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-medium text-sm">{ticker}</span>
+                </div>
+                <span className="text-white/60 text-sm">{weight}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-blue-500"
+                  style={{ width: `${Math.min(100, (weightNum / Math.max(maxWeight, 1)) * 100)}%` }}
+                />
+              </div>
             </div>
-          )}
-
-          {activeTab === "Revenue" && (
-            <div>
-              <RevenueTab symbol={SYMBOL} />
-            </div>
-          )}
-
-          {activeTab === "Technicals" && (
-            <div>
-              <Technicals symbol={SYMBOL} />
-            </div>
-          )}
-
-          {activeTab === "Ownership" && (
-            <div>
-              <Ownership symbol={SYMBOL} />
-            </div>
-          )}
-
-          {activeTab === "News" && (
-            <div>
-              <NewsEvents symbol={SYMBOL} />
-            </div>
-          )}
-
-          {activeTab === "Options" && (
-            <ETFOptionsTab symbol={SYMBOL} name={ticker.name} price={ticker.price} />
-          )}
-
-          {activeTab === "My Orders" && (
-            <div>
-              <MyOrdersTab symbol={SYMBOL} />
-            </div>
-          )}
-
-          <div className="h-20" />
-        </div>
+          );
+        })}
       </div>
-
-      <BuySellBar
-        symbol={SYMBOL}
-        onBuy={() => {}}
-        onSell={() => {}}
-      />
-
-      <HomeIndicator />
+      <p className="text-white/30 text-xs mt-4">Holdings as of latest available date. Subject to change.</p>
     </div>
   );
 }
 
-function Divider() {
-  return <div className="mx-4 border-t border-border/30" />;
+function NewsTab({ etf }: { etf: ETFData }) {
+  const items = [
+    {
+      title: `${etf.name} sees record inflows amid market rally`,
+      source: "Bloomberg",
+      time: "2h ago",
+      summary: `${etf.symbol} attracted significant net new assets this week as investors sought broad market exposure during the risk-on environment.`,
+    },
+    {
+      title: `${etf.issuer} announces minor fee adjustment to ${etf.symbol}`,
+      source: "Reuters",
+      time: "1d ago",
+      summary: `The fund manager confirmed the updated expense ratio structure effective next quarter, keeping ${etf.symbol} competitive in its category.`,
+    },
+    {
+      title: `Passive investing continues to outpace active management in 2025`,
+      source: "WSJ",
+      time: "2d ago",
+      summary: `Index-tracking ETFs like ${etf.symbol} continue to attract the majority of new fund flows as cost-conscious investors prioritize simplicity.`,
+    },
+    {
+      title: `${etf.symbol} rebalancing: what investors need to know`,
+      source: "Morningstar",
+      time: "3d ago",
+      summary: `Quarterly rebalancing for ${etf.symbol} resulted in minor position adjustments. Here is what changed in the underlying index.`,
+    },
+  ];
+
+  return (
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06]">
+      {items.map((item, i) => (
+        <div key={i} className="p-5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+          <div className="flex justify-between items-start gap-4 mb-1">
+            <h4 className="text-white text-sm font-medium leading-snug">{item.title}</h4>
+            <span className="text-white/40 text-xs shrink-0">{item.time}</span>
+          </div>
+          <div className="text-white/40 text-xs mb-2">{item.source}</div>
+          <p className="text-white/50 text-xs leading-relaxed">{item.summary}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ETFOptionsTab({ symbol }: { symbol: string }) {
+  const options = getPopularOptions(symbol);
+  const expiries = getExpiries(symbol);
+  const firstExpiry = expiries[0];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+        <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
+        <p className="text-white/50 text-sm leading-relaxed mb-5">
+          Explore options on {symbol} — calls, puts, and strike prices across multiple expiries.
+        </p>
+        <Link href={`/options/${symbol}`}
+          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity">
+          Open Full Option Chain →
+        </Link>
+      </div>
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-white font-semibold">Popular {symbol} Options</h3>
+          <span className="text-white/40 text-xs">{firstExpiry.label}</span>
+        </div>
+        <div className="divide-y divide-white/[0.06]">
+          {options.map((opt) => {
+            const pos = opt.change >= 0;
+            return (
+              <Link key={opt.contractId} href={`/options/${symbol}/${opt.contractId}`}
+                className="flex items-center justify-between py-3.5 hover:bg-white/[0.04] -mx-2 px-2 rounded-lg transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="w-1 self-stretch rounded-full mt-0.5"
+                    style={{ background: opt.type === "CALL" ? "#34d399" : "#f87171" }} />
+                  <div>
+                    <div className="text-white/40 text-[11px] uppercase tracking-wider">Underlying {opt.symbol}</div>
+                    <div className="text-white font-semibold text-sm mt-0.5">{opt.expiry} {opt.strike} {opt.type}</div>
+                    <div className="text-white/40 text-[11px] mt-0.5">OI: {opt.oi}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-white font-bold">${opt.price.toFixed(2)}</div>
+                  <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
+                    {pos ? "+" : ""}${opt.change.toFixed(2)} ({pos ? "+" : ""}{opt.changePct}%)
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+        <Link href={`/options/${symbol}`} className="block mt-4 text-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
+          View all strikes →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ───────────────────────────────────────────────────────────────────
+
+export default function ETFDetailPage() {
+  const params = useParams();
+  const rawSymbol = Array.isArray(params.symbol) ? params.symbol[0] : (params.symbol ?? "");
+  const symbol = rawSymbol.toUpperCase();
+  const etf = ETFS[symbol] ?? getFallbackETF(symbol);
+
+  const [timeframe, setTimeframe] = useState<Timeframe>("1M");
+  const [tab, setTab] = useState<"Overview" | "Holdings" | "Options" | "News">("Overview");
+
+  return (
+    <div className="min-h-screen bg-[#0f0f11]">
+      <SiteNav />
+
+      {/* Breadcrumb */}
+      <div className="max-w-[1200px] mx-auto px-6 pt-6">
+        <nav className="flex items-center gap-2 text-sm text-white/50">
+          <span>Explore</span>
+          <span className="text-white/30">&gt;</span>
+          <span>ETFs</span>
+          <span className="text-white/30">&gt;</span>
+          <span className="text-white">{symbol}</span>
+        </nav>
+      </div>
+
+      {/* Main content */}
+      <div className="max-w-[1200px] mx-auto px-6 py-8">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-white">{etf.name}</h1>
+          <div className="text-white/50 text-sm mt-1">{etf.symbol} · {etf.issuer}</div>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          {/* Left column */}
+          <div className="flex-1 min-w-0 space-y-4">
+            <ETFChart etf={etf} timeframe={timeframe} onTimeframeChange={setTimeframe} />
+
+            {/* Tabs */}
+            <div className="flex gap-1 border-b border-white/[0.08]">
+              {(["Overview", "Holdings", "Options", "News"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
+                    tab === t
+                      ? "border-white text-white"
+                      : "border-transparent text-white/50 hover:text-white/80"
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <div className="pt-1">
+              {tab === "Overview" && <OverviewTab etf={etf} />}
+              {tab === "Holdings" && <HoldingsTab etf={etf} />}
+              {tab === "Options" && <ETFOptionsTab symbol={etf.symbol} />}
+              {tab === "News" && <NewsTab etf={etf} />}
+            </div>
+          </div>
+
+          {/* Right column */}
+          <div className="w-full md:w-80 shrink-0 md:sticky md:top-6">
+            <KeyMetricsCard etf={etf} />
+            <PerformanceCard etf={etf} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
