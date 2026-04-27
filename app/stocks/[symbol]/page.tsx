@@ -391,26 +391,13 @@ function OptionsTab({ symbol }: { symbol: string }) {
   const firstExpiry = expiries[0];
 
   return (
-    <div className="space-y-4">
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
-        <p className="text-white/50 text-sm leading-relaxed mb-5">
-          Explore options data like calls, puts, and strike prices. Understand market expectations for future price movements.
-        </p>
-        <Link
-          href={`/options/${symbol}`}
-          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity"
-        >
-          Open Full Option Chain →
-        </Link>
-      </div>
-
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+      {/* Left — Popular options list */}
       <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-white font-semibold">Popular {symbol} Options</h3>
           <span className="text-white/40 text-xs">{firstExpiry.label}</span>
         </div>
-
         <div className="divide-y divide-white/[0.06]">
           {options.map((opt) => {
             const pos = opt.change >= 0;
@@ -427,7 +414,7 @@ function OptionsTab({ symbol }: { symbol: string }) {
                   />
                   <div>
                     <div className="text-white/40 text-[11px] uppercase tracking-wider">
-                      Underlying {opt.strike > 0 ? opt.strike - (opt.type === "CALL" ? 2 : -2) : ""}{opt.symbol}
+                      Underlying {opt.symbol} {opt.strike}
                     </div>
                     <div className="text-white font-semibold text-sm mt-0.5">
                       {opt.expiry} {opt.strike} {opt.type}
@@ -445,19 +432,121 @@ function OptionsTab({ symbol }: { symbol: string }) {
             );
           })}
         </div>
-
-        <Link
-          href={`/options/${symbol}`}
-          className="block mt-4 text-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors"
-        >
+        <Link href={`/options/${symbol}`} className="block mt-4 text-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
           View all strikes →
         </Link>
+      </div>
+
+      {/* Right — Option Chain CTA */}
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4">
+        <div>
+          <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
+          <p className="text-white/50 text-sm leading-relaxed">
+            Explore options data like calls, puts, and strike prices. Understand market expectations for future price movements.
+          </p>
+        </div>
+        <Link
+          href={`/options/${symbol}`}
+          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity"
+        >
+          Open Full Option Chain →
+        </Link>
+        {/* Quick expiry pills */}
+        <div className="pt-2 border-t border-white/[0.06]">
+          <div className="text-white/40 text-xs mb-3 uppercase tracking-wider">Available Expiries</div>
+          <div className="flex flex-wrap gap-2">
+            {expiries.slice(0, 5).map(e => (
+              <Link key={e.code} href={`/options/${symbol}?expiry=${e.code}`}
+                className="px-3 py-1.5 rounded-lg text-xs border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors">
+                {e.label}
+                <span className="ml-1.5 text-white/30">{e.daysToExpiry}d</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+        {/* Greeks legend */}
+        <div className="pt-2 border-t border-white/[0.06]">
+          <div className="text-white/40 text-xs mb-3 uppercase tracking-wider">What to look for</div>
+          <div className="space-y-2 text-xs">
+            {[
+              { g: "Delta", desc: "Price sensitivity to underlying moves" },
+              { g: "IV",    desc: "Implied volatility — market's expectation" },
+              { g: "OI",    desc: "Open interest — total active contracts" },
+              { g: "Theta", desc: "Daily time decay cost" },
+            ].map(({ g, desc }) => (
+              <div key={g} className="flex gap-2">
+                <span className="text-white/70 font-semibold w-10 shrink-0">{g}</span>
+                <span className="text-white/40">{desc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
+
+function StockSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#0f0f11]">
+      <SiteNav />
+      <div className="max-w-[1200px] mx-auto px-6 pt-6">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-12 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-14 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="max-w-[1200px] mx-auto px-6 py-8">
+        <div className="mb-6 space-y-2">
+          <div className="h-8 w-64 bg-white/[0.08] rounded-lg animate-pulse" />
+          <div className="h-4 w-32 bg-white/[0.05] rounded animate-pulse" />
+        </div>
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <div className="flex-1 min-w-0 space-y-4">
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
+              <div className="h-[400px] w-full bg-white/[0.04] rounded-xl animate-pulse" />
+              <div className="flex gap-2 mt-4">
+                {["1D","1W","1M","3M","1Y","All"].map(tf => (
+                  <div key={tf} className="h-8 w-10 bg-white/[0.06] rounded-lg animate-pulse" />
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-1 border-b border-white/[0.08] pb-px">
+              {[1,2,3,4].map(i => <div key={i} className="h-9 w-24 bg-white/[0.05] rounded-t-lg animate-pulse" />)}
+            </div>
+            <div className="space-y-3 pt-1">
+              {[1,2,3].map(i => (
+                <div key={i} className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-3">
+                  <div className="h-5 w-32 bg-white/[0.08] rounded animate-pulse" />
+                  <div className="h-4 w-full bg-white/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-white/[0.05] rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="w-full md:w-80 shrink-0 space-y-4">
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-4">
+              <div className="h-4 w-24 bg-white/[0.06] rounded animate-pulse" />
+              <div className="h-10 w-40 bg-white/[0.08] rounded-lg animate-pulse" />
+              <div className="h-4 w-32 bg-white/[0.06] rounded animate-pulse" />
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="flex justify-between py-2 border-b border-white/[0.05]">
+                  <div className="h-4 w-24 bg-white/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function StockDetailPage() {
   const params = useParams();
@@ -467,6 +556,14 @@ export default function StockDetailPage() {
 
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
   const [tab, setTab] = useState<"Overview" | "Financials" | "Options" | "News">("Overview");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 600);
+    return () => clearTimeout(t);
+  }, [symbol]);
+
+  if (!loaded) return <StockSkeleton />;
 
   return (
     <div className="min-h-screen bg-[#0f0f11]">

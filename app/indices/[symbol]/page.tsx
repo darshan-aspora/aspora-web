@@ -279,18 +279,16 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
   const expiries = getExpiries(optSymbol);
   const firstExpiry = expiries[0];
 
+  const greeks = [
+    { label: "Delta", desc: "Price sensitivity" },
+    { label: "Theta", desc: "Time decay per day" },
+    { label: "IV", desc: "Implied volatility" },
+    { label: "Gamma", desc: "Delta change rate" },
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
-        <p className="text-white/50 text-sm leading-relaxed mb-5">
-          {symbol} index options let you hedge or speculate on broad market direction. Explore calls and puts across expiries.
-        </p>
-        <Link href={`/options/${optSymbol}`}
-          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity">
-          Open Full Option Chain →
-        </Link>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+      {/* Left — Popular options */}
       <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-white font-semibold">Popular {symbol} Options</h3>
@@ -325,11 +323,104 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
           View all strikes →
         </Link>
       </div>
+
+      {/* Right — CTA card */}
+      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4">
+        <div>
+          <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
+          <p className="text-white/50 text-sm leading-relaxed">
+            {symbol} index options let you hedge or speculate on broad market direction. Explore calls and puts across expiries.
+          </p>
+        </div>
+        <Link href={`/options/${optSymbol}`}
+          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity">
+          Open Full Option Chain →
+        </Link>
+        <div>
+          <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2">Expiries</div>
+          <div className="flex flex-wrap gap-2">
+            {expiries.slice(0, 4).map((e) => (
+              <span key={e.label} className="px-2.5 py-1 rounded-lg bg-white/[0.06] text-white/70 text-xs">{e.label}</span>
+            ))}
+          </div>
+        </div>
+        <div className="border-t border-white/[0.08] pt-4">
+          <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-3">Greeks at a Glance</div>
+          <div className="grid grid-cols-2 gap-2">
+            {greeks.map((g) => (
+              <div key={g.label} className="bg-white/[0.04] rounded-lg px-3 py-2">
+                <div className="text-white text-xs font-semibold">{g.label}</div>
+                <div className="text-white/40 text-[11px] mt-0.5">{g.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
+
+function IndexSkeleton() {
+  return (
+    <div className="min-h-screen bg-[#0f0f11]">
+      <SiteNav />
+      <div className="max-w-[1200px] mx-auto px-6 pt-6">
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-12 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-14 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="max-w-[1200px] mx-auto px-6 py-8">
+        <div className="mb-6 space-y-2">
+          <div className="h-8 w-64 bg-white/[0.08] rounded-lg animate-pulse" />
+          <div className="h-4 w-32 bg-white/[0.05] rounded animate-pulse" />
+        </div>
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <div className="flex-1 min-w-0 space-y-4">
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
+              <div className="h-[400px] w-full bg-white/[0.04] rounded-xl animate-pulse" />
+              <div className="flex gap-2 mt-4">
+                {["1D","1W","1M","3M","1Y","All"].map(tf => (
+                  <div key={tf} className="h-8 w-10 bg-white/[0.06] rounded-lg animate-pulse" />
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-1 border-b border-white/[0.08] pb-px">
+              {[1,2,3].map(i => <div key={i} className="h-9 w-24 bg-white/[0.05] rounded-t-lg animate-pulse" />)}
+            </div>
+            <div className="space-y-3 pt-1">
+              {[1,2].map(i => (
+                <div key={i} className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-3">
+                  <div className="h-5 w-32 bg-white/[0.08] rounded animate-pulse" />
+                  <div className="h-4 w-full bg-white/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-white/[0.05] rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="w-full md:w-80 shrink-0 space-y-4">
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-4">
+              <div className="h-4 w-24 bg-white/[0.06] rounded animate-pulse" />
+              <div className="h-10 w-44 bg-white/[0.08] rounded-lg animate-pulse" />
+              <div className="h-4 w-32 bg-white/[0.06] rounded animate-pulse" />
+              {[1,2,3].map(i => (
+                <div key={i} className="flex justify-between py-2 border-b border-white/[0.05]">
+                  <div className="h-4 w-24 bg-white/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function IndexDetailPage() {
   const params = useParams();
@@ -339,6 +430,14 @@ export default function IndexDetailPage() {
 
   const [timeframe, setTimeframe] = useState<Timeframe>("1M");
   const [tab, setTab] = useState<"Overview" | "Options" | "News">("Overview");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoaded(true), 600);
+    return () => clearTimeout(t);
+  }, [symbol]);
+
+  if (!loaded) return <IndexSkeleton />;
 
   return (
     <div className="min-h-screen bg-[#0f0f11]">
