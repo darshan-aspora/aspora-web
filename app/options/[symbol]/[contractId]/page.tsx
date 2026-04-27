@@ -81,32 +81,37 @@ function PayoffSVG({
   contract,
   underlying,
   interactive,
+  seller,
 }: {
   contract: OptionContract;
   underlying: number;
   interactive?: boolean;
+  seller?: boolean;
 }) {
   const isCall = contract.type === "CALL";
   const strike = contract.strike;
   const premium = contract.price;
-  const [hoverX, setHoverX] = useState<number | null>(null);
+  const [dragX, setDragX] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const min = underlying * 0.72;
   const max = underlying * 1.28;
+  const W = 500, H = 180, SCRUBBER_H = 28;
+  const TOTAL_H = H + SCRUBBER_H;
 
-  const points: { x: number; y: number }[] = [];
+  const rawPoints: { x: number; y: number }[] = [];
   for (let p = min; p <= max; p += (max - min) / 80) {
     const intrinsic = isCall ? Math.max(0, p - strike) : Math.max(0, strike - p);
-    points.push({ x: p, y: intrinsic - premium });
+    const raw = intrinsic - premium;
+    rawPoints.push({ x: p, y: seller ? -raw : raw });
   }
 
-  const minY = Math.min(...points.map((p) => p.y));
-  const maxY = Math.max(...points.map((p) => p.y));
+  const minY = Math.min(...rawPoints.map((p) => p.y));
+  const maxY = Math.max(...rawPoints.map((p) => p.y));
   const yPad = (maxY - minY) * 0.15 || premium;
   const yMin = minY - yPad;
   const yMax = maxY + yPad;
-  const W = 500, H = 200;
 
   const toSvg = (x: number, y: number) => ({
     sx: ((x - min) / (max - min)) * W,
@@ -118,45 +123,31 @@ function PayoffSVG({
   const beSx = toSvg(breakeven, 0).sx;
   const underlyingX = toSvg(underlying, 0).sx;
 
-  // Split path into profit (green) and loss (red) segments
-  const profitPath = points
+  const profitPath = rawPoints
     .map((p, i) => {
       const { sx, sy } = toSvg(p.x, p.y);
       return `${i === 0 ? "M" : "L"} ${sx.toFixed(1)} ${sy.toFixed(1)}`;
     })
     .join(" ");
 
-  // Hover price & P&L
-  let hoverPrice: number | null = null;
-  let hoverPnl: number | null = null;
-  if (hoverX !== null) {
-    hoverPrice = min + (hoverX / W) * (max - min);
-    const intrinsic = isCall
-      ? Math.max(0, hoverPrice - strike)
-      : Math.max(0, strike - hoverPrice);
-    hoverPnl = intrinsic - premium;
-  }
+  const cursorSvgX = dragX ?? underlyingX;
+  const displayPrice = min + (cursorSvgX / W) * (max - min);
+  const rawIntrinsic = isCall ? Math.max(0, displayPrice - strike) : Math.max(0, strike - displayPrice);
+  const rawPnl = rawIntrinsic - premium;
+  const displayPnl = seller ? -rawPnl : rawPnl;
 
-  const displayPrice = hoverPrice ?? underlying;
-  const displayPnl = hoverPnl ?? (() => {
-    const intr = isCall ? Math.max(0, underlying - strike) : Math.max(0, strike - underlying);
-    return intr - premium;
-  })();
-
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!svgRef.current || !interactive) return;
+  const updateDrag = (clientX: number) => {
+    if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
-    const px = ((e.clientX - rect.left) / rect.width) * W;
-    setHoverX(Math.min(W, Math.max(0, px)));
+    const px = ((clientX - rect.left) / rect.width) * W;
+    setDragX(Math.min(W - 1, Math.max(1, px)));
   };
-
-  const cursorX = hoverX ?? underlyingX;
-  const cursorSy = toSvg(displayPrice, displayPnl).sy;
 
   return (
     <div>
       {interactive && (
-        <div className="flex items-baseline gap-3 mb-4">
+        <div className="mb-5">
+          <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
           <div
             className={cn(
               "text-4xl font-bold tabular-nums",
@@ -165,17 +156,11 @@ function PayoffSVG({
           >
             {displayPnl >= 0 ? "+" : ""}${Math.abs(displayPnl * 100).toFixed(0)}
           </div>
-          <div className="text-white/50 text-sm">
-            Expected P&amp;L · if stock reaches{" "}
-            <span className="text-white font-medium">${displayPrice.toFixed(2)}</span>
-            <span
-              className={cn(
-                "ml-1.5",
-                displayPrice >= underlying ? "text-emerald-400" : "text-red-400"
-              )}
-            >
-              ({displayPrice >= underlying ? "+" : ""}
-              {(((displayPrice - underlying) / underlying) * 100).toFixed(1)}%)
+          <div className="text-white/50 text-sm mt-1">
+            If stock reaches{" "}
+            <span className="text-white font-semibold">${displayPrice.toFixed(2)}</span>
+            <span className={cn("ml-1.5 text-xs", displayPrice >= underlying ? "text-emerald-400" : "text-red-400")}>
+              ({displayPrice >= underlying ? "+" : ""}{(((displayPrice - underlying) / underlying) * 100).toFixed(1)}%)
             </span>
           </div>
         </div>
@@ -183,74 +168,48 @@ function PayoffSVG({
 
       <svg
         ref={svgRef}
-        viewBox={`0 0 ${W} ${H}`}
-        className={cn("w-full", interactive ? "cursor-crosshair" : "")}
-        style={{ height: interactive ? 220 : 160 }}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => interactive && setHoverX(null)}
+        viewBox={`0 0 ${W} ${TOTAL_H}`}
+        className="w-full select-none"
+        style={{ height: interactive ? 240 : 180, cursor: interactive ? "ew-resize" : "default" }}
+        onMouseDown={(e) => { if (interactive) { setIsDragging(true); updateDrag(e.clientX); } }}
+        onMouseMove={(e) => { if (interactive && isDragging) updateDrag(e.clientX); }}
+        onMouseUp={() => setIsDragging(false)}
+        onMouseLeave={() => { if (interactive) setIsDragging(false); }}
+        onTouchStart={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
+        onTouchMove={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
       >
         {/* Zero line */}
+        <line x1={0} y1={zeroSy} x2={W} y2={zeroSy} stroke="rgba(255,255,255,0.12)" strokeDasharray="5,5" />
+        {/* Color clips */}
+        <clipPath id={`pc-${contract.contractId}`}><rect x={0} y={0} width={W} height={zeroSy} /></clipPath>
+        <clipPath id={`lc-${contract.contractId}`}><rect x={0} y={zeroSy} width={W} height={H} /></clipPath>
+        <path d={profitPath} fill="none" stroke="#34d399" strokeWidth={2.5} clipPath={`url(#pc-${contract.contractId})`} />
+        <path d={profitPath} fill="none" stroke="#f87171" strokeWidth={2.5} clipPath={`url(#lc-${contract.contractId})`} />
+        {/* Breakeven */}
+        <line x1={beSx} y1={0} x2={beSx} y2={H} stroke="rgba(255,255,255,0.18)" strokeDasharray="4,4" />
+        <text x={beSx + 4} y={13} fill="rgba(255,255,255,0.3)" fontSize={9}>BE ${breakeven.toFixed(0)}</text>
+        {/* Vertical cursor line */}
         <line
-          x1={0}
-          y1={zeroSy}
-          x2={W}
-          y2={zeroSy}
-          stroke="rgba(255,255,255,0.12)"
-          strokeDasharray="5,5"
-        />
-        {/* Profit fill */}
-        <clipPath id={`profit-clip-${contract.contractId}`}>
-          <rect x={0} y={0} width={W} height={zeroSy} />
-        </clipPath>
-        <clipPath id={`loss-clip-${contract.contractId}`}>
-          <rect x={0} y={zeroSy} width={W} height={H} />
-        </clipPath>
-        <path
-          d={profitPath}
-          fill="none"
-          stroke="#34d399"
-          strokeWidth={2.5}
-          clipPath={`url(#profit-clip-${contract.contractId})`}
-        />
-        <path
-          d={profitPath}
-          fill="none"
-          stroke="#f87171"
-          strokeWidth={2.5}
-          clipPath={`url(#loss-clip-${contract.contractId})`}
-        />
-        {/* Breakeven vertical */}
-        <line
-          x1={beSx}
-          y1={0}
-          x2={beSx}
-          y2={H}
-          stroke="rgba(255,255,255,0.2)"
-          strokeDasharray="4,4"
-        />
-        <text x={beSx + 4} y={14} fill="rgba(255,255,255,0.35)" fontSize={10}>
-          BE ${breakeven.toFixed(0)}
-        </text>
-        {/* Cursor / underlying marker */}
-        <line
-          x1={cursorX}
-          y1={0}
-          x2={cursorX}
-          y2={H}
+          x1={cursorSvgX} y1={0} x2={cursorSvgX} y2={H}
           stroke={displayPnl >= 0 ? "#34d399" : "#f87171"}
-          strokeWidth={1.5}
-          strokeOpacity={0.6}
+          strokeWidth={1.5} strokeOpacity={0.5}
         />
-        <circle
-          cx={cursorX}
-          cy={cursorSy}
-          r={5}
-          fill={displayPnl >= 0 ? "#34d399" : "#f87171"}
-        />
+        {/* Dot on payoff line */}
+        {(() => {
+          const { sy } = toSvg(displayPrice, displayPnl);
+          return <circle cx={cursorSvgX} cy={sy} r={4} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />;
+        })()}
+        {/* X-axis scrubber track */}
+        <rect x={0} y={H + 8} width={W} height={6} rx={3} fill="rgba(255,255,255,0.08)" />
+        <rect x={0} y={H + 8} width={cursorSvgX} height={6} rx={3} fill={displayPnl >= 0 ? "rgba(52,211,153,0.4)" : "rgba(248,113,113,0.4)"} />
+        {/* Scrubber handle */}
+        <circle cx={cursorSvgX} cy={H + 11} r={10} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />
+        <line x1={cursorSvgX - 3} y1={H + 8} x2={cursorSvgX - 3} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
+        <line x1={cursorSvgX} y1={H + 8} x2={cursorSvgX} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
+        <line x1={cursorSvgX + 3} y1={H + 8} x2={cursorSvgX + 3} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
+        {/* Underlying marker (non-interactive) */}
         {!interactive && (
-          <text x={cursorX + 5} y={cursorSy - 6} fill="rgba(255,255,255,0.4)" fontSize={9}>
-            Current
-          </text>
+          <text x={underlyingX + 4} y={H - 4} fill="rgba(255,255,255,0.35)" fontSize={9}>Current</text>
         )}
       </svg>
 
@@ -536,6 +495,32 @@ function OverviewTab({
         </div>
       </div>
 
+      {/* Price performance bar */}
+      {(() => {
+        const low52 = underlying * 0.72;
+        const high52 = underlying * 1.28;
+        const pct = ((underlying - low52) / (high52 - low52)) * 100;
+        return (
+          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-white/50 text-sm font-medium">Price Range</span>
+              <span className="text-white font-bold text-sm">${underlying.toFixed(2)} LTP</span>
+            </div>
+            <div className="relative h-1.5 rounded-full bg-white/10 mb-2">
+              <div className="absolute h-full rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-emerald-400 w-full opacity-30" />
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow-lg"
+                style={{ left: `calc(${pct}% - 6px)` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-white/40 mt-1">
+              <span>52W Low · ${Math.round(low52)}</span>
+              <span>52W High · ${Math.round(high52)}</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Greeks */}
       <div>
         <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
@@ -613,6 +598,7 @@ function PayoffTab({
     0,
     Math.round((new Date(contract.expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   );
+  const [perspective, setPerspective] = useState<"buy" | "sell">("buy");
 
   return (
     <div className="space-y-6">
@@ -620,7 +606,35 @@ function PayoffTab({
         className="rounded-2xl p-6"
         style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)" }}
       >
-        <PayoffSVG contract={contract} underlying={underlying} interactive />
+        {/* Buy / Sell perspective toggle */}
+        <div className="flex justify-end mb-5">
+          <div className="flex items-center bg-white/[0.06] rounded-full p-1 gap-0.5">
+            <button
+              onClick={() => setPerspective("buy")}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
+                perspective === "buy"
+                  ? "bg-white text-neutral-900 shadow"
+                  : "text-white/50 hover:text-white"
+              )}
+            >
+              Buy
+            </button>
+            <button
+              onClick={() => setPerspective("sell")}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
+                perspective === "sell"
+                  ? "bg-red-500 text-white shadow"
+                  : "text-white/50 hover:text-white"
+              )}
+            >
+              Sell
+            </button>
+          </div>
+        </div>
+
+        <PayoffSVG contract={contract} underlying={underlying} interactive seller={perspective === "sell"} />
 
         <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/[0.06]">
           {[
@@ -768,16 +782,6 @@ export default function OptionLegDetailPage() {
               {contract.changePct}%) today
             </div>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span
-                className={cn(
-                  "px-2.5 py-1 rounded-full text-xs font-bold",
-                  isCall
-                    ? "bg-emerald-500/15 text-emerald-400"
-                    : "bg-red-500/15 text-red-400"
-                )}
-              >
-                {contract.type}
-              </span>
               <span
                 className={cn(
                   "px-2.5 py-1 rounded-full text-xs font-medium",
