@@ -46,36 +46,6 @@ function generateCandleData(symbol: string, expiryCode: string, strike: number, 
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function GreekCard({
-  label,
-  value,
-  sub,
-  color,
-}: {
-  label: string;
-  value: string;
-  sub: string;
-  color?: "red" | "green" | "white";
-}) {
-  return (
-    <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-      <div className="text-white/40 text-sm mb-2">{label}</div>
-      <div
-        className={cn(
-          "text-2xl font-bold mb-1",
-          color === "red"
-            ? "text-red-400"
-            : color === "green"
-            ? "text-emerald-400"
-            : "text-white"
-        )}
-      >
-        {value}
-      </div>
-      <div className="text-white/40 text-xs">{sub}</div>
-    </div>
-  );
-}
 
 function PayoffSVG({
   contract,
@@ -495,6 +465,45 @@ function OverviewTab({
         </div>
       </div>
 
+      {/* Positions widget */}
+      {(() => {
+        const qty = 2;
+        const avgCost = contract.price * 0.82;
+        const currentPrice = contract.price;
+        const pnl = (currentPrice - avgCost) * qty * 100;
+        const pnlPct = ((currentPrice - avgCost) / avgCost) * 100;
+        const pos = pnl >= 0;
+        return (
+          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold text-sm">Your Position</span>
+              <span className="text-white/40 text-xs px-2 py-0.5 rounded-full bg-white/[0.06]">Active</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <div>
+                <div className="text-white/40 text-xs mb-0.5">Qty</div>
+                <div className="text-white font-semibold">{qty} contracts</div>
+              </div>
+              <div>
+                <div className="text-white/40 text-xs mb-0.5">Avg Cost</div>
+                <div className="text-white font-semibold">${avgCost.toFixed(2)}</div>
+              </div>
+              <div>
+                <div className="text-white/40 text-xs mb-0.5">LTP</div>
+                <div className="text-white font-semibold">${currentPrice.toFixed(2)}</div>
+              </div>
+              <div>
+                <div className="text-white/40 text-xs mb-0.5">Unrealised P&amp;L</div>
+                <div className={cn("font-bold", pos ? "text-emerald-400" : "text-red-400")}>
+                  {pos ? "+" : ""}${Math.abs(pnl).toFixed(0)}{" "}
+                  <span className="text-xs font-medium">({pos ? "+" : ""}{pnlPct.toFixed(1)}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Price performance bar */}
       {(() => {
         const low52 = underlying * 0.72;
@@ -521,39 +530,91 @@ function OverviewTab({
         );
       })()}
 
-      {/* Greeks */}
-      <div>
-        <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+      {/* Greeks — compact single row */}
+      <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+        <h3 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
           Greeks
-          <span className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
-            <Info size={10} className="text-white/40" />
+          <span className="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
+            <Info size={9} className="text-white/40" />
           </span>
         </h3>
-        <div className="grid grid-cols-2 gap-3">
-          <GreekCard
-            label="Delta"
-            value={String(contract.delta)}
-            sub={contract.delta < 0 ? "Bearish sensitivity" : "Bullish sensitivity"}
-            color={contract.delta < 0 ? "red" : "green"}
-          />
-          <GreekCard
-            label="Theta"
-            value={String(contract.theta)}
-            sub="$/day decay"
-            color="red"
-          />
-          <GreekCard
-            label="Gamma"
-            value={String(contract.gamma)}
-            sub="Delta acceleration"
-          />
-          <GreekCard
-            label="Vega"
-            value={String(contract.vega)}
-            sub="Volatility impact"
-          />
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-400" },
+            { label: "Theta", value: String(contract.theta), color: "text-red-400" },
+            { label: "Gamma", value: String(contract.gamma), color: "text-white" },
+            { label: "Vega", value: String(contract.vega), color: "text-white" },
+          ].map((g) => (
+            <div key={g.label} className="text-center">
+              <div className="text-white/40 text-[11px] mb-1">{g.label}</div>
+              <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Market Depth */}
+      {(() => {
+        const rng = seededRandom(hashSymbol(contract.contractId));
+        const mid = contract.price;
+        const bids = Array.from({ length: 5 }, (_, i) => ({
+          price: parseFloat((mid - (i + 1) * 0.02).toFixed(2)),
+          qty: Math.floor(50 + rng() * 200),
+        }));
+        const asks = Array.from({ length: 5 }, (_, i) => ({
+          price: parseFloat((mid + (i + 1) * 0.02).toFixed(2)),
+          qty: Math.floor(50 + rng() * 200),
+        }));
+        const maxQty = Math.max(...bids.map(b => b.qty), ...asks.map(a => a.qty));
+        return (
+          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-white font-semibold text-sm">Market Depth</span>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Bid</span>
+                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />Ask</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {/* Bids */}
+              <div className="space-y-1">
+                <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                  <span>Price</span><span className="text-right">Qty</span>
+                </div>
+                {bids.map((b, i) => (
+                  <div key={i} className="relative rounded-md overflow-hidden">
+                    <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
+                    <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
+                      <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
+                      <span className="text-white/60 text-right tabular-nums">{b.qty}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Asks */}
+              <div className="space-y-1">
+                <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                  <span>Price</span><span className="text-right">Qty</span>
+                </div>
+                {asks.map((a, i) => (
+                  <div key={i} className="relative rounded-md overflow-hidden">
+                    <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
+                    <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
+                      <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
+                      <span className="text-white/60 text-right tabular-nums">{a.qty}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between text-xs text-white/40">
+              <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
+              <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
+              <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Contract details */}
       <div
@@ -650,6 +711,34 @@ function PayoffTab({
               <div className="text-white font-bold">{s.value}</div>
             </div>
           ))}
+        </div>
+
+        {/* Quick nav links */}
+        <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-white/[0.06]">
+          <Link
+            href={`/stocks/${symbol}`}
+            className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
+          >
+            <div>
+              <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+              <div className="text-white font-semibold text-sm">{symbol}</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+          <Link
+            href={`/options/${symbol}`}
+            className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
+          >
+            <div>
+              <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+              <div className="text-white font-semibold text-sm">All strikes</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
         </div>
       </div>
 
