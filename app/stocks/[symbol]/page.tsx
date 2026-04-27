@@ -212,8 +212,8 @@ function KeyMetricsCard({ stock }: { stock: StockData }) {
 
 function RegisterCard() {
   return (
-    <div className="bg-gradient-to-br from-emerald-950/60 to-[#1c1c1e] border border-emerald-500/20 rounded-2xl p-6 mt-4">
-      <div className="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
+    <div className="bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6 mt-4">
+      <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
       <h3 className="text-white font-bold text-lg leading-snug mb-2">
         Ready to invest or trade?
       </h3>
@@ -223,9 +223,9 @@ function RegisterCard() {
       <div className="space-y-2.5 mb-5">
         {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
           <div key={item} className="flex items-center gap-2.5">
-            <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+            <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center shrink-0">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                <path d="M1.5 4L3 5.5L6.5 2" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1.5 4L3 5.5L6.5 2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <span className="text-white/60 text-xs">{item}</span>
@@ -234,7 +234,7 @@ function RegisterCard() {
       </div>
       <a
         href="https://aspora.com/register"
-        className="block w-full text-center rounded-xl bg-emerald-500 text-white font-bold py-3 text-sm hover:bg-emerald-400 transition-colors"
+        className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:bg-white/90 transition-colors"
       >
         Create free account →
       </a>

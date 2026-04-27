@@ -846,8 +846,8 @@ export default function OptionLegDetailPage() {
         )}
 
         {/* Register nudge */}
-        <div className="mt-8 bg-gradient-to-br from-emerald-950/60 to-[#1c1c1e] border border-emerald-500/20 rounded-2xl p-6">
-          <div className="text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-2">
+        <div className="mt-8 bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6">
+          <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">
             Free to join
           </div>
           <h3 className="text-white font-bold text-base mb-1">
@@ -858,7 +858,7 @@ export default function OptionLegDetailPage() {
           </p>
           <a
             href="https://aspora.com/register"
-            className="inline-block px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm hover:bg-emerald-400 transition-colors"
+            className="inline-block px-5 py-2.5 rounded-xl bg-white text-neutral-900 font-bold text-sm hover:bg-white/90 transition-colors"
           >
             Create free account →
           </a>
