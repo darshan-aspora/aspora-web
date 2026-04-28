@@ -121,7 +121,7 @@ export default function OptionsChainPage() {
         onClick={onNavigate}
         className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-black/[0.03]" : "")}
       >
-        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-500")}>
+        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-700")}>
           ${contract.price.toFixed(2)}
         </div>
         <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
@@ -141,7 +141,7 @@ export default function OptionsChainPage() {
         onClick={onNavigate}
         className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-black/[0.03]" : "")}
       >
-        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-500")}>
+        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-700")}>
           ${contract.price.toFixed(2)}
         </div>
         <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
@@ -271,27 +271,27 @@ export default function OptionsChainPage() {
                 {/* Call side label */}
                 {(viewMode === "split" || viewMode === "calls") && (
                   <>
-                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
-                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
-                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
-                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
-                    <th className="px-2 py-3 text-right text-gray-400 text-[10px] font-semibold uppercase tracking-wider">IV</th>
-                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
-                    <th className="px-3 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Call LTP</th>
+                    <th className="px-2 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
+                    <th className="px-2 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
+                    <th className="px-2 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
+                    <th className="px-2 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
+                    <th className="px-2 py-3 text-right text-gray-500 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">OI</th>
+                    <th className="px-3 py-3 text-right text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">Call LTP</th>
                   </>
                 )}
                 {/* Strike */}
-                <th className="px-4 py-3 text-center text-gray-600 text-[10px] font-bold uppercase tracking-wider bg-black/[0.02] whitespace-nowrap">Strike</th>
+                <th className="px-4 py-3 text-center text-gray-700 text-[10px] font-bold uppercase tracking-wider bg-black/[0.02] whitespace-nowrap">Strike</th>
                 {/* Put side */}
                 {(viewMode === "split" || viewMode === "puts") && (
                   <>
-                    <th className="px-3 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Put LTP</th>
-                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
-                    <th className="px-2 py-3 text-left text-gray-400 text-[10px] font-semibold uppercase tracking-wider">IV</th>
-                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
-                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
-                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
-                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
+                    <th className="px-3 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">Put LTP</th>
+                    <th className="px-2 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">OI</th>
+                    <th className="px-2 py-3 text-left text-gray-500 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
+                    <th className="px-2 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
+                    <th className="px-2 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
+                    <th className="px-2 py-3 text-left text-red-500 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
                   </>
                 )}
               </tr>
@@ -302,7 +302,7 @@ export default function OptionsChainPage() {
                 const isAtm = strike === atmStrike;
                 const callItm = row?.call?.itm ?? false;
                 const putItm = row?.put?.itm ?? false;
-                const dash = <span className="text-gray-300">—</span>;
+                const dash = <span className="text-gray-400">—</span>;
 
                 return (
                   <tr
@@ -333,12 +333,12 @@ export default function OptionsChainPage() {
                       );
                       return (
                         <>
-                          {callTd("text-right text-gray-400", row?.call ? row.call.gamma : dash)}
-                          {callTd("text-right text-gray-400", row?.call ? row.call.vega : dash)}
-                          {callTd("text-right text-red-400/80", row?.call ? row.call.theta : dash)}
-                          {callTd("text-right text-emerald-400/90 font-medium", row?.call ? row.call.delta : dash)}
-                          {callTd("text-right text-gray-500", row?.call ? `${row.call.iv}%` : dash)}
-                          {callTd("text-right text-gray-400", row?.call ? row.call.oi : dash)}
+                          {callTd("text-right text-gray-600", row?.call ? row.call.gamma : dash)}
+                          {callTd("text-right text-gray-600", row?.call ? row.call.vega : dash)}
+                          {callTd("text-right text-red-500 font-medium", row?.call ? row.call.theta : dash)}
+                          {callTd("text-right text-emerald-600 font-medium", row?.call ? row.call.delta : dash)}
+                          {callTd("text-right text-gray-700", row?.call ? `${row.call.iv}%` : dash)}
+                          {callTd("text-right text-gray-600", row?.call ? row.call.oi : dash)}
                           <CallCell contract={row?.call} onNavigate={callClick} />
                         </>
                       );
@@ -368,12 +368,12 @@ export default function OptionsChainPage() {
                       return (
                         <>
                           <PutCell contract={row?.put} onNavigate={putClick} />
-                          {putTd("text-left text-gray-400", row?.put ? row.put.oi : dash)}
-                          {putTd("text-left text-gray-500", row?.put ? `${row.put.iv}%` : dash)}
-                          {putTd("text-left text-red-400/80 font-medium", row?.put ? row.put.delta : dash)}
-                          {putTd("text-left text-red-400/80", row?.put ? row.put.theta : dash)}
-                          {putTd("text-left text-gray-400", row?.put ? row.put.vega : dash)}
-                          {putTd("text-left text-gray-400", row?.put ? row.put.gamma : dash)}
+                          {putTd("text-left text-gray-600", row?.put ? row.put.oi : dash)}
+                          {putTd("text-left text-gray-700", row?.put ? `${row.put.iv}%` : dash)}
+                          {putTd("text-left text-red-500 font-medium", row?.put ? row.put.delta : dash)}
+                          {putTd("text-left text-red-500 font-medium", row?.put ? row.put.theta : dash)}
+                          {putTd("text-left text-gray-600", row?.put ? row.put.vega : dash)}
+                          {putTd("text-left text-gray-600", row?.put ? row.put.gamma : dash)}
                         </>
                       );
                     })()}
