@@ -496,10 +496,10 @@ export default function OptionLegDetailPage() {
                 className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
               >
                 <div>
-                  <div className="text-gray-400 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
                   <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-300 group-hover:text-gray-500 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
                   <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
@@ -508,10 +508,10 @@ export default function OptionLegDetailPage() {
                 className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
               >
                 <div>
-                  <div className="text-gray-400 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
                   <div className="text-gray-900 font-semibold text-sm">All strikes</div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-300 group-hover:text-gray-500 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
                   <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
@@ -520,23 +520,23 @@ export default function OptionLegDetailPage() {
             {/* Risk Profile */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
               <h3 className="text-gray-900 font-semibold text-sm mb-4">Risk Profile</h3>
-              <div className="space-y-0 divide-y divide-white/[0.06]">
+              <div className="space-y-0 divide-y divide-gray-100">
                 {[
                   {
                     label: "Max Profit",
                     value: isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`,
-                    color: "text-emerald-400",
+                    color: "text-emerald-600",
                   },
                   {
                     label: "Max Loss",
                     value: `-$${(contract.price * 100).toFixed(0)}`,
-                    color: "text-red-400",
+                    color: "text-red-500",
                   },
                   { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-gray-900" },
                   { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-gray-900" },
                 ].map((r) => (
                   <div key={r.label} className="flex justify-between items-center py-3">
-                    <span className="text-gray-400 text-sm">{r.label}</span>
+                    <span className="text-gray-500 text-sm">{r.label}</span>
                     <span className={cn("font-semibold text-sm", r.color)}>{r.value}</span>
                   </div>
                 ))}
@@ -560,7 +560,7 @@ export default function OptionLegDetailPage() {
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className={cn(
                       "px-2.5 py-1 rounded-full text-xs font-medium",
-                      contract.itm ? "bg-black/[0.05] text-gray-600" : "bg-gray-100 text-gray-400"
+                      contract.itm ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-amber-50 text-amber-700 border border-amber-200"
                     )}>
                       {contract.itm ? "In the Money" : "Out of the Money"}
                     </span>
@@ -624,11 +624,11 @@ export default function OptionLegDetailPage() {
               <div className="relative h-1.5 rounded-full bg-black/[0.05] mb-2">
                 <div className="absolute h-full rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-emerald-400 w-full opacity-30" />
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow-lg"
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gray-900 border-2 border-white shadow-md"
                   style={{ left: `calc(${perfPct}% - 6px)` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>52W Low · ${Math.round(low52)}</span>
                 <span>52W High · ${Math.round(high52)}</span>
               </div>
@@ -696,7 +696,7 @@ export default function OptionLegDetailPage() {
                   ))}
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-400">
+              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-500">
                 <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
                 <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
                 <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
@@ -717,7 +717,7 @@ export default function OptionLegDetailPage() {
                   ["Exercise Style", "American"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="text-gray-400">{k}</span>
+                    <span className="text-gray-500">{k}</span>
                     <span className="text-gray-900 font-medium">{v}</span>
                   </div>
                 ))}
@@ -729,13 +729,13 @@ export default function OptionLegDetailPage() {
 
         {/* Register nudge — full width below both columns */}
         <div className="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-6">
-          <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
             Free to join
           </div>
           <h3 className="text-gray-900 font-bold text-base mb-1">
             Want to trade this option?
           </h3>
-          <p className="text-gray-400 text-sm mb-4">
+          <p className="text-gray-600 text-sm mb-4">
             Open your Aspora account in under 15 minutes and start trading options, stocks, and ETFs — no minimums, no fees to start.
           </p>
           <a
