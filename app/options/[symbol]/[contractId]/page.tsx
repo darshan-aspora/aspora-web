@@ -402,31 +402,33 @@ export default function OptionLegDetailPage() {
     <div className="min-h-screen bg-white">
       {/* Sticky top bar */}
       <div
-        className="sticky top-0 z-40 px-6 py-3 flex items-center gap-4"
+        className="sticky top-0 z-40"
         style={{
-          background: "#0f0f11",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          background: "#ffffff",
+          borderBottom: "1px solid rgba(0,0,0,0.08)",
         }}
       >
-        <Link
-          href={`/options/${symbol}`}
-          className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors text-sm"
-        >
-          <ArrowLeft size={15} />
-          Option Chain
-        </Link>
-        <div className="w-px h-4 bg-black/[0.05]" />
-        <div className="text-gray-500 text-sm">
-          {symbol} · {contract.expiry} ·{" "}
-          <span className="font-medium text-gray-900">${contract.strike}</span>{" "}
-          <span
-            className={cn(
-              "font-bold",
-              isCall ? "text-emerald-400" : "text-red-400"
-            )}
+        <div className="max-w-[1436px] mx-auto px-6 py-3 flex items-center gap-4">
+          <Link
+            href={`/options/${symbol}`}
+            className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors text-sm"
           >
-            {contract.type}
-          </span>
+            <ArrowLeft size={15} />
+            Option Chain
+          </Link>
+          <div className="w-px h-4 bg-black/[0.10]" />
+          <div className="text-gray-500 text-sm">
+            {symbol} · {contract.expiry} ·{" "}
+            <span className="font-medium text-gray-900">${contract.strike}</span>{" "}
+            <span
+              className={cn(
+                "font-bold",
+                isCall ? "text-emerald-600" : "text-red-500"
+              )}
+            >
+              {contract.type}
+            </span>
+          </div>
         </div>
       </div>
 
