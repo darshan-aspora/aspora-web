@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -55,15 +55,33 @@ export default function OptionsChainPage() {
     [strikes, underlying]
   );
 
+  const headerRef = useRef<HTMLDivElement>(null);
+  const expiryRowRef = useRef<HTMLDivElement>(null);
+  const legendRowRef = useRef<HTMLDivElement>(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const atmRowRef = useRef<HTMLTableRowElement>(null);
-  useEffect(() => {
-    if (atmRowRef.current) {
-      const el = atmRowRef.current;
-      const top = el.getBoundingClientRect().top + window.scrollY;
-      const offset = top - window.innerHeight / 2 + el.offsetHeight / 2;
-      window.scrollTo({ top: Math.max(0, offset), behavior: "smooth" });
+  const [tableHeight, setTableHeight] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    function measure() {
+      if (!tableContainerRef.current) return;
+      const top = tableContainerRef.current.getBoundingClientRect().top;
+      setTableHeight(window.innerHeight - top);
     }
-  }, [activeCode]);
+    // slight delay so layout is fully painted
+    const id = setTimeout(measure, 50);
+    window.addEventListener("resize", measure);
+    return () => { clearTimeout(id); window.removeEventListener("resize", measure); };
+  }, []);
+
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    const row = atmRowRef.current;
+    if (!container || !row) return;
+    const rowTop = row.offsetTop;
+    const scrollTarget = rowTop - container.clientHeight / 2 + row.offsetHeight / 2;
+    container.scrollTo({ top: Math.max(0, scrollTarget), behavior: "smooth" });
+  }, [activeCode, tableHeight]);
 
   function CallCell({ contract }: { contract?: OptionContract }) {
     if (!contract) return <td className="px-3 py-3" />;
@@ -129,6 +147,7 @@ export default function OptionsChainPage() {
     <div className="min-h-screen bg-[#0f0f11]">
       {/* Top bar */}
       <div
+        ref={headerRef}
         className="sticky top-0 z-40 px-6 py-3 flex items-center justify-between"
         style={{ background: "#0f0f11", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
@@ -168,7 +187,7 @@ export default function OptionsChainPage() {
 
       <div className="max-w-[1436px] mx-auto px-6 py-6">
         {/* Combined expiry row: category pills | separator | date pills */}
-        <div className="flex items-center gap-2 flex-wrap mb-4">
+        <div ref={expiryRowRef} className="flex items-center gap-2 flex-wrap mb-4">
           {EXPIRY_TYPE_LABELS.map(type => (
             <button
               key={type}
@@ -206,7 +225,7 @@ export default function OptionsChainPage() {
         </div>
 
         {/* Legend — above the table */}
-        <div className="flex items-center gap-5 mb-4 text-xs text-white/50">
+        <div ref={legendRowRef} className="flex items-center gap-5 mb-4 text-xs text-white/50">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/30 inline-block" />
             In the Money (calls)
@@ -224,8 +243,12 @@ export default function OptionsChainPage() {
 
         {/* Chain table */}
         <div
-          className="rounded-2xl overflow-x-auto"
-          style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+          ref={tableContainerRef}
+          className="rounded-2xl overflow-auto"
+          style={{
+            border: "1px solid rgba(255,255,255,0.08)",
+            height: tableHeight ? `${tableHeight}px` : "60vh",
+          }}
         >
           <table className="text-xs border-collapse" style={{ minWidth: viewMode === "split" ? 1100 : 560, width: "100%" }}>
             <thead>
