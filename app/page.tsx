@@ -119,7 +119,7 @@ function CredibilitySection() {
       className="relative text-center bg-white"
       style={{ padding: "calc(6rem + 120px) 0 4rem" }}
     >
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <p className="m-0 mb-12 font-bold text-neutral-900"
           style={{ fontSize: "clamp(1.125rem, 2.5vw, 1.375rem)", lineHeight: 1.3 }}>
           A million people already call Aspora home
@@ -169,7 +169,7 @@ function SendMoneySection() {
 
   return (
     <section className="bg-white py-24" id="send">
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <div className="flex justify-between items-center gap-20 flex-col md:flex-row">
           {/* Text */}
           <div className="flex flex-col gap-10 max-w-[620px]">
@@ -294,7 +294,7 @@ function PayBillsSection() {
 
   return (
     <section className="bg-white py-24 border-t border-neutral-100" id="bills">
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <div className="flex justify-between items-center gap-20 flex-col md:flex-row-reverse">
           {/* Text */}
           <div className="flex flex-col gap-10 max-w-[620px]">
@@ -359,7 +359,7 @@ function PayBillsSection() {
 function NRISection() {
   return (
     <section className="py-24 md:py-32" id="nri" style={{ background: "var(--color-neutral-950, #16100f)" }}>
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <div className="flex items-center gap-24 flex-col md:flex-row">
           {/* Text */}
           <div className="flex flex-col gap-6 max-w-[520px]">
@@ -407,7 +407,7 @@ function NRISection() {
 function RoadmapSection() {
   return (
     <section className="bg-white py-24">
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         {/* Header */}
         <div className="text-center flex flex-col items-center mb-12">
           <span className="text-neutral-400 font-semibold uppercase tracking-[0.12em] text-[11px]">Also on the way</span>
@@ -513,7 +513,7 @@ function CommunitySection() {
         </picture>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-5">
+      <div className="relative z-10 mx-auto max-w-[1436px] px-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col items-start gap-4">
             <h2 className="m-0 font-black text-white leading-tight tracking-tight"
@@ -578,7 +578,7 @@ function SecuritySection() {
 
   return (
     <section className="bg-white py-24" id="security">
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <div className="flex items-center gap-20 flex-col md:flex-row">
           {/* Visual */}
           <div className="shrink-0 w-full md:w-[500px] rounded-[64px] bg-neutral-100 flex items-center justify-center py-12">
@@ -718,7 +718,7 @@ function BlogSection() {
 
   return (
     <section className="bg-white py-24 border-t border-neutral-100">
-      <div className="mx-auto max-w-[1200px] px-5">
+      <div className="mx-auto max-w-[1436px] px-5">
         <div className="flex justify-between items-baseline mb-12">
           <h2 className="m-0 font-black text-neutral-900" style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)" }}>
             Latest from Aspora
@@ -817,7 +817,7 @@ function CTASection() {
 function SiteFooter() {
   return (
     <footer className="pt-16 pb-10 px-5" style={{ background: "#16100f" }}>
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1436px]">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">

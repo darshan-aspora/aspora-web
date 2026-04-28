@@ -381,7 +381,7 @@ function IndexSkeleton() {
   return (
     <div className="min-h-screen bg-[#0f0f11]">
       <SiteNav />
-      <div className="max-w-[1200px] mx-auto px-6 pt-6">
+      <div className="max-w-[1436px] mx-auto px-6 pt-6">
         <div className="flex items-center gap-2">
           <div className="h-4 w-12 bg-white/[0.07] rounded animate-pulse" />
           <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
@@ -390,7 +390,7 @@ function IndexSkeleton() {
           <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
         </div>
       </div>
-      <div className="max-w-[1200px] mx-auto px-6 py-8">
+      <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6 space-y-2">
           <div className="h-8 w-64 bg-white/[0.08] rounded-lg animate-pulse" />
           <div className="h-4 w-32 bg-white/[0.05] rounded animate-pulse" />
@@ -459,7 +459,7 @@ export default function IndexDetailPage() {
       <SiteNav />
 
       {/* Breadcrumb */}
-      <div className="max-w-[1200px] mx-auto px-6 pt-6">
+      <div className="max-w-[1436px] mx-auto px-6 pt-6">
         <nav className="flex items-center gap-2 text-sm text-white/50">
           <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
           <span className="text-white/30">&gt;</span>
@@ -470,7 +470,7 @@ export default function IndexDetailPage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-[1200px] mx-auto px-6 py-8">
+      <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white">{index.name}</h1>
           <div className="text-white/50 text-sm mt-1">{index.symbol} · {index.exchange}</div>

@@ -432,7 +432,7 @@ export default function ExplorePage() {
 
       {/* Market summary bar */}
       <div className="w-full bg-[#18181b] border-b border-white/[0.07]">
-        <div className="max-w-[1200px] mx-auto px-6 py-2.5 flex items-center gap-8 overflow-x-auto">
+        <div className="max-w-[1436px] mx-auto px-6 py-2.5 flex items-center gap-8 overflow-x-auto">
           {MARKET_INDICES.map((idx) => (
             <div key={idx.name} className="flex items-center gap-2 whitespace-nowrap">
               <span className="text-xs text-white/50 font-medium">{idx.name}</span>
@@ -453,7 +453,7 @@ export default function ExplorePage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-[1200px] mx-auto px-6 py-8">
+      <div className="max-w-[1436px] mx-auto px-6 py-8">
         {/* Page header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Explore Markets</h1>
