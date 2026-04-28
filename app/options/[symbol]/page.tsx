@@ -102,12 +102,6 @@ export default function OptionsChainPage() {
           <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
             {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
           </div>
-          <div className="text-white/40 text-[11px] mt-1">
-            OI: {contract.oi} · Vol: {contract.volume}
-          </div>
-          <div className="text-white/40 text-[11px]">
-            IV: {contract.iv}% · Δ {contract.delta}
-          </div>
         </Link>
       </td>
     );
@@ -132,12 +126,6 @@ export default function OptionsChainPage() {
           <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
             {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
           </div>
-          <div className="text-white/40 text-[11px] mt-1">
-            OI: {contract.oi} · Vol: {contract.volume}
-          </div>
-          <div className="text-white/40 text-[11px]">
-            IV: {contract.iv}% · Δ {contract.delta}
-          </div>
         </Link>
       </td>
     );
@@ -148,40 +136,42 @@ export default function OptionsChainPage() {
       {/* Top bar */}
       <div
         ref={headerRef}
-        className="sticky top-0 z-40 px-6 py-3 flex items-center justify-between"
+        className="sticky top-0 z-40"
         style={{ background: "#0f0f11", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div className="flex items-center gap-4">
-          <Link
-            href={`/stocks/${symbol}`}
-            className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors text-sm"
-          >
-            <ArrowLeft size={15} />
-            Back to {symbol}
-          </Link>
-          <div className="w-px h-4 bg-white/10" />
-          <div>
-            <span className="text-white font-bold">{symbol}</span>
-            <span className="text-white/50 text-sm ml-2">
-              Underlying: <span className="text-white">${underlying.toLocaleString()}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* View mode toggle */}
-        <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(255,255,255,0.06)" }}>
-          {(["split", "calls", "puts"] as ViewMode[]).map(v => (
-            <button
-              key={v}
-              onClick={() => setViewMode(v)}
-              className={cn(
-                "px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-colors",
-                viewMode === v ? "bg-white text-neutral-900" : "text-white/60 hover:text-white"
-              )}
+        <div className="max-w-[1436px] mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/stocks/${symbol}`}
+              className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors text-sm"
             >
-              {v}
-            </button>
-          ))}
+              <ArrowLeft size={15} />
+              Back to {symbol}
+            </Link>
+            <div className="w-px h-4 bg-white/10" />
+            <div>
+              <span className="text-white font-bold">{symbol}</span>
+              <span className="text-white/50 text-sm ml-2">
+                Underlying: <span className="text-white">${underlying.toLocaleString()}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* View mode toggle */}
+          <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(255,255,255,0.06)" }}>
+            {(["split", "calls", "puts"] as ViewMode[]).map(v => (
+              <button
+                key={v}
+                onClick={() => setViewMode(v)}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-colors",
+                  viewMode === v ? "bg-white text-neutral-900" : "text-white/60 hover:text-white"
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -243,16 +233,17 @@ export default function OptionsChainPage() {
 
         {/* Chain table */}
         <div
-          ref={tableContainerRef}
-          className="rounded-2xl overflow-auto"
+          className="rounded-2xl flex flex-col"
           style={{
             border: "1px solid rgba(255,255,255,0.08)",
             height: tableHeight ? `${tableHeight}px` : "60vh",
           }}
         >
+          {/* Scrollable body only */}
+          <div ref={tableContainerRef} className="overflow-auto flex-1 min-h-0">
           <table className="text-xs border-collapse" style={{ minWidth: viewMode === "split" ? 1100 : 560, width: "100%" }}>
-            <thead>
-              <tr style={{ background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <thead className="sticky top-0 z-10">
+              <tr style={{ background: "rgba(20,20,22,1)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                 {/* Call side label */}
                 {(viewMode === "split" || viewMode === "calls") && (
                   <>
@@ -405,11 +396,15 @@ export default function OptionsChainPage() {
               })}
             </tbody>
           </table>
+          </div>
+          {/* Footer — always visible */}
+          <div
+            className="px-6 py-3 text-center text-white/30 text-xs shrink-0"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(20,20,22,1)" }}
+          >
+            Options data is for informational purposes only. Aspora does not facilitate options trading on this platform.
+          </div>
         </div>
-
-        <p className="text-center text-white/30 text-xs mt-6">
-          Options data is for informational purposes only. Aspora does not facilitate options trading on this platform.
-        </p>
       </div>
     </div>
   );
