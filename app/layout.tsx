@@ -45,7 +45,9 @@ export default function RootLayout({
             <AIProvider>
               <CompareProvider>
                 <FontProvider>
-                  {children}
+                  <div className="max-w-[1436px] mx-auto">
+                    {children}
+                  </div>
                 </FontProvider>
               </CompareProvider>
             </AIProvider>

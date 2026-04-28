@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getContracts,
@@ -55,20 +55,60 @@ export default function OptionsChainPage() {
     [strikes, underlying]
   );
 
-  function ContractCell({ contract, side }: { contract?: OptionContract; side: "call" | "put" }) {
+  const atmRowRef = useRef<HTMLTableRowElement>(null);
+  useEffect(() => {
+    if (atmRowRef.current) {
+      const el = atmRowRef.current;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const offset = top - window.innerHeight / 2 + el.offsetHeight / 2;
+      window.scrollTo({ top: Math.max(0, offset), behavior: "smooth" });
+    }
+  }, [activeCode]);
+
+  function CallCell({ contract }: { contract?: OptionContract }) {
     if (!contract) return <td className="px-3 py-3" />;
     const pos = contract.change >= 0;
+    const itm = contract.itm;
     return (
       <td className={cn(
         "px-3 py-3 text-right",
-        side === "call" ? "text-right" : "text-left",
-        contract.itm ? "bg-emerald-500/[0.04]" : ""
+        itm ? "bg-emerald-500/[0.08]" : ""
       )}>
         <Link
           href={`/options/${symbol}/${contract.contractId}`}
           className="block hover:bg-white/[0.06] rounded-lg px-2 py-1.5 -mx-2 transition-colors group"
         >
-          <div className="text-white text-sm font-semibold group-hover:text-emerald-400 transition-colors">
+          <div className={cn("text-sm font-semibold group-hover:text-emerald-400 transition-colors", itm ? "text-emerald-300" : "text-white/70")}>
+            ${contract.price.toFixed(2)}
+          </div>
+          <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
+            {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
+          </div>
+          <div className="text-white/40 text-[11px] mt-1">
+            OI: {contract.oi} · Vol: {contract.volume}
+          </div>
+          <div className="text-white/40 text-[11px]">
+            IV: {contract.iv}% · Δ {contract.delta}
+          </div>
+        </Link>
+      </td>
+    );
+  }
+
+  function PutCell({ contract }: { contract?: OptionContract }) {
+    if (!contract) return <td className="px-3 py-3" />;
+    const pos = contract.change >= 0;
+    const itm = contract.itm;
+    return (
+      <td className={cn(
+        "px-3 py-3 text-left",
+        itm ? "bg-red-500/[0.08]" : ""
+      )}>
+        <Link
+          href={`/options/${symbol}/${contract.contractId}`}
+          className="block hover:bg-white/[0.06] rounded-lg px-2 py-1.5 -mx-2 transition-colors group"
+        >
+          <div className={cn("text-sm font-semibold group-hover:text-red-400 transition-colors", itm ? "text-red-300" : "text-white/70")}>
             ${contract.price.toFixed(2)}
           </div>
           <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
@@ -126,10 +166,9 @@ export default function OptionsChainPage() {
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-6 py-6">
-        {/* Expiry type filter */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-white/50 text-sm mr-1">Expiry:</span>
+      <div className="max-w-[1436px] mx-auto px-6 py-6">
+        {/* Combined expiry row: category pills | separator | date pills */}
+        <div className="flex items-center gap-2 flex-wrap mb-4">
           {EXPIRY_TYPE_LABELS.map(type => (
             <button
               key={type}
@@ -148,10 +187,7 @@ export default function OptionsChainPage() {
               {type}
             </button>
           ))}
-        </div>
-
-        {/* Expiry date selector */}
-        <div className="flex items-center gap-2 mb-6">
+          <div className="w-px h-5 bg-white/20 mx-1" />
           {filteredExpiries.map(e => (
             <button
               key={e.code}
@@ -169,13 +205,21 @@ export default function OptionsChainPage() {
           ))}
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-4 mb-3 text-xs text-white/40">
+        {/* Legend — above the table */}
+        <div className="flex items-center gap-5 mb-4 text-xs text-white/50">
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-emerald-500/10 border border-emerald-500/20 inline-block" />
-            In the Money
+            <span className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/30 inline-block" />
+            In the Money (calls)
           </span>
-          <span>Click any contract to view details</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/30 inline-block" />
+            In the Money (puts)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-sm bg-white/10 border border-emerald-500/30 inline-block" />
+            At the Money
+          </span>
+          <span className="text-white/30">· Click any cell to view contract details</span>
         </div>
 
         {/* Chain table */}
@@ -220,60 +264,72 @@ export default function OptionsChainPage() {
                 const isAtm = strike === atmStrike;
                 const callItm = row?.call?.itm ?? false;
                 const putItm = row?.put?.itm ?? false;
-                const callBg = callItm ? "bg-emerald-500/[0.04]" : "";
-                const putBg = putItm ? "bg-red-500/[0.03]" : "";
                 const dash = <span className="text-white/20">—</span>;
 
                 return (
                   <tr
                     key={strike}
-                    className={cn("border-b transition-colors", isAtm ? "border-emerald-500/30" : "border-white/[0.04] hover:bg-white/[0.02]")}
-                    style={isAtm ? { borderTop: "1px solid rgba(52,211,153,0.25)" } : undefined}
+                    ref={isAtm ? atmRowRef : undefined}
+                    className={cn(
+                      "border-b transition-colors",
+                      isAtm
+                        ? "bg-white/[0.06] border-emerald-500/30"
+                        : "border-white/[0.04] hover:bg-white/[0.02]"
+                    )}
+                    style={isAtm ? {
+                      borderTop: "1px solid rgba(52,211,153,0.25)",
+                      borderBottom: "1px solid rgba(52,211,153,0.25)",
+                    } : undefined}
                   >
                     {/* ── CALL side ── */}
                     {(viewMode === "split" || viewMode === "calls") && (
                       <>
                         {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
-                          {row?.call ? row.call.gamma : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? row.call.gamma : dash}
+                          </Link>
                         </td>
                         {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
-                          {row?.call ? row.call.vega : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? row.call.vega : dash}
+                          </Link>
                         </td>
                         {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callBg)}>
-                          {row?.call ? row.call.theta : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? row.call.theta : dash}
+                          </Link>
                         </td>
                         {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callBg)}>
-                          {row?.call ? row.call.delta : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? row.call.delta : dash}
+                          </Link>
                         </td>
                         {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callBg)}>
-                          {row?.call ? `${row.call.iv}%` : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? `${row.call.iv}%` : dash}
+                          </Link>
                         </td>
                         {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
-                          {row?.call ? row.call.oi : dash}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.call ? row.call.oi : dash}
+                          </Link>
                         </td>
                         {/* Call LTP */}
-                        <td className={cn("px-3 py-2.5 text-right", callBg)}>
-                          {row?.call ? (
-                            <Link href={`/options/${symbol}/${row.call.contractId}`}
-                              className="inline-block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group text-right">
-                              <div className="text-white font-semibold group-hover:text-emerald-400 transition-colors">${row.call.price.toFixed(2)}</div>
-                              <div className={cn("text-[10px]", row.call.change >= 0 ? "text-emerald-400" : "text-red-400")}>
-                                {row.call.change >= 0 ? "+" : ""}{row.call.change.toFixed(2)}
-                              </div>
-                            </Link>
-                          ) : dash}
-                        </td>
+                        <CallCell contract={row?.call} />
                       </>
                     )}
 
                     {/* ── Strike ── */}
-                    <td className={cn("px-4 py-2.5 text-center font-bold text-sm bg-white/[0.03] whitespace-nowrap", isAtm ? "text-emerald-400" : "text-white")}>
+                    <td className={cn(
+                      "px-4 py-2.5 text-center font-bold text-sm bg-white/[0.03] whitespace-nowrap",
+                      isAtm ? "bg-emerald-400/10 text-emerald-400" : "text-white"
+                    )}>
                       {isAtm && <span className="block text-[8px] text-emerald-400/60 uppercase tracking-wider -mb-0.5">ATM</span>}
                       {strike.toLocaleString()}
                     </td>
@@ -282,40 +338,42 @@ export default function OptionsChainPage() {
                     {(viewMode === "split" || viewMode === "puts") && (
                       <>
                         {/* Put LTP */}
-                        <td className={cn("px-3 py-2.5 text-left", putBg)}>
-                          {row?.put ? (
-                            <Link href={`/options/${symbol}/${row.put.contractId}`}
-                              className="inline-block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group">
-                              <div className="text-white font-semibold group-hover:text-red-400 transition-colors">${row.put.price.toFixed(2)}</div>
-                              <div className={cn("text-[10px]", row.put.change >= 0 ? "text-emerald-400" : "text-red-400")}>
-                                {row.put.change >= 0 ? "+" : ""}{row.put.change.toFixed(2)}
-                              </div>
-                            </Link>
-                          ) : dash}
-                        </td>
+                        <PutCell contract={row?.put} />
                         {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
-                          {row?.put ? row.put.oi : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? row.put.oi : dash}
+                          </Link>
                         </td>
                         {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putBg)}>
-                          {row?.put ? `${row.put.iv}%` : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? `${row.put.iv}%` : dash}
+                          </Link>
                         </td>
                         {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putBg)}>
-                          {row?.put ? row.put.delta : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? row.put.delta : dash}
+                          </Link>
                         </td>
                         {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putBg)}>
-                          {row?.put ? row.put.theta : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? row.put.theta : dash}
+                          </Link>
                         </td>
                         {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
-                          {row?.put ? row.put.vega : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? row.put.vega : dash}
+                          </Link>
                         </td>
                         {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
-                          {row?.put ? row.put.gamma : dash}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-red-500/[0.08]" : "")}>
+                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
+                            {row?.put ? row.put.gamma : dash}
+                          </Link>
                         </td>
                       </>
                     )}

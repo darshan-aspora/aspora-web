@@ -533,9 +533,9 @@ export default function StockDetailPage() {
       {/* Breadcrumb */}
       <div className="max-w-[1200px] mx-auto px-6 pt-6">
         <nav className="flex items-center gap-2 text-sm text-white/50">
-          <span>Explore</span>
+          <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
           <span className="text-white/30">&gt;</span>
-          <span>Stocks</span>
+          <Link href="/explore" className="hover:text-white transition-colors">Stocks</Link>
           <span className="text-white/30">&gt;</span>
           <span className="text-white">{symbol}</span>
         </nav>

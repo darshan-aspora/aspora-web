@@ -520,9 +520,9 @@ export default function ETFDetailPage() {
       {/* Breadcrumb */}
       <div className="max-w-[1200px] mx-auto px-6 pt-6">
         <nav className="flex items-center gap-2 text-sm text-white/50">
-          <span>Explore</span>
+          <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
           <span className="text-white/30">&gt;</span>
-          <span>ETFs</span>
+          <Link href="/explore" className="hover:text-white transition-colors">ETFs</Link>
           <span className="text-white/30">&gt;</span>
           <span className="text-white">{symbol}</span>
         </nav>

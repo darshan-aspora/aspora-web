@@ -29,7 +29,6 @@ function generateCandleData(symbol: string, expiryCode: string, strike: number, 
     "3M": { count: 60, step: 86400 },
   };
   const { count, step } = configs[tf];
-  // option price floats around a base, jittered
   const base = 2 + rng() * 8;
   const candles = [];
   let close = base;
@@ -45,7 +44,6 @@ function generateCandleData(symbol: string, expiryCode: string, strike: number, 
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
-
 
 function PayoffSVG({
   contract,
@@ -259,12 +257,8 @@ function CandleChart({
     };
   }, [candles]);
 
-  const rng = seededRandom(hashSymbol(symbol + contract.expiryCode));
-  const oiChangePct = ((rng() - 0.4) * 10).toFixed(1);
-  const ivRank = Math.floor(30 + rng() * 60);
-
   return (
-    <div className="space-y-5">
+    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5 space-y-4">
       {/* Price header */}
       <div>
         <div className="text-3xl font-bold text-white tabular-nums">
@@ -307,476 +301,24 @@ function CandleChart({
         <div ref={containerRef} className="w-full" />
       </div>
 
-      {/* Stats row 1 */}
+      {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          {
-            label: "Period High",
-            value: `$${periodHigh.toFixed(2)}`,
-            color: "text-emerald-400",
-          },
-          {
-            label: "Period Low",
-            value: `$${periodLow.toFixed(2)}`,
-            color: "text-red-400",
-          },
+          { label: "Period High", value: `$${periodHigh.toFixed(2)}`, color: "text-emerald-400" },
+          { label: "Period Low", value: `$${periodLow.toFixed(2)}`, color: "text-red-400" },
           { label: "Open", value: `$${periodOpen.toFixed(2)}`, color: "text-white" },
         ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4"
-          >
+          <div key={s.label} className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4">
             <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
             <div className={cn("text-lg font-bold", s.color)}>{s.value}</div>
           </div>
         ))}
-      </div>
-
-      {/* Stats row 2 */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          {
-            label: "OI Change",
-            value: `${Number(oiChangePct) >= 0 ? "+" : ""}${oiChangePct}%`,
-            color: Number(oiChangePct) >= 0 ? "text-emerald-400" : "text-red-400",
-          },
-          { label: "IV Rank", value: `${ivRank}%`, color: "text-white" },
-          {
-            label: "Days to Exp",
-            value: String(
-              Math.max(
-                0,
-                Math.round(
-                  (new Date(contract.expiry).getTime() - Date.now()) /
-                    (1000 * 60 * 60 * 24)
-                )
-              )
-            ),
-            color: "text-white",
-          },
-        ].map((s) => (
-          <div
-            key={s.label}
-            className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4"
-          >
-            <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
-            <div className={cn("text-lg font-bold", s.color)}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function OverviewTab({
-  contract,
-  underlying,
-}: {
-  contract: OptionContract;
-  underlying: number;
-}) {
-  const isCall = contract.type === "CALL";
-  const breakeven = isCall ? contract.strike + contract.price : contract.strike - contract.price;
-  const maxProfit = isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`;
-  const maxLoss = `$${(contract.price * 100).toFixed(0)}`;
-  const daysLeft = Math.max(
-    0,
-    Math.round((new Date(contract.expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  );
-  const intrinsic = isCall
-    ? Math.max(0, underlying - contract.strike)
-    : Math.max(0, contract.strike - underlying);
-  const expectedPnl = intrinsic - contract.price;
-
-  return (
-    <div className="space-y-6">
-      {/* Max Profit / Max Loss hero */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 2v10M4 5l3-3 3 3" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="text-white/50 text-sm">Max Profit</span>
-          </div>
-          <div className="text-2xl font-bold text-emerald-400">{maxProfit}</div>
-        </div>
-        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 2v10M4 9l3 3 3-3" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <span className="text-white/50 text-sm">Max Loss</span>
-          </div>
-          <div className="text-2xl font-bold text-red-400">-{maxLoss}</div>
-        </div>
-      </div>
-
-      {/* Mini payoff chart block */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)" }}
-      >
-        {/* Expected Price + P&L */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <div className="text-white/40 text-xs mb-1">Expected Price at Expiry</div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-bold">${underlying.toFixed(2)}</span>
-              <span className={cn("text-xs", expectedPnl >= 0 ? "text-emerald-400" : "text-red-400")}>
-                ({(((underlying - contract.strike) / contract.strike) * 100).toFixed(1)}%)
-              </span>
-            </div>
-          </div>
-          <div>
-            <div className="text-white/40 text-xs mb-1">Expected P&amp;L</div>
-            <div
-              className={cn(
-                "text-xl font-bold",
-                expectedPnl >= 0 ? "text-emerald-400" : "text-red-400"
-              )}
-            >
-              {expectedPnl >= 0 ? "+" : ""}${(expectedPnl * 100).toFixed(0)}
-            </div>
-          </div>
-        </div>
-
-        <PayoffSVG contract={contract} underlying={underlying} />
-
-        {/* Break-even / Entry / Time */}
-        <div className="grid grid-cols-3 gap-3 mt-4">
-          {[
-            { label: "Break-even", value: `$${breakeven.toFixed(2)}` },
-            { label: "Entry Cost", value: `$${(contract.price * 100).toFixed(0)}` },
-            { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="bg-white/[0.03] rounded-xl p-3 text-center"
-            >
-              <div className="text-white/40 text-[11px] mb-1">{s.label}</div>
-              <div className="text-white font-bold text-sm">{s.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Positions widget */}
-      {(() => {
-        const qty = 2;
-        const avgCost = contract.price * 0.82;
-        const currentPrice = contract.price;
-        const pnl = (currentPrice - avgCost) * qty * 100;
-        const pnlPct = ((currentPrice - avgCost) / avgCost) * 100;
-        const pos = pnl >= 0;
-        return (
-          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-white font-semibold text-sm">Your Position</span>
-              <span className="text-white/40 text-xs px-2 py-0.5 rounded-full bg-white/[0.06]">Active</span>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-              <div>
-                <div className="text-white/40 text-xs mb-0.5">Qty</div>
-                <div className="text-white font-semibold">{qty} contracts</div>
-              </div>
-              <div>
-                <div className="text-white/40 text-xs mb-0.5">Avg Cost</div>
-                <div className="text-white font-semibold">${avgCost.toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-white/40 text-xs mb-0.5">LTP</div>
-                <div className="text-white font-semibold">${currentPrice.toFixed(2)}</div>
-              </div>
-              <div>
-                <div className="text-white/40 text-xs mb-0.5">Unrealised P&amp;L</div>
-                <div className={cn("font-bold", pos ? "text-emerald-400" : "text-red-400")}>
-                  {pos ? "+" : ""}${Math.abs(pnl).toFixed(0)}{" "}
-                  <span className="text-xs font-medium">({pos ? "+" : ""}{pnlPct.toFixed(1)}%)</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Price performance bar */}
-      {(() => {
-        const low52 = underlying * 0.72;
-        const high52 = underlying * 1.28;
-        const pct = ((underlying - low52) / (high52 - low52)) * 100;
-        return (
-          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-white/50 text-sm font-medium">Price Range</span>
-              <span className="text-white font-bold text-sm">${underlying.toFixed(2)} LTP</span>
-            </div>
-            <div className="relative h-1.5 rounded-full bg-white/10 mb-2">
-              <div className="absolute h-full rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-emerald-400 w-full opacity-30" />
-              <div
-                className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow-lg"
-                style={{ left: `calc(${pct}% - 6px)` }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-white/40 mt-1">
-              <span>52W Low · ${Math.round(low52)}</span>
-              <span>52W High · ${Math.round(high52)}</span>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Greeks — compact single row */}
-      <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-        <h3 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          Greeks
-          <span className="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
-            <Info size={9} className="text-white/40" />
-          </span>
-        </h3>
-        <div className="grid grid-cols-4 gap-3">
-          {[
-            { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-400" },
-            { label: "Theta", value: String(contract.theta), color: "text-red-400" },
-            { label: "Gamma", value: String(contract.gamma), color: "text-white" },
-            { label: "Vega", value: String(contract.vega), color: "text-white" },
-          ].map((g) => (
-            <div key={g.label} className="text-center">
-              <div className="text-white/40 text-[11px] mb-1">{g.label}</div>
-              <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Market Depth */}
-      {(() => {
-        const rng = seededRandom(hashSymbol(contract.contractId));
-        const mid = contract.price;
-        const bids = Array.from({ length: 5 }, (_, i) => ({
-          price: parseFloat((mid - (i + 1) * 0.02).toFixed(2)),
-          qty: Math.floor(50 + rng() * 200),
-        }));
-        const asks = Array.from({ length: 5 }, (_, i) => ({
-          price: parseFloat((mid + (i + 1) * 0.02).toFixed(2)),
-          qty: Math.floor(50 + rng() * 200),
-        }));
-        const maxQty = Math.max(...bids.map(b => b.qty), ...asks.map(a => a.qty));
-        return (
-          <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-white font-semibold text-sm">Market Depth</span>
-              <div className="flex items-center gap-3 text-xs">
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Bid</span>
-                <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />Ask</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {/* Bids */}
-              <div className="space-y-1">
-                <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
-                  <span>Price</span><span className="text-right">Qty</span>
-                </div>
-                {bids.map((b, i) => (
-                  <div key={i} className="relative rounded-md overflow-hidden">
-                    <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
-                    <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
-                      <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
-                      <span className="text-white/60 text-right tabular-nums">{b.qty}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* Asks */}
-              <div className="space-y-1">
-                <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
-                  <span>Price</span><span className="text-right">Qty</span>
-                </div>
-                {asks.map((a, i) => (
-                  <div key={i} className="relative rounded-md overflow-hidden">
-                    <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
-                    <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
-                      <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
-                      <span className="text-white/60 text-right tabular-nums">{a.qty}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between text-xs text-white/40">
-              <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
-              <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
-              <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Contract details */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)" }}
-      >
-        <h3 className="text-white font-semibold text-sm mb-4">Contract Details</h3>
-        <div className="space-y-2.5 text-sm">
-          {[
-            ["IV", `${contract.iv}%`],
-            ["Open Interest", contract.oi],
-            ["Volume", contract.volume],
-            ["Bid / Ask", `$${contract.bid} / $${contract.ask}`],
-            ["Strike Price", `$${contract.strike.toLocaleString()}`],
-            ["Contract Size", "100 shares"],
-            ["Exercise Style", "American"],
-          ].map(([k, v]) => (
-            <div
-              key={k}
-              className="flex justify-between py-1.5 border-b border-white/[0.05] last:border-0"
-            >
-              <span className="text-white/50">{k}</span>
-              <span className="text-white font-medium">{v}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PayoffTab({
-  contract,
-  underlying,
-}: {
-  contract: OptionContract;
-  underlying: number;
-}) {
-  const isCall = contract.type === "CALL";
-  const breakeven = isCall ? contract.strike + contract.price : contract.strike - contract.price;
-  const daysLeft = Math.max(
-    0,
-    Math.round((new Date(contract.expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-  );
-  const [perspective, setPerspective] = useState<"buy" | "sell">("buy");
-
-  return (
-    <div className="space-y-6">
-      <div
-        className="rounded-2xl p-6"
-        style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)" }}
-      >
-        {/* Buy / Sell perspective toggle */}
-        <div className="flex justify-end mb-5">
-          <div className="flex items-center bg-white/[0.06] rounded-full p-1 gap-0.5">
-            <button
-              onClick={() => setPerspective("buy")}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
-                perspective === "buy"
-                  ? "bg-white text-neutral-900 shadow"
-                  : "text-white/50 hover:text-white"
-              )}
-            >
-              Buy
-            </button>
-            <button
-              onClick={() => setPerspective("sell")}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
-                perspective === "sell"
-                  ? "bg-red-500 text-white shadow"
-                  : "text-white/50 hover:text-white"
-              )}
-            >
-              Sell
-            </button>
-          </div>
-        </div>
-
-        <PayoffSVG contract={contract} underlying={underlying} interactive seller={perspective === "sell"} />
-
-        <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/[0.06]">
-          {[
-            { label: "Break-even", value: `$${breakeven.toFixed(2)}` },
-            { label: "Entry Cost", value: `$${(contract.price * 100).toFixed(0)}` },
-            { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 text-center"
-            >
-              <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
-              <div className="text-white font-bold">{s.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick nav links */}
-        <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-white/[0.06]">
-          <Link
-            href={`/stocks/${symbol}`}
-            className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
-          >
-            <div>
-              <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
-              <div className="text-white font-semibold text-sm">{symbol}</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
-              <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-          <Link
-            href={`/options/${symbol}`}
-            className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
-          >
-            <div>
-              <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
-              <div className="text-white font-semibold text-sm">All strikes</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
-              <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-        </div>
-      </div>
-
-      {/* Risk profile */}
-      <div
-        className="rounded-2xl p-5"
-        style={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)" }}
-      >
-        <h3 className="text-white font-semibold text-sm mb-4">Risk Profile</h3>
-        <div className="space-y-0 divide-y divide-white/[0.06]">
-          {[
-            {
-              label: "Max Profit",
-              value: isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`,
-              color: "text-emerald-400",
-            },
-            {
-              label: "Max Loss",
-              value: `-$${(contract.price * 100).toFixed(0)}`,
-              color: "text-red-400",
-            },
-            { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-white" },
-            { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-white" },
-          ].map((r) => (
-            <div key={r.label} className="flex justify-between items-center py-3">
-              <span className="text-white/50 text-sm">{r.label}</span>
-              <span className={cn("font-semibold text-sm", r.color)}>{r.value}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
 }
 
 // ─── Page ───────────────────────────────────────────────────────────────────
-
-type Tab = "Overview" | "Candle Chart" | "Payoff";
 
 export default function OptionLegDetailPage() {
   const params = useParams();
@@ -788,7 +330,7 @@ export default function OptionLegDetailPage() {
 
   const underlying = getBasePrice(symbol);
   const expiries = getExpiries(symbol);
-  const [tab, setTab] = useState<Tab>("Overview");
+  const [perspective, setPerspective] = useState<"buy" | "sell">("buy");
 
   const contract: OptionContract | undefined = useMemo(() => {
     const parts = contractId.split("-");
@@ -821,6 +363,40 @@ export default function OptionLegDetailPage() {
   const isCall = contract.type === "CALL";
   const pos = contract.change >= 0;
   const expiry = expiries.find((e) => e.code === contract.expiryCode);
+  const daysLeft = Math.max(
+    0,
+    Math.round((new Date(contract.expiry).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  );
+  const breakeven = isCall ? contract.strike + contract.price : contract.strike - contract.price;
+  const intrinsic = isCall
+    ? Math.max(0, underlying - contract.strike)
+    : Math.max(0, contract.strike - underlying);
+  const expectedPnl = intrinsic - contract.price;
+
+  // Positions widget data
+  const qty = 2;
+  const avgCost = contract.price * 0.82;
+  const pnl = (contract.price - avgCost) * qty * 100;
+  const pnlPct = ((contract.price - avgCost) / avgCost) * 100;
+  const pnlPos = pnl >= 0;
+
+  // Performance bar
+  const low52 = underlying * 0.72;
+  const high52 = underlying * 1.28;
+  const perfPct = ((underlying - low52) / (high52 - low52)) * 100;
+
+  // Market depth
+  const depthRng = seededRandom(hashSymbol(contract.contractId));
+  const mid = contract.price;
+  const bids = Array.from({ length: 5 }, (_, i) => ({
+    price: parseFloat((mid - (i + 1) * 0.02).toFixed(2)),
+    qty: Math.floor(50 + depthRng() * 200),
+  }));
+  const asks = Array.from({ length: 5 }, (_, i) => ({
+    price: parseFloat((mid + (i + 1) * 0.02).toFixed(2)),
+    qty: Math.floor(50 + depthRng() * 200),
+  }));
+  const maxQty = Math.max(...bids.map(b => b.qty), ...asks.map(a => a.qty));
 
   return (
     <div className="min-h-screen bg-[#0f0f11]">
@@ -854,91 +430,302 @@ export default function OptionLegDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-[760px] mx-auto px-6 py-8">
-        {/* Price header */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <div className="text-4xl font-bold text-white tabular-nums mb-1">
-              ${contract.price.toFixed(2)}
+      {/* Two-column layout */}
+      <div className="max-w-[1436px] mx-auto px-6 py-8">
+        <div className="flex gap-8 items-start">
+
+          {/* ── LEFT COLUMN ── */}
+          <div className="flex-1 min-w-0 space-y-6">
+
+            {/* Candle Chart */}
+            <CandleChart contract={contract} symbol={symbol} />
+
+            {/* Payoff chart */}
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-white font-semibold">Payoff at Expiry</h3>
+                {/* Buy / Sell toggle */}
+                <div className="flex items-center bg-white/[0.06] rounded-full p-1 gap-0.5">
+                  <button
+                    onClick={() => setPerspective("buy")}
+                    className={cn(
+                      "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
+                      perspective === "buy"
+                        ? "bg-white text-neutral-900 shadow"
+                        : "text-white/50 hover:text-white"
+                    )}
+                  >
+                    Buy
+                  </button>
+                  <button
+                    onClick={() => setPerspective("sell")}
+                    className={cn(
+                      "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
+                      perspective === "sell"
+                        ? "bg-red-500 text-white shadow"
+                        : "text-white/50 hover:text-white"
+                    )}
+                  >
+                    Sell
+                  </button>
+                </div>
+              </div>
+
+              <PayoffSVG contract={contract} underlying={underlying} interactive seller={perspective === "sell"} />
+
+              <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/[0.06]">
+                {[
+                  { label: "Break-even", value: `$${breakeven.toFixed(2)}` },
+                  { label: "Entry Cost", value: `$${(contract.price * 100).toFixed(0)}` },
+                  { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
+                ].map((s) => (
+                  <div key={s.label} className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 text-center">
+                    <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
+                    <div className="text-white font-bold">{s.value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div
-              className={cn(
-                "text-sm font-medium",
-                pos ? "text-emerald-400" : "text-red-400"
-              )}
-            >
-              {pos ? "+" : ""}${contract.change.toFixed(2)} ({pos ? "+" : ""}
-              {contract.changePct}%) today
-            </div>
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span
-                className={cn(
-                  "px-2.5 py-1 rounded-full text-xs font-medium",
-                  contract.itm
-                    ? "bg-white/10 text-white/70"
-                    : "bg-white/[0.05] text-white/40"
-                )}
+
+            {/* Quick nav links */}
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href={`/stocks/${symbol}`}
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
               >
-                {contract.itm ? "In the Money" : "Out of the Money"}
-              </span>
-              {expiry && (
-                <span className="text-white/40 text-xs">
-                  {expiry.daysToExpiry}d to expiry
-                </span>
-              )}
+                <div>
+                  <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+                  <div className="text-white font-semibold text-sm">{symbol}</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+              <Link
+                href={`/options/${symbol}`}
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
+              >
+                <div>
+                  <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+                  <div className="text-white font-semibold text-sm">All strikes</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </div>
+
+            {/* Risk Profile */}
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+              <h3 className="text-white font-semibold text-sm mb-4">Risk Profile</h3>
+              <div className="space-y-0 divide-y divide-white/[0.06]">
+                {[
+                  {
+                    label: "Max Profit",
+                    value: isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`,
+                    color: "text-emerald-400",
+                  },
+                  {
+                    label: "Max Loss",
+                    value: `-$${(contract.price * 100).toFixed(0)}`,
+                    color: "text-red-400",
+                  },
+                  { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-white" },
+                  { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-white" },
+                ].map((r) => (
+                  <div key={r.label} className="flex justify-between items-center py-3">
+                    <span className="text-white/50 text-sm">{r.label}</span>
+                    <span className={cn("font-semibold text-sm", r.color)}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="text-right text-sm text-white/40 mt-1">
-            <div>Bid <span className="text-white/60">${contract.bid}</span></div>
-            <div className="mt-0.5">Ask <span className="text-white/60">${contract.ask}</span></div>
-            <div className="mt-0.5">Underlying <span className="text-white/60">${underlying.toLocaleString()}</span></div>
+
+          {/* ── RIGHT COLUMN ── */}
+          <div className="w-[400px] shrink-0 sticky top-[57px] space-y-4">
+
+            {/* Price header */}
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <div className="text-4xl font-bold text-white tabular-nums mb-1">
+                    ${contract.price.toFixed(2)}
+                  </div>
+                  <div className={cn("text-sm font-medium", pos ? "text-emerald-400" : "text-red-400")}>
+                    {pos ? "+" : ""}${contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%) today
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <span className={cn(
+                      "px-2.5 py-1 rounded-full text-xs font-medium",
+                      contract.itm ? "bg-white/10 text-white/70" : "bg-white/[0.05] text-white/40"
+                    )}>
+                      {contract.itm ? "In the Money" : "Out of the Money"}
+                    </span>
+                    {expiry && (
+                      <span className="text-white/40 text-xs">{expiry.daysToExpiry}d to expiry</span>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right text-sm text-white/40 mt-1">
+                  <div>Bid <span className="text-white/60">${contract.bid}</span></div>
+                  <div className="mt-0.5">Ask <span className="text-white/60">${contract.ask}</span></div>
+                  <div className="mt-0.5">Underlying <span className="text-white/60">${underlying.toLocaleString()}</span></div>
+                </div>
+              </div>
+
+              {/* Read-only notice */}
+              <div
+                className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+              >
+                <Info size={14} className="text-white/30 mt-0.5 shrink-0" />
+                <span className="text-white/40">This is a read-only view. Trading is available on the Aspora mobile app.</span>
+              </div>
+            </div>
+
+            {/* Positions widget */}
+            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-white font-semibold text-sm">Your Position</span>
+                <span className="text-white/40 text-xs px-2 py-0.5 rounded-full bg-white/[0.06]">Active</span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div>
+                  <div className="text-white/40 text-xs mb-0.5">Qty</div>
+                  <div className="text-white font-semibold">{qty} contracts</div>
+                </div>
+                <div>
+                  <div className="text-white/40 text-xs mb-0.5">Avg Cost</div>
+                  <div className="text-white font-semibold">${avgCost.toFixed(2)}</div>
+                </div>
+                <div>
+                  <div className="text-white/40 text-xs mb-0.5">LTP</div>
+                  <div className="text-white font-semibold">${contract.price.toFixed(2)}</div>
+                </div>
+                <div>
+                  <div className="text-white/40 text-xs mb-0.5">Unrealised P&amp;L</div>
+                  <div className={cn("font-bold", pnlPos ? "text-emerald-400" : "text-red-400")}>
+                    {pnlPos ? "+" : ""}${Math.abs(pnl).toFixed(0)}{" "}
+                    <span className="text-xs font-medium">({pnlPos ? "+" : ""}{pnlPct.toFixed(1)}%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance bar */}
+            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-white/50 text-sm font-medium">52W Range</span>
+                <span className="text-white font-bold text-sm">${underlying.toFixed(2)} LTP</span>
+              </div>
+              <div className="relative h-1.5 rounded-full bg-white/10 mb-2">
+                <div className="absolute h-full rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-emerald-400 w-full opacity-30" />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow-lg"
+                  style={{ left: `calc(${perfPct}% - 6px)` }}
+                />
+              </div>
+              <div className="flex justify-between text-xs text-white/40 mt-1">
+                <span>52W Low · ${Math.round(low52)}</span>
+                <span>52W High · ${Math.round(high52)}</span>
+              </div>
+            </div>
+
+            {/* Greeks compact */}
+            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+              <h3 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                Greeks
+                <span className="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
+                  <Info size={9} className="text-white/40" />
+                </span>
+              </h3>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-400" },
+                  { label: "Theta", value: String(contract.theta), color: "text-red-400" },
+                  { label: "Gamma", value: String(contract.gamma), color: "text-white" },
+                  { label: "Vega", value: String(contract.vega), color: "text-white" },
+                ].map((g) => (
+                  <div key={g.label} className="text-center">
+                    <div className="text-white/40 text-[11px] mb-1">{g.label}</div>
+                    <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Market depth */}
+            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-white font-semibold text-sm">Market Depth</span>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Bid</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />Ask</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                    <span>Price</span><span className="text-right">Qty</span>
+                  </div>
+                  {bids.map((b, i) => (
+                    <div key={i} className="relative rounded-md overflow-hidden">
+                      <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
+                      <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
+                        <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
+                        <span className="text-white/60 text-right tabular-nums">{b.qty}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-1">
+                  <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                    <span>Price</span><span className="text-right">Qty</span>
+                  </div>
+                  {asks.map((a, i) => (
+                    <div key={i} className="relative rounded-md overflow-hidden">
+                      <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
+                      <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
+                        <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
+                        <span className="text-white/60 text-right tabular-nums">{a.qty}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between text-xs text-white/40">
+                <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
+                <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
+                <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Contract details */}
+            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+              <h3 className="text-white font-semibold text-sm mb-4">Contract Details</h3>
+              <div className="space-y-2.5 text-sm">
+                {[
+                  ["IV", `${contract.iv}%`],
+                  ["Open Interest", contract.oi],
+                  ["Volume", contract.volume],
+                  ["Bid / Ask", `$${contract.bid} / $${contract.ask}`],
+                  ["Strike Price", `$${contract.strike.toLocaleString()}`],
+                  ["Contract Size", "100 shares"],
+                  ["Exercise Style", "American"],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex justify-between py-1.5 border-b border-white/[0.05] last:border-0">
+                    <span className="text-white/50">{k}</span>
+                    <span className="text-white font-medium">{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Read-only notice */}
-        <div
-          className="flex items-start gap-2 rounded-xl px-4 py-3 mb-6 text-sm"
-          style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.07)",
-          }}
-        >
-          <Info size={14} className="text-white/30 mt-0.5 shrink-0" />
-          <span className="text-white/40">
-            This is a read-only view. Trading is available on the Aspora mobile app.
-          </span>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-white/[0.08] mb-6">
-          {(["Overview", "Candle Chart", "Payoff"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
-                tab === t
-                  ? "border-white text-white"
-                  : "border-transparent text-white/50 hover:text-white/80"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab content */}
-        {tab === "Overview" && (
-          <OverviewTab contract={contract} underlying={underlying} />
-        )}
-        {tab === "Candle Chart" && (
-          <CandleChart contract={contract} symbol={symbol} />
-        )}
-        {tab === "Payoff" && (
-          <PayoffTab contract={contract} underlying={underlying} />
-        )}
-
-        {/* Register nudge */}
+        {/* Register nudge — full width below both columns */}
         <div className="mt-8 bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6">
           <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">
             Free to join
