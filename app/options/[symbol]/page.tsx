@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +19,7 @@ type ViewMode = "split" | "calls" | "puts";
 
 export default function OptionsChainPage() {
   const params = useParams();
+  const router = useRouter();
   const rawSymbol = Array.isArray(params.symbol) ? params.symbol[0] : (params.symbol ?? "");
   const symbol = rawSymbol.toUpperCase();
 
@@ -111,46 +112,42 @@ export default function OptionsChainPage() {
     );
   }
 
-  function CallCell({ contract }: { contract?: OptionContract }) {
+  function CallCell({ contract, onNavigate }: { contract?: OptionContract; onNavigate?: () => void }) {
     if (!contract) return <td className="px-3 py-2.5" />;
     const pos = contract.change >= 0;
     const itm = contract.itm;
     return (
-      <td className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "")}>
-        <Link
-          href={`/options/${symbol}/${contract.contractId}`}
-          className="block hover:bg-white/[0.05] rounded-lg px-2 py-1 -mx-2 transition-colors group"
-        >
-          <div className={cn("text-sm font-semibold group-hover:text-white transition-colors", itm ? "text-white" : "text-white/60")}>
-            ${contract.price.toFixed(2)}
-          </div>
-          <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
-            {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
-          </div>
-          <OIBar oi={contract.oi} side="call" />
-        </Link>
+      <td
+        onClick={onNavigate}
+        className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+      >
+        <div className={cn("text-sm font-semibold", itm ? "text-white" : "text-white/60")}>
+          ${contract.price.toFixed(2)}
+        </div>
+        <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
+          {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
+        </div>
+        <OIBar oi={contract.oi} side="call" />
       </td>
     );
   }
 
-  function PutCell({ contract }: { contract?: OptionContract }) {
+  function PutCell({ contract, onNavigate }: { contract?: OptionContract; onNavigate?: () => void }) {
     if (!contract) return <td className="px-3 py-2.5" />;
     const pos = contract.change >= 0;
     const itm = contract.itm;
     return (
-      <td className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "")}>
-        <Link
-          href={`/options/${symbol}/${contract.contractId}`}
-          className="block hover:bg-white/[0.05] rounded-lg px-2 py-1 -mx-2 transition-colors group"
-        >
-          <div className={cn("text-sm font-semibold group-hover:text-white transition-colors", itm ? "text-white" : "text-white/60")}>
-            ${contract.price.toFixed(2)}
-          </div>
-          <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
-            {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
-          </div>
-          <OIBar oi={contract.oi} side="put" />
-        </Link>
+      <td
+        onClick={onNavigate}
+        className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+      >
+        <div className={cn("text-sm font-semibold", itm ? "text-white" : "text-white/60")}>
+          ${contract.price.toFixed(2)}
+        </div>
+        <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
+          {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
+        </div>
+        <OIBar oi={contract.oi} side="put" />
       </td>
     );
   }
@@ -323,48 +320,29 @@ export default function OptionsChainPage() {
                     } : undefined}
                   >
                     {/* ── CALL side ── */}
-                    {(viewMode === "split" || viewMode === "calls") && (
-                      <>
-                        {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? row.call.gamma : dash}
-                          </Link>
+                    {(viewMode === "split" || viewMode === "calls") && (() => {
+                      const callHref = row?.call ? `/options/${symbol}/${row.call.contractId}` : null;
+                      const callClick = callHref ? () => router.push(callHref) : undefined;
+                      const callTd = (extra: string, content: React.ReactNode) => (
+                        <td
+                          onClick={callClick}
+                          className={cn("px-2 py-2.5 tabular-nums", extra, callItm ? "bg-emerald-500/[0.07]" : "", callHref ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+                        >
+                          {content}
                         </td>
-                        {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? row.call.vega : dash}
-                          </Link>
-                        </td>
-                        {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? row.call.theta : dash}
-                          </Link>
-                        </td>
-                        {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? row.call.delta : dash}
-                          </Link>
-                        </td>
-                        {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? `${row.call.iv}%` : dash}
-                          </Link>
-                        </td>
-                        {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.call ? row.call.oi : dash}
-                          </Link>
-                        </td>
-                        {/* Call LTP */}
-                        <CallCell contract={row?.call} />
-                      </>
-                    )}
+                      );
+                      return (
+                        <>
+                          {callTd("text-right text-white/50", row?.call ? row.call.gamma : dash)}
+                          {callTd("text-right text-white/50", row?.call ? row.call.vega : dash)}
+                          {callTd("text-right text-red-400/80", row?.call ? row.call.theta : dash)}
+                          {callTd("text-right text-emerald-400/90 font-medium", row?.call ? row.call.delta : dash)}
+                          {callTd("text-right text-white/60", row?.call ? `${row.call.iv}%` : dash)}
+                          {callTd("text-right text-white/50", row?.call ? row.call.oi : dash)}
+                          <CallCell contract={row?.call} onNavigate={callClick} />
+                        </>
+                      );
+                    })()}
 
                     {/* ── Strike ── */}
                     <td className={cn(
@@ -376,48 +354,29 @@ export default function OptionsChainPage() {
                     </td>
 
                     {/* ── PUT side ── */}
-                    {(viewMode === "split" || viewMode === "puts") && (
-                      <>
-                        {/* Put LTP */}
-                        <PutCell contract={row?.put} />
-                        {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? row.put.oi : dash}
-                          </Link>
+                    {(viewMode === "split" || viewMode === "puts") && (() => {
+                      const putHref = row?.put ? `/options/${symbol}/${row.put.contractId}` : null;
+                      const putClick = putHref ? () => router.push(putHref) : undefined;
+                      const putTd = (extra: string, content: React.ReactNode) => (
+                        <td
+                          onClick={putClick}
+                          className={cn("px-2 py-2.5 tabular-nums", extra, putItm ? "bg-emerald-500/[0.07]" : "", putHref ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+                        >
+                          {content}
                         </td>
-                        {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? `${row.put.iv}%` : dash}
-                          </Link>
-                        </td>
-                        {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? row.put.delta : dash}
-                          </Link>
-                        </td>
-                        {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? row.put.theta : dash}
-                          </Link>
-                        </td>
-                        {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? row.put.vega : dash}
-                          </Link>
-                        </td>
-                        {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
-                          <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
-                            {row?.put ? row.put.gamma : dash}
-                          </Link>
-                        </td>
-                      </>
-                    )}
+                      );
+                      return (
+                        <>
+                          <PutCell contract={row?.put} onNavigate={putClick} />
+                          {putTd("text-left text-white/50", row?.put ? row.put.oi : dash)}
+                          {putTd("text-left text-white/60", row?.put ? `${row.put.iv}%` : dash)}
+                          {putTd("text-left text-red-400/80 font-medium", row?.put ? row.put.delta : dash)}
+                          {putTd("text-left text-red-400/80", row?.put ? row.put.theta : dash)}
+                          {putTd("text-left text-white/50", row?.put ? row.put.vega : dash)}
+                          {putTd("text-left text-white/50", row?.put ? row.put.gamma : dash)}
+                        </>
+                      );
+                    })()}
                   </tr>
                 );
               })}
