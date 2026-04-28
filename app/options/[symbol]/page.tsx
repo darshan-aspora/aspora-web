@@ -180,114 +180,142 @@ export default function OptionsChainPage() {
 
         {/* Chain table */}
         <div
-          className="rounded-2xl overflow-hidden"
+          className="rounded-2xl overflow-x-auto"
           style={{ border: "1px solid rgba(255,255,255,0.08)" }}
         >
-          <table className="w-full text-sm border-collapse">
+          <table className="text-xs border-collapse" style={{ minWidth: viewMode === "split" ? 1100 : 560, width: "100%" }}>
             <thead>
               <tr style={{ background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                {/* Call side label */}
                 {(viewMode === "split" || viewMode === "calls") && (
                   <>
-                    <th className="px-3 py-3 text-right text-white/40 text-xs font-medium uppercase tracking-wider">
-                      Call Price
-                    </th>
-                    <th className="px-3 py-3 text-right text-white/40 text-xs font-medium uppercase tracking-wider">
-                      OI / Volume
-                    </th>
-                    <th className="px-3 py-3 text-right text-white/40 text-xs font-medium uppercase tracking-wider">
-                      IV / Delta
-                    </th>
+                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
+                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
+                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
+                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
+                    <th className="px-2 py-3 text-right text-white/40 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
+                    <th className="px-3 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Call LTP</th>
                   </>
                 )}
-                <th className="px-5 py-3 text-center text-white/70 text-xs font-bold uppercase tracking-wider bg-white/[0.03]">
-                  Strike
-                </th>
+                {/* Strike */}
+                <th className="px-4 py-3 text-center text-white/70 text-[10px] font-bold uppercase tracking-wider bg-white/[0.03] whitespace-nowrap">Strike</th>
+                {/* Put side */}
                 {(viewMode === "split" || viewMode === "puts") && (
                   <>
-                    <th className="px-3 py-3 text-left text-white/40 text-xs font-medium uppercase tracking-wider">
-                      IV / Delta
-                    </th>
-                    <th className="px-3 py-3 text-left text-white/40 text-xs font-medium uppercase tracking-wider">
-                      OI / Volume
-                    </th>
-                    <th className="px-3 py-3 text-left text-white/40 text-xs font-medium uppercase tracking-wider">
-                      Put Price
-                    </th>
+                    <th className="px-3 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Put LTP</th>
+                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
+                    <th className="px-2 py-3 text-left text-white/40 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
+                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
+                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
+                    <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Gamma</th>
                   </>
                 )}
               </tr>
             </thead>
             <tbody>
-              {strikes.map((strike, i) => {
+              {strikes.map((strike) => {
                 const row = byStrikeType[strike];
                 const isAtm = strike === atmStrike;
                 const callItm = row?.call?.itm ?? false;
                 const putItm = row?.put?.itm ?? false;
+                const callBg = callItm ? "bg-emerald-500/[0.04]" : "";
+                const putBg = putItm ? "bg-red-500/[0.03]" : "";
+                const dash = <span className="text-white/20">—</span>;
 
                 return (
                   <tr
                     key={strike}
-                    className={cn(
-                      "border-b transition-colors",
-                      isAtm
-                        ? "border-emerald-500/30"
-                        : "border-white/[0.04] hover:bg-white/[0.02]"
-                    )}
-                    style={isAtm ? { borderTop: "1px solid rgba(52,211,153,0.3)" } : undefined}
+                    className={cn("border-b transition-colors", isAtm ? "border-emerald-500/30" : "border-white/[0.04] hover:bg-white/[0.02]")}
+                    style={isAtm ? { borderTop: "1px solid rgba(52,211,153,0.25)" } : undefined}
                   >
+                    {/* ── CALL side ── */}
                     {(viewMode === "split" || viewMode === "calls") && (
                       <>
-                        <td className={cn("px-3 py-2.5 text-right", callItm && "bg-emerald-500/[0.03]")}>
+                        {/* Gamma */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
+                          {row?.call ? row.call.gamma : dash}
+                        </td>
+                        {/* Vega */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
+                          {row?.call ? row.call.vega : dash}
+                        </td>
+                        {/* Theta */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callBg)}>
+                          {row?.call ? row.call.theta : dash}
+                        </td>
+                        {/* Delta */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callBg)}>
+                          {row?.call ? row.call.delta : dash}
+                        </td>
+                        {/* IV */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callBg)}>
+                          {row?.call ? `${row.call.iv}%` : dash}
+                        </td>
+                        {/* OI */}
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callBg)}>
+                          {row?.call ? row.call.oi : dash}
+                        </td>
+                        {/* Call LTP */}
+                        <td className={cn("px-3 py-2.5 text-right", callBg)}>
                           {row?.call ? (
                             <Link href={`/options/${symbol}/${row.call.contractId}`}
-                              className="block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group text-right">
-                              <div className="text-white font-semibold group-hover:text-emerald-400 transition-colors">
-                                ${row.call.price.toFixed(2)}
-                              </div>
-                              <div className={cn("text-xs", row.call.change >= 0 ? "text-emerald-400" : "text-red-400")}>
-                                {row.call.change >= 0 ? "+" : ""}{row.call.change.toFixed(2)} ({row.call.change >= 0 ? "+" : ""}{row.call.changePct}%)
+                              className="inline-block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group text-right">
+                              <div className="text-white font-semibold group-hover:text-emerald-400 transition-colors">${row.call.price.toFixed(2)}</div>
+                              <div className={cn("text-[10px]", row.call.change >= 0 ? "text-emerald-400" : "text-red-400")}>
+                                {row.call.change >= 0 ? "+" : ""}{row.call.change.toFixed(2)}
                               </div>
                             </Link>
-                          ) : <span className="text-white/20">—</span>}
-                        </td>
-                        <td className={cn("px-3 py-2.5 text-right text-white/50 text-xs", callItm && "bg-emerald-500/[0.03]")}>
-                          {row?.call && <><div>{row.call.oi}</div><div className="text-white/30">{row.call.volume}</div></>}
-                        </td>
-                        <td className={cn("px-3 py-2.5 text-right text-white/50 text-xs", callItm && "bg-emerald-500/[0.03]")}>
-                          {row?.call && <><div>{row.call.iv}%</div><div className="text-white/30">Δ {row.call.delta}</div></>}
+                          ) : dash}
                         </td>
                       </>
                     )}
 
-                    {/* Strike */}
-                    <td className={cn(
-                      "px-5 py-2.5 text-center font-bold text-sm bg-white/[0.03]",
-                      isAtm ? "text-emerald-400" : "text-white"
-                    )}>
-                      {isAtm && <span className="block text-[9px] text-emerald-400/70 uppercase tracking-wider mb-0.5">ATM</span>}
+                    {/* ── Strike ── */}
+                    <td className={cn("px-4 py-2.5 text-center font-bold text-sm bg-white/[0.03] whitespace-nowrap", isAtm ? "text-emerald-400" : "text-white")}>
+                      {isAtm && <span className="block text-[8px] text-emerald-400/60 uppercase tracking-wider -mb-0.5">ATM</span>}
                       {strike.toLocaleString()}
                     </td>
 
+                    {/* ── PUT side ── */}
                     {(viewMode === "split" || viewMode === "puts") && (
                       <>
-                        <td className={cn("px-3 py-2.5 text-left text-white/50 text-xs", putItm && "bg-red-500/[0.03]")}>
-                          {row?.put && <><div>{row.put.iv}%</div><div className="text-white/30">Δ {row.put.delta}</div></>}
-                        </td>
-                        <td className={cn("px-3 py-2.5 text-left text-white/50 text-xs", putItm && "bg-red-500/[0.03]")}>
-                          {row?.put && <><div>{row.put.oi}</div><div className="text-white/30">{row.put.volume}</div></>}
-                        </td>
-                        <td className={cn("px-3 py-2.5 text-left", putItm && "bg-red-500/[0.03]")}>
+                        {/* Put LTP */}
+                        <td className={cn("px-3 py-2.5 text-left", putBg)}>
                           {row?.put ? (
                             <Link href={`/options/${symbol}/${row.put.contractId}`}
-                              className="block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group">
-                              <div className="text-white font-semibold group-hover:text-red-400 transition-colors">
-                                ${row.put.price.toFixed(2)}
-                              </div>
-                              <div className={cn("text-xs", row.put.change >= 0 ? "text-emerald-400" : "text-red-400")}>
-                                {row.put.change >= 0 ? "+" : ""}{row.put.change.toFixed(2)} ({row.put.change >= 0 ? "+" : ""}{row.put.changePct}%)
+                              className="inline-block hover:bg-white/[0.06] rounded-lg px-2 py-1 -mx-2 transition-colors group">
+                              <div className="text-white font-semibold group-hover:text-red-400 transition-colors">${row.put.price.toFixed(2)}</div>
+                              <div className={cn("text-[10px]", row.put.change >= 0 ? "text-emerald-400" : "text-red-400")}>
+                                {row.put.change >= 0 ? "+" : ""}{row.put.change.toFixed(2)}
                               </div>
                             </Link>
-                          ) : <span className="text-white/20">—</span>}
+                          ) : dash}
+                        </td>
+                        {/* OI */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
+                          {row?.put ? row.put.oi : dash}
+                        </td>
+                        {/* IV */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putBg)}>
+                          {row?.put ? `${row.put.iv}%` : dash}
+                        </td>
+                        {/* Delta */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putBg)}>
+                          {row?.put ? row.put.delta : dash}
+                        </td>
+                        {/* Theta */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putBg)}>
+                          {row?.put ? row.put.theta : dash}
+                        </td>
+                        {/* Vega */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
+                          {row?.put ? row.put.vega : dash}
+                        </td>
+                        {/* Gamma */}
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putBg)}>
+                          {row?.put ? row.put.gamma : dash}
                         </td>
                       </>
                     )}
