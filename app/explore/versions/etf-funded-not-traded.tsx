@@ -1322,7 +1322,7 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
       icon: <Layers size={18} />, gradient: "from-zinc-800 to-zinc-950", timestamp: "",
       renderContent: () => (
         <div className="flex flex-col items-center gap-8 px-2 text-center">
-          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-white">
+          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-gray-900">
             ETF <span className="text-zinc-300">101.</span>
           </div>
           <div className="h-px w-12 bg-white/15" />
@@ -1333,8 +1333,8 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
               { label: "Expense ratios explained", desc: "0.03% vs 0.75%. Small numbers, massive impact over decades" },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/8 px-4 py-3 text-left">
-                <p className="text-[15px] font-semibold text-white">{item.label}</p>
-                <p className="text-[13px] text-white/40">{item.desc}</p>
+                <p className="text-[15px] font-semibold text-gray-900">{item.label}</p>
+                <p className="text-[13px] text-gray-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -1351,7 +1351,7 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
       icon: <Coins size={18} />, gradient: "from-neutral-800 to-neutral-950", timestamp: "",
       renderContent: () => (
         <div className="flex flex-col items-center gap-8 px-2 text-center">
-          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-white">
+          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-gray-900">
             Build the <span className="text-neutral-300">core.</span>
           </div>
           <div className="h-px w-12 bg-white/15" />
@@ -1362,8 +1362,8 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
               { label: "When & how to rebalance", desc: "Drift happens. Rebalancing keeps your risk in check." },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/8 px-4 py-3 text-left">
-                <p className="text-[15px] font-semibold text-white">{item.label}</p>
-                <p className="text-[13px] text-white/40">{item.desc}</p>
+                <p className="text-[15px] font-semibold text-gray-900">{item.label}</p>
+                <p className="text-[13px] text-gray-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -1380,7 +1380,7 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
       icon: <Rocket size={18} />, gradient: "from-stone-800 to-stone-950", timestamp: "",
       renderContent: () => (
         <div className="flex flex-col items-center gap-8 px-2 text-center">
-          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-white">
+          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-gray-900">
             Go <span className="text-stone-300">deeper.</span>
           </div>
           <div className="h-px w-12 bg-white/15" />
@@ -1391,8 +1391,8 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
               { label: "Options on ETFs", desc: "Covered calls on SPY, protective puts on QQQ. The basics" },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/8 px-4 py-3 text-left">
-                <p className="text-[15px] font-semibold text-white">{item.label}</p>
-                <p className="text-[13px] text-white/40">{item.desc}</p>
+                <p className="text-[15px] font-semibold text-gray-900">{item.label}</p>
+                <p className="text-[13px] text-gray-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -1409,7 +1409,7 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
       icon: <DollarSign size={18} />, gradient: "from-gray-800 to-gray-950", timestamp: "",
       renderContent: () => (
         <div className="flex flex-col items-center gap-8 px-2 text-center">
-          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-white">
+          <div className="text-[36px] font-bold leading-[1.05] tracking-tight text-gray-900">
             Keep <span className="text-gray-300">more.</span>
           </div>
           <div className="h-px w-12 bg-white/15" />
@@ -1420,8 +1420,8 @@ const etfLevelUpCards: { id: string; title: string; subtitle: string; hook: stri
               { label: "Avoiding wash sale traps", desc: "30-day rule, substantially identical securities, and how to stay clean" },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl bg-white/8 px-4 py-3 text-left">
-                <p className="text-[15px] font-semibold text-white">{item.label}</p>
-                <p className="text-[13px] text-white/40">{item.desc}</p>
+                <p className="text-[15px] font-semibold text-gray-900">{item.label}</p>
+                <p className="text-[13px] text-gray-400">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -1451,14 +1451,14 @@ function LevelUpWidget() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="relative z-10 p-3.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                  <Play size={16} fill="white" className="text-white ml-0.5" />
+                  <Play size={16} fill="white" className="text-gray-900 ml-0.5" />
                 </div>
               </div>
               <div className="relative z-10 p-3.5">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-white/40 mb-1.5">{card.subtitle}</p>
-                <p className="text-[17px] font-bold leading-tight text-white mb-1.5">{card.title}</p>
-                <p className="text-[12px] leading-snug text-white/50 line-clamp-2">{card.hook}</p>
-                <p className="mt-2 text-[11px] font-medium text-white/30">{card.duration} read</p>
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-400 mb-1.5">{card.subtitle}</p>
+                <p className="text-[17px] font-bold leading-tight text-gray-900 mb-1.5">{card.title}</p>
+                <p className="text-[12px] leading-snug text-gray-400 line-clamp-2">{card.hook}</p>
+                <p className="mt-2 text-[11px] font-medium text-gray-300">{card.duration} read</p>
               </div>
             </button>
           ))}
@@ -1743,7 +1743,7 @@ function HeatmapWidget() {
                     >
                       {showLabel && (
                         <span
-                          className={cn("font-bold leading-none text-center px-1", isDark ? "text-white" : "text-black/80")}
+                          className={cn("font-bold leading-none text-center px-1", isDark ? "text-gray-900" : "text-black/80")}
                           style={{ fontSize: isLarge ? 13 : 10 }}
                         >
                           {r.symbol}
@@ -1751,7 +1751,7 @@ function HeatmapWidget() {
                       )}
                       {showChange && r.symbol !== "Others" && (
                         <span
-                          className={cn("mt-0.5 leading-none", isDark ? "text-white/80" : "text-black/50")}
+                          className={cn("mt-0.5 leading-none", isDark ? "text-gray-700" : "text-black/50")}
                           style={{ fontSize: isLarge ? 11 : 9 }}
                         >
                           {r.change > 0 ? "+" : ""}{r.change.toFixed(1)}%
@@ -2760,12 +2760,12 @@ function ModuleViewer({
 
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-2">
-            <span className="text-[12px] font-semibold text-white/50 tracking-wider uppercase">
+            <span className="text-[12px] font-semibold text-gray-400 tracking-wider uppercase">
               {currentMod.title} · {modIdx + 1}/{etfModules.length}
             </span>
             <button
               onClick={(e) => { e.stopPropagation(); onClose(); }}
-              className="text-white/60 text-[14px] font-semibold active:text-white transition-colors"
+              className="text-gray-500 text-[14px] font-semibold active:text-gray-900 transition-colors"
             >
               Close
             </button>
@@ -2784,41 +2784,41 @@ function ModuleViewer({
           >
             {story.format === "statement" && (
               <div className="text-center">
-                <p className="text-[28px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
+                <p className="text-[28px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
                 <div className="h-px w-10 bg-white/20 mx-auto mb-5" />
-                <p className="text-[16px] text-white/55 leading-relaxed">{story.body}</p>
+                <p className="text-[16px] text-gray-400 leading-relaxed">{story.body}</p>
               </div>
             )}
             {story.format === "number" && (
               <div className="text-center">
-                <p className="text-[56px] font-black text-white leading-none tracking-tight tabular-nums mb-2">{story.stat}</p>
-                <p className="text-[14px] text-white/40 mb-8">{story.statCaption}</p>
-                <p className="text-[24px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-4">{story.headline}</p>
-                <p className="text-[15px] text-white/50 leading-relaxed">{story.body}</p>
+                <p className="text-[56px] font-black text-gray-900 leading-none tracking-tight tabular-nums mb-2">{story.stat}</p>
+                <p className="text-[14px] text-gray-400 mb-8">{story.statCaption}</p>
+                <p className="text-[24px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-4">{story.headline}</p>
+                <p className="text-[15px] text-gray-400 leading-relaxed">{story.body}</p>
               </div>
             )}
             {story.format === "comparison" && (
               <div>
-                <p className="text-[24px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line text-center mb-6">{story.headline}</p>
+                <p className="text-[24px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line text-center mb-6">{story.headline}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl bg-white/8 p-4">
-                    <p className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">{story.leftLabel}</p>
+                    <p className="text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-3">{story.leftLabel}</p>
                     <div className="space-y-2.5">
                       {story.leftPoints?.map((p, i) => (
                         <div key={i} className="flex items-start gap-2">
-                          <Check size={14} strokeWidth={3} className="shrink-0 text-white/60 mt-0.5" />
-                          <span className="text-[13px] text-white/60 leading-tight">{p}</span>
+                          <Check size={14} strokeWidth={3} className="shrink-0 text-gray-500 mt-0.5" />
+                          <span className="text-[13px] text-gray-500 leading-tight">{p}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div className="rounded-2xl bg-white/4 p-4">
-                    <p className="text-[13px] font-bold text-white/40 uppercase tracking-wider mb-3">{story.rightLabel}</p>
+                    <p className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-3">{story.rightLabel}</p>
                     <div className="space-y-2.5">
                       {story.rightPoints?.map((p, i) => (
                         <div key={i} className="flex items-start gap-2">
-                          <X size={14} strokeWidth={3} className="shrink-0 text-white/30 mt-0.5" />
-                          <span className="text-[13px] text-white/40 leading-tight">{p}</span>
+                          <X size={14} strokeWidth={3} className="shrink-0 text-gray-300 mt-0.5" />
+                          <span className="text-[13px] text-gray-400 leading-tight">{p}</span>
                         </div>
                       ))}
                     </div>
@@ -2828,9 +2828,9 @@ function ModuleViewer({
             )}
             {story.format === "action" && (
               <div className="text-center">
-                <p className="text-[28px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
+                <p className="text-[28px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
                 <div className="h-px w-10 bg-white/20 mx-auto mb-5" />
-                <p className="text-[16px] text-white/55 leading-relaxed">{story.body}</p>
+                <p className="text-[16px] text-gray-400 leading-relaxed">{story.body}</p>
               </div>
             )}
           </motion.div>
@@ -2839,11 +2839,11 @@ function ModuleViewer({
 
           {/* Footer */}
           <div className="px-8 pb-8 text-center space-y-2">
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-[0.2em]">
+            <p className="text-[11px] font-semibold text-gray-300 uppercase tracking-[0.2em]">
               {idx + 1} of {total}
             </p>
             {modIdx < etfModules.length - 1 && (
-              <p className="text-[10px] text-white/20">
+              <p className="text-[10px] text-gray-300">
                 Swipe up for next module
               </p>
             )}

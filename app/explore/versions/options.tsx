@@ -666,9 +666,9 @@ export function ExploreOptions() {
 
           {/* Copy */}
           <div className="relative px-5 pt-5 pb-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">Options 101</p>
-            <p className="text-[22px] font-bold text-white leading-snug">Learn to trade<br />options in 3 mins</p>
-            <p className="text-[13px] text-white/40 mt-2 leading-snug">Step-by-step lessons built<br />for US markets.</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-900/25 mb-2">Options 101</p>
+            <p className="text-[22px] font-bold text-gray-900 leading-snug">Learn to trade<br />options in 3 mins</p>
+            <p className="text-[13px] text-gray-400 mt-2 leading-snug">Step-by-step lessons built<br />for US markets.</p>
           </div>
         </div>
 
@@ -679,23 +679,23 @@ export function ExploreOptions() {
         <div className="flex flex-col divide-y divide-white/[0.06]">
           <button className="flex items-center justify-between px-5 py-4 active:opacity-60 transition-opacity">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-[16px]">🌱</div>
+              <div className="w-8 h-8 rounded-lg bg-black/[0.05] flex items-center justify-center text-[16px]">🌱</div>
               <div className="text-left">
-                <p className="text-[14px] font-semibold text-white">New to options</p>
-                <p className="text-[12px] text-white/40">Start from absolute basics</p>
+                <p className="text-[14px] font-semibold text-gray-900">New to options</p>
+                <p className="text-[12px] text-gray-400">Start from absolute basics</p>
               </div>
             </div>
-            <span className="text-white/30 text-[16px]">›</span>
+            <span className="text-gray-300 text-[16px]">›</span>
           </button>
           <button className="flex items-center justify-between px-5 py-4 active:opacity-60 transition-opacity">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-[16px]">⚡</div>
+              <div className="w-8 h-8 rounded-lg bg-black/[0.05] flex items-center justify-center text-[16px]">⚡</div>
               <div className="text-left">
-                <p className="text-[14px] font-semibold text-white">Know options, new to US</p>
-                <p className="text-[12px] text-white/40">Skip basics, learn US market rules</p>
+                <p className="text-[14px] font-semibold text-gray-900">Know options, new to US</p>
+                <p className="text-[12px] text-gray-400">Skip basics, learn US market rules</p>
               </div>
             </div>
-            <span className="text-white/30 text-[16px]">›</span>
+            <span className="text-gray-300 text-[16px]">›</span>
           </button>
         </div>
       </div>

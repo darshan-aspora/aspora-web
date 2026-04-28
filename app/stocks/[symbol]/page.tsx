@@ -157,7 +157,7 @@ function StockChart({
   const TFS: Timeframe[] = ["1D", "1W", "1M", "3M", "1Y", "All"];
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
       <div ref={containerRef} className="w-full" />
       <div className="flex gap-1 mt-4">
         {TFS.map((tf) => (
@@ -166,7 +166,7 @@ function StockChart({
             onClick={() => onTimeframeChange(tf)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-              timeframe === tf ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
+              timeframe === tf ? "bg-black/[0.05] text-gray-900" : "text-gray-400 hover:text-gray-700"
             )}
           >
             {tf}
@@ -182,20 +182,20 @@ function KeyMetricsCard({ stock }: { stock: StockData }) {
   const rangePercent = ((stock.price - stock.low52w) / (stock.high52w - stock.low52w)) * 100;
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-      <div className="text-white/50 text-sm mb-1">{stock.exchange} · {stock.capCategory}</div>
-      <div className="text-4xl font-semibold text-white">${stock.price.toFixed(2)}</div>
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+      <div className="text-gray-400 text-sm mb-1">{stock.exchange} · {stock.capCategory}</div>
+      <div className="text-4xl font-semibold text-gray-900">${stock.price.toFixed(2)}</div>
       <div className={cn("mt-1 text-sm font-medium", isPositive ? "text-green-400" : "text-red-400")}>
         {isPositive ? "+" : ""}{stock.dayChange.toFixed(2)} ({isPositive ? "+" : ""}{stock.dayChangePct.toFixed(2)}%) today
       </div>
-      <div className="mt-1 text-white/40 text-xs">After hours data may vary</div>
+      <div className="mt-1 text-gray-400 text-xs">After hours data may vary</div>
       <div className="mt-5">
-        <div className="flex justify-between text-xs text-white/50 mb-1.5">
+        <div className="flex justify-between text-xs text-gray-400 mb-1.5">
           <span>${stock.low52w}</span>
           <span>52W Range</span>
           <span>${stock.high52w}</span>
         </div>
-        <div className="h-1.5 rounded-full bg-white/10 relative">
+        <div className="h-1.5 rounded-full bg-black/[0.05] relative">
           <div
             className={cn("absolute top-0 bottom-0 left-0 rounded-full", isPositive ? "bg-green-400" : "bg-red-400")}
             style={{ width: `${Math.min(100, Math.max(0, rangePercent))}%` }}
@@ -212,33 +212,33 @@ function KeyMetricsCard({ stock }: { stock: StockData }) {
 
 function RegisterCard() {
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6 mt-4">
-      <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
-      <h3 className="text-white font-bold text-lg leading-snug mb-2">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 mt-4">
+      <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
+      <h3 className="text-gray-900 font-bold text-lg leading-snug mb-2">
         Ready to invest or trade?
       </h3>
-      <p className="text-white/50 text-sm leading-relaxed mb-5">
+      <p className="text-gray-400 text-sm leading-relaxed mb-5">
         Open your Aspora account in under 15 minutes — no paperwork, no minimums, and no fees to get started.
       </p>
       <div className="space-y-2.5 mb-5">
         {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
           <div key={item} className="flex items-center gap-2.5">
-            <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <div className="w-4 h-4 rounded-full bg-black/[0.05] flex items-center justify-center shrink-0">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
                 <path d="M1.5 4L3 5.5L6.5 2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-white/60 text-xs">{item}</span>
+            <span className="text-gray-500 text-xs">{item}</span>
           </div>
         ))}
       </div>
       <a
         href="https://aspora.com/register"
-        className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:bg-white/90 transition-colors"
+        className="block w-full text-center rounded-xl bg-gray-900 text-white font-bold py-3 text-sm hover:bg-gray-800 transition-colors"
       >
         Create free account →
       </a>
-      <p className="text-white/30 text-xs text-center mt-3">Takes less than 15 minutes</p>
+      <p className="text-gray-300 text-xs text-center mt-3">Takes less than 15 minutes</p>
     </div>
   );
 }
@@ -257,17 +257,17 @@ function OverviewTab({ stock }: { stock: StockData }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-3">About</h3>
-        <p className="text-white/60 text-sm leading-relaxed">{stock.description}</p>
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-gray-900 font-semibold mb-3">About</h3>
+        <p className="text-gray-500 text-sm leading-relaxed">{stock.description}</p>
       </div>
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-4">Key Stats</h3>
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-gray-900 font-semibold mb-4">Key Stats</h3>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
           {stats.map((s) => (
-            <div key={s.label} className="flex justify-between border-b border-white/[0.05] pb-3">
-              <span className="text-white/50 text-sm">{s.label}</span>
-              <span className="text-white text-sm font-medium">{s.value}</span>
+            <div key={s.label} className="flex justify-between border-b border-gray-100 pb-3">
+              <span className="text-gray-400 text-sm">{s.label}</span>
+              <span className="text-gray-900 text-sm font-medium">{s.value}</span>
             </div>
           ))}
         </div>
@@ -286,28 +286,28 @@ function FinancialsTab({ stock }: { stock: StockData }) {
   const maxRev = Math.max(...quarters.map((q) => q.revenue));
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-      <h3 className="text-white font-semibold mb-6">Quarterly Financials (mock, USD billions)</h3>
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+      <h3 className="text-gray-900 font-semibold mb-6">Quarterly Financials (mock, USD billions)</h3>
       <div className="space-y-5">
         {quarters.map((q) => (
           <div key={q.q}>
-            <div className="text-white/60 font-medium text-sm mb-2">{q.q}</div>
+            <div className="text-gray-500 font-medium text-sm mb-2">{q.q}</div>
             <div className="space-y-2">
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-white/50">Revenue</span>
-                  <span className="text-white font-medium">${q.revenue}B</span>
+                  <span className="text-gray-400">Revenue</span>
+                  <span className="text-gray-900 font-medium">${q.revenue}B</span>
                 </div>
-                <div className="h-2 rounded-full bg-white/10">
+                <div className="h-2 rounded-full bg-black/[0.05]">
                   <div className="h-full rounded-full bg-blue-500" style={{ width: `${(q.revenue / maxRev) * 100}%` }} />
                 </div>
               </div>
               <div>
                 <div className="flex justify-between text-xs mb-1">
-                  <span className="text-white/50">Net Income</span>
+                  <span className="text-gray-400">Net Income</span>
                   <span className="text-green-400 font-medium">${q.netIncome}B</span>
                 </div>
-                <div className="h-2 rounded-full bg-white/10">
+                <div className="h-2 rounded-full bg-black/[0.05]">
                   <div className="h-full rounded-full bg-green-500" style={{ width: `${(q.netIncome / maxRev) * 100}%` }} />
                 </div>
               </div>
@@ -348,15 +348,15 @@ function NewsTab({ stock }: { stock: StockData }) {
   ];
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06]">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl divide-y divide-white/[0.06]">
       {items.map((item, i) => (
-        <div key={i} className="p-5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+        <div key={i} className="p-5 hover:bg-black/[0.02] transition-colors cursor-pointer">
           <div className="flex justify-between items-start gap-4 mb-1">
-            <h4 className="text-white text-sm font-medium leading-snug">{item.title}</h4>
-            <span className="text-white/40 text-xs shrink-0">{item.time}</span>
+            <h4 className="text-gray-900 text-sm font-medium leading-snug">{item.title}</h4>
+            <span className="text-gray-400 text-xs shrink-0">{item.time}</span>
           </div>
-          <div className="text-white/40 text-xs mb-2">{item.source}</div>
-          <p className="text-white/50 text-xs leading-relaxed">{item.summary}</p>
+          <div className="text-gray-400 text-xs mb-2">{item.source}</div>
+          <p className="text-gray-400 text-xs leading-relaxed">{item.summary}</p>
         </div>
       ))}
     </div>
@@ -371,10 +371,10 @@ function OptionsTab({ symbol }: { symbol: string }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       {/* Left — Popular options list */}
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold">Popular {symbol} Options</h3>
-          <span className="text-white/40 text-xs">{firstExpiry.label}</span>
+          <h3 className="text-gray-900 font-semibold">Popular {symbol} Options</h3>
+          <span className="text-gray-400 text-xs">{firstExpiry.label}</span>
         </div>
         <div className="divide-y divide-white/[0.06]">
           {options.map((opt) => {
@@ -383,7 +383,7 @@ function OptionsTab({ symbol }: { symbol: string }) {
               <Link
                 key={opt.contractId}
                 href={`/options/${symbol}/${opt.contractId}`}
-                className="flex items-center justify-between py-3.5 hover:bg-white/[0.04] -mx-2 px-2 rounded-lg transition-colors"
+                className="flex items-center justify-between py-3.5 hover:bg-black/[0.03] -mx-2 px-2 rounded-lg transition-colors"
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -391,17 +391,17 @@ function OptionsTab({ symbol }: { symbol: string }) {
                     style={{ background: opt.type === "CALL" ? "#34d399" : "#f87171" }}
                   />
                   <div>
-                    <div className="text-white/40 text-[11px] uppercase tracking-wider">
+                    <div className="text-gray-400 text-[11px] uppercase tracking-wider">
                       Underlying {opt.symbol} {opt.strike}
                     </div>
-                    <div className="text-white font-semibold text-sm mt-0.5">
+                    <div className="text-gray-900 font-semibold text-sm mt-0.5">
                       {opt.expiry} {opt.strike} {opt.type}
                     </div>
-                    <div className="text-white/40 text-[11px] mt-0.5">OI: {opt.oi}</div>
+                    <div className="text-gray-400 text-[11px] mt-0.5">OI: {opt.oi}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-white font-bold">${opt.price.toFixed(2)}</div>
+                  <div className="text-gray-900 font-bold">${opt.price.toFixed(2)}</div>
                   <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
                     {pos ? "+" : ""}${opt.change.toFixed(2)} ({pos ? "+" : ""}{opt.changePct}%)
                   </div>
@@ -416,28 +416,28 @@ function OptionsTab({ symbol }: { symbol: string }) {
       </div>
 
       {/* Right — Option Chain CTA */}
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 flex flex-col gap-4">
         <div>
-          <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
-          <p className="text-white/50 text-sm leading-relaxed">
+          <h3 className="text-gray-900 font-semibold mb-1">Option Chain and Prices</h3>
+          <p className="text-gray-400 text-sm leading-relaxed">
             Explore options data like calls, puts, and strike prices. Understand market expectations for future price movements.
           </p>
         </div>
         <Link
           href={`/options/${symbol}`}
-          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity"
+          className="block w-full text-center rounded-xl bg-gray-900 text-white font-bold py-3 text-sm hover:opacity-90 transition-opacity"
         >
           Open Full Option Chain →
         </Link>
         {/* Quick expiry pills */}
-        <div className="pt-2 border-t border-white/[0.06]">
-          <div className="text-white/40 text-xs mb-3 uppercase tracking-wider">Available Expiries</div>
+        <div className="pt-2 border-t border-gray-100">
+          <div className="text-gray-400 text-xs mb-3 uppercase tracking-wider">Available Expiries</div>
           <div className="flex flex-wrap gap-2">
             {expiries.slice(0, 5).map(e => (
               <Link key={e.code} href={`/options/${symbol}?expiry=${e.code}`}
-                className="px-3 py-1.5 rounded-lg text-xs border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors">
+                className="px-3 py-1.5 rounded-lg text-xs border border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300 transition-colors">
                 {e.label}
-                <span className="ml-1.5 text-white/30">{e.daysToExpiry}d</span>
+                <span className="ml-1.5 text-gray-300">{e.daysToExpiry}d</span>
               </Link>
             ))}
           </div>
@@ -451,54 +451,54 @@ function OptionsTab({ symbol }: { symbol: string }) {
 
 function StockSkeleton() {
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       <SiteNav />
       <div className="max-w-[1436px] mx-auto px-6 pt-6">
         <div className="flex items-center gap-2">
-          <div className="h-4 w-12 bg-white/[0.07] rounded animate-pulse" />
-          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
-          <div className="h-4 w-14 bg-white/[0.07] rounded animate-pulse" />
-          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-12 bg-black/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-black/[0.03] rounded animate-pulse" />
+          <div className="h-4 w-14 bg-black/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-black/[0.03] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-black/[0.04] rounded animate-pulse" />
         </div>
       </div>
       <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6 space-y-2">
-          <div className="h-8 w-64 bg-white/[0.08] rounded-lg animate-pulse" />
-          <div className="h-4 w-32 bg-white/[0.05] rounded animate-pulse" />
+          <div className="h-8 w-64 bg-black/[0.05] rounded-lg animate-pulse" />
+          <div className="h-4 w-32 bg-black/[0.04] rounded animate-pulse" />
         </div>
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="flex-1 min-w-0 space-y-4">
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
-              <div className="h-[400px] w-full bg-white/[0.04] rounded-xl animate-pulse" />
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+              <div className="h-[400px] w-full bg-black/[0.03] rounded-xl animate-pulse" />
               <div className="flex gap-2 mt-4">
                 {["1D","1W","1M","3M","1Y","All"].map(tf => (
-                  <div key={tf} className="h-8 w-10 bg-white/[0.06] rounded-lg animate-pulse" />
+                  <div key={tf} className="h-8 w-10 bg-black/[0.04] rounded-lg animate-pulse" />
                 ))}
               </div>
             </div>
-            <div className="flex gap-1 border-b border-white/[0.08] pb-px">
-              {[1,2,3,4].map(i => <div key={i} className="h-9 w-24 bg-white/[0.05] rounded-t-lg animate-pulse" />)}
+            <div className="flex gap-1 border-b border-gray-200 pb-px">
+              {[1,2,3,4].map(i => <div key={i} className="h-9 w-24 bg-black/[0.04] rounded-t-lg animate-pulse" />)}
             </div>
             <div className="space-y-3 pt-1">
               {[1,2,3].map(i => (
-                <div key={i} className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-3">
-                  <div className="h-5 w-32 bg-white/[0.08] rounded animate-pulse" />
-                  <div className="h-4 w-full bg-white/[0.05] rounded animate-pulse" />
-                  <div className="h-4 w-5/6 bg-white/[0.05] rounded animate-pulse" />
+                <div key={i} className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-3">
+                  <div className="h-5 w-32 bg-black/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-full bg-black/[0.04] rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-black/[0.04] rounded animate-pulse" />
                 </div>
               ))}
             </div>
           </div>
           <div className="w-full md:w-80 shrink-0 space-y-4">
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-4">
-              <div className="h-4 w-24 bg-white/[0.06] rounded animate-pulse" />
-              <div className="h-10 w-40 bg-white/[0.08] rounded-lg animate-pulse" />
-              <div className="h-4 w-32 bg-white/[0.06] rounded animate-pulse" />
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
+              <div className="h-4 w-24 bg-black/[0.04] rounded animate-pulse" />
+              <div className="h-10 w-40 bg-black/[0.05] rounded-lg animate-pulse" />
+              <div className="h-4 w-32 bg-black/[0.04] rounded animate-pulse" />
               {[1,2,3,4,5].map(i => (
-                <div key={i} className="flex justify-between py-2 border-b border-white/[0.05]">
-                  <div className="h-4 w-24 bg-white/[0.05] rounded animate-pulse" />
-                  <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+                <div key={i} className="flex justify-between py-2 border-b border-gray-100">
+                  <div className="h-4 w-24 bg-black/[0.04] rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-black/[0.04] rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -527,25 +527,25 @@ export default function StockDetailPage() {
   if (!loaded) return <StockSkeleton />;
 
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       <SiteNav />
 
       {/* Breadcrumb */}
       <div className="max-w-[1436px] mx-auto px-6 pt-6">
-        <nav className="flex items-center gap-2 text-sm text-white/50">
-          <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
-          <span className="text-white/30">&gt;</span>
-          <Link href="/explore" className="hover:text-white transition-colors">Stocks</Link>
-          <span className="text-white/30">&gt;</span>
-          <span className="text-white">{symbol}</span>
+        <nav className="flex items-center gap-2 text-sm text-gray-400">
+          <Link href="/explore" className="hover:text-gray-900 transition-colors">Explore</Link>
+          <span className="text-gray-300">&gt;</span>
+          <Link href="/explore" className="hover:text-gray-900 transition-colors">Stocks</Link>
+          <span className="text-gray-300">&gt;</span>
+          <span className="text-gray-900">{symbol}</span>
         </nav>
       </div>
 
       {/* Main content */}
       <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">{stock.name}</h1>
-          <div className="text-white/50 text-sm mt-1">{stock.symbol} · {stock.exchange}</div>
+          <h1 className="text-3xl font-bold text-gray-900">{stock.name}</h1>
+          <div className="text-gray-400 text-sm mt-1">{stock.symbol} · {stock.exchange}</div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -554,7 +554,7 @@ export default function StockDetailPage() {
             <StockChart stock={stock} timeframe={timeframe} onTimeframeChange={setTimeframe} />
 
             {/* Tabs */}
-            <div className="flex gap-1 border-b border-white/[0.08]">
+            <div className="flex gap-1 border-b border-gray-200">
               {(["Overview", "Financials", "Options", "News"] as const).map((t) => (
                 <button
                   key={t}
@@ -562,8 +562,8 @@ export default function StockDetailPage() {
                   className={cn(
                     "px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
                     tab === t
-                      ? "border-white text-white"
-                      : "border-transparent text-white/50 hover:text-white/80"
+                      ? "border-white text-gray-900"
+                      : "border-transparent text-gray-400 hover:text-gray-700"
                   )}
                 >
                   {t}

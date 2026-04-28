@@ -103,7 +103,7 @@ export default function OptionsChainPage() {
   function OIBar({ oi, side }: { oi: string | number; side: "call" | "put" }) {
     const pct = Math.min(100, Math.round((parseOI(oi) / maxOI) * 100));
     return (
-      <div className="mt-1.5 h-[3px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+      <div className="mt-1.5 h-[3px] w-full rounded-full overflow-hidden" style={{ background: "rgba(0,0,0,0.06)" }}>
         <div
           className={cn("h-full rounded-full", side === "call" ? "bg-red-400/60 ml-auto" : "bg-emerald-400/60")}
           style={{ width: `${pct}%` }}
@@ -119,9 +119,9 @@ export default function OptionsChainPage() {
     return (
       <td
         onClick={onNavigate}
-        className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+        className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-black/[0.03]" : "")}
       >
-        <div className={cn("text-sm font-semibold", itm ? "text-white" : "text-white/60")}>
+        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-500")}>
           ${contract.price.toFixed(2)}
         </div>
         <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
@@ -139,9 +139,9 @@ export default function OptionsChainPage() {
     return (
       <td
         onClick={onNavigate}
-        className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+        className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "", onNavigate ? "cursor-pointer hover:bg-black/[0.03]" : "")}
       >
-        <div className={cn("text-sm font-semibold", itm ? "text-white" : "text-white/60")}>
+        <div className={cn("text-sm font-semibold", itm ? "text-gray-900" : "text-gray-500")}>
           ${contract.price.toFixed(2)}
         </div>
         <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
@@ -153,40 +153,40 @@ export default function OptionsChainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       {/* Top bar */}
       <div
         ref={headerRef}
         className="sticky top-0 z-40"
-        style={{ background: "#0f0f11", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "#ffffff", borderBottom: "1px solid rgba(0,0,0,0.08)" }}
       >
         <div className="max-w-[1436px] mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               href={`/stocks/${symbol}`}
-              className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors text-sm"
+              className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors text-sm"
             >
               <ArrowLeft size={15} />
               Back to {symbol}
             </Link>
-            <div className="w-px h-4 bg-white/10" />
+            <div className="w-px h-4 bg-black/[0.05]" />
             <div>
-              <span className="text-white font-bold">{symbol}</span>
-              <span className="text-white/50 text-sm ml-2">
-                Underlying: <span className="text-white">${underlying.toLocaleString()}</span>
+              <span className="text-gray-900 font-bold">{symbol}</span>
+              <span className="text-gray-400 text-sm ml-2">
+                Underlying: <span className="text-gray-900">${underlying.toLocaleString()}</span>
               </span>
             </div>
           </div>
 
           {/* View mode toggle */}
-          <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(0,0,0,0.05)" }}>
             {(["split", "calls", "puts"] as ViewMode[]).map(v => (
               <button
                 key={v}
                 onClick={() => setViewMode(v)}
                 className={cn(
                   "px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-colors",
-                  viewMode === v ? "bg-white text-neutral-900" : "text-white/60 hover:text-white"
+                  viewMode === v ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
                 )}
               >
                 {v}
@@ -210,8 +210,8 @@ export default function OptionsChainPage() {
               className={cn(
                 "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
                 expiryType === type
-                  ? "bg-white text-neutral-900"
-                  : "border border-white/10 text-white/60 hover:text-white"
+                  ? "bg-gray-900 text-white"
+                  : "border border-gray-200 text-gray-500 hover:text-gray-900"
               )}
             >
               {type}
@@ -226,7 +226,7 @@ export default function OptionsChainPage() {
                 "px-3.5 py-1.5 rounded-lg text-sm transition-colors",
                 activeCode === e.code
                   ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "border border-white/10 text-white/50 hover:text-white hover:border-white/20"
+                  : "border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-300"
               )}
             >
               {e.label}
@@ -236,18 +236,18 @@ export default function OptionsChainPage() {
         </div>
 
         {/* Legend — above the table */}
-        <div ref={legendRowRef} className="flex items-center gap-4 mb-4 text-xs text-white/50">
+        <div ref={legendRowRef} className="flex items-center gap-4 mb-4 text-xs text-gray-400">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-            <span className="text-white/70">ITM</span> In The Money
+            <span className="text-gray-600">ITM</span> In The Money
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-white/40 inline-block" />
-            <span className="text-white/70">ATM</span> At The Money
+            <span className="text-gray-600">ATM</span> At The Money
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
-            <span className="text-white/70">OTM</span> Out of Money
+            <span className="text-gray-600">OTM</span> Out of Money
           </span>
           <span className="flex items-center gap-3 ml-2">
             <span className="flex items-center gap-1"><span className="w-6 h-[3px] rounded-full bg-red-400/60 inline-block" /> Call OI</span>
@@ -259,7 +259,7 @@ export default function OptionsChainPage() {
         <div
           className="rounded-2xl flex flex-col"
           style={{
-            border: "1px solid rgba(255,255,255,0.08)",
+            border: "1px solid rgba(0,0,0,0.10)",
             height: tableHeight ? `${tableHeight}px` : "60vh",
           }}
         >
@@ -267,7 +267,7 @@ export default function OptionsChainPage() {
           <div ref={tableContainerRef} className="overflow-auto flex-1 min-h-0">
           <table className="text-xs border-collapse" style={{ minWidth: viewMode === "split" ? 1100 : 560, width: "100%" }}>
             <thead className="sticky top-0 z-10">
-              <tr style={{ background: "rgba(20,20,22,1)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <tr style={{ background: "#f8fafc", borderBottom: "1px solid rgba(0,0,0,0.10)" }}>
                 {/* Call side label */}
                 {(viewMode === "split" || viewMode === "calls") && (
                   <>
@@ -275,19 +275,19 @@ export default function OptionsChainPage() {
                     <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
                     <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
                     <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
-                    <th className="px-2 py-3 text-right text-white/40 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-right text-gray-400 text-[10px] font-semibold uppercase tracking-wider">IV</th>
                     <th className="px-2 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
                     <th className="px-3 py-3 text-right text-emerald-400/60 text-[10px] font-semibold uppercase tracking-wider">Call LTP</th>
                   </>
                 )}
                 {/* Strike */}
-                <th className="px-4 py-3 text-center text-white/70 text-[10px] font-bold uppercase tracking-wider bg-white/[0.03] whitespace-nowrap">Strike</th>
+                <th className="px-4 py-3 text-center text-gray-600 text-[10px] font-bold uppercase tracking-wider bg-black/[0.02] whitespace-nowrap">Strike</th>
                 {/* Put side */}
                 {(viewMode === "split" || viewMode === "puts") && (
                   <>
                     <th className="px-3 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Put LTP</th>
                     <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">OI</th>
-                    <th className="px-2 py-3 text-left text-white/40 text-[10px] font-semibold uppercase tracking-wider">IV</th>
+                    <th className="px-2 py-3 text-left text-gray-400 text-[10px] font-semibold uppercase tracking-wider">IV</th>
                     <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Delta</th>
                     <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Theta</th>
                     <th className="px-2 py-3 text-left text-red-400/60 text-[10px] font-semibold uppercase tracking-wider">Vega</th>
@@ -302,7 +302,7 @@ export default function OptionsChainPage() {
                 const isAtm = strike === atmStrike;
                 const callItm = row?.call?.itm ?? false;
                 const putItm = row?.put?.itm ?? false;
-                const dash = <span className="text-white/20">—</span>;
+                const dash = <span className="text-gray-300">—</span>;
 
                 return (
                   <tr
@@ -311,8 +311,8 @@ export default function OptionsChainPage() {
                     className={cn(
                       "border-b transition-colors",
                       isAtm
-                        ? "bg-white/[0.06] border-emerald-500/30"
-                        : "border-white/[0.04] hover:bg-white/[0.02]"
+                        ? "bg-emerald-50/50 border-emerald-500/30"
+                        : "border-gray-100 hover:bg-black/[0.02]"
                     )}
                     style={isAtm ? {
                       borderTop: "1px solid rgba(52,211,153,0.25)",
@@ -326,19 +326,19 @@ export default function OptionsChainPage() {
                       const callTd = (extra: string, content: React.ReactNode) => (
                         <td
                           onClick={callClick}
-                          className={cn("px-2 py-2.5 tabular-nums", extra, callItm ? "bg-emerald-500/[0.07]" : "", callHref ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+                          className={cn("px-2 py-2.5 tabular-nums", extra, callItm ? "bg-emerald-500/[0.07]" : "", callHref ? "cursor-pointer hover:bg-black/[0.03]" : "")}
                         >
                           {content}
                         </td>
                       );
                       return (
                         <>
-                          {callTd("text-right text-white/50", row?.call ? row.call.gamma : dash)}
-                          {callTd("text-right text-white/50", row?.call ? row.call.vega : dash)}
+                          {callTd("text-right text-gray-400", row?.call ? row.call.gamma : dash)}
+                          {callTd("text-right text-gray-400", row?.call ? row.call.vega : dash)}
                           {callTd("text-right text-red-400/80", row?.call ? row.call.theta : dash)}
                           {callTd("text-right text-emerald-400/90 font-medium", row?.call ? row.call.delta : dash)}
-                          {callTd("text-right text-white/60", row?.call ? `${row.call.iv}%` : dash)}
-                          {callTd("text-right text-white/50", row?.call ? row.call.oi : dash)}
+                          {callTd("text-right text-gray-500", row?.call ? `${row.call.iv}%` : dash)}
+                          {callTd("text-right text-gray-400", row?.call ? row.call.oi : dash)}
                           <CallCell contract={row?.call} onNavigate={callClick} />
                         </>
                       );
@@ -346,8 +346,8 @@ export default function OptionsChainPage() {
 
                     {/* ── Strike ── */}
                     <td className={cn(
-                      "px-4 py-2.5 text-center font-bold text-sm bg-white/[0.03] whitespace-nowrap",
-                      isAtm ? "bg-emerald-400/10 text-emerald-400" : "text-white"
+                      "px-4 py-2.5 text-center font-bold text-sm bg-black/[0.02] whitespace-nowrap",
+                      isAtm ? "bg-emerald-400/10 text-emerald-400" : "text-gray-900"
                     )}>
                       {isAtm && <span className="block text-[8px] text-emerald-400/60 uppercase tracking-wider -mb-0.5">ATM</span>}
                       {strike.toLocaleString()}
@@ -360,7 +360,7 @@ export default function OptionsChainPage() {
                       const putTd = (extra: string, content: React.ReactNode) => (
                         <td
                           onClick={putClick}
-                          className={cn("px-2 py-2.5 tabular-nums", extra, putItm ? "bg-emerald-500/[0.07]" : "", putHref ? "cursor-pointer hover:bg-white/[0.04]" : "")}
+                          className={cn("px-2 py-2.5 tabular-nums", extra, putItm ? "bg-emerald-500/[0.07]" : "", putHref ? "cursor-pointer hover:bg-black/[0.03]" : "")}
                         >
                           {content}
                         </td>
@@ -368,12 +368,12 @@ export default function OptionsChainPage() {
                       return (
                         <>
                           <PutCell contract={row?.put} onNavigate={putClick} />
-                          {putTd("text-left text-white/50", row?.put ? row.put.oi : dash)}
-                          {putTd("text-left text-white/60", row?.put ? `${row.put.iv}%` : dash)}
+                          {putTd("text-left text-gray-400", row?.put ? row.put.oi : dash)}
+                          {putTd("text-left text-gray-500", row?.put ? `${row.put.iv}%` : dash)}
                           {putTd("text-left text-red-400/80 font-medium", row?.put ? row.put.delta : dash)}
                           {putTd("text-left text-red-400/80", row?.put ? row.put.theta : dash)}
-                          {putTd("text-left text-white/50", row?.put ? row.put.vega : dash)}
-                          {putTd("text-left text-white/50", row?.put ? row.put.gamma : dash)}
+                          {putTd("text-left text-gray-400", row?.put ? row.put.vega : dash)}
+                          {putTd("text-left text-gray-400", row?.put ? row.put.gamma : dash)}
                         </>
                       );
                     })()}
@@ -385,8 +385,8 @@ export default function OptionsChainPage() {
           </div>
           {/* Footer — always visible */}
           <div
-            className="px-6 py-3 text-center text-white/30 text-xs shrink-0"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(20,20,22,1)" }}
+            className="px-6 py-3 text-center text-gray-400 text-xs shrink-0"
+            style={{ borderTop: "1px solid rgba(0,0,0,0.08)", background: "#f8fafc" }}
           >
             Options data is for informational purposes only. Aspora does not facilitate options trading on this platform.
           </div>

@@ -114,8 +114,8 @@ function PillFilter<T extends string>({ options, active, onChange }: PillFilterP
           className={cn(
             "px-3 py-1 rounded-full text-sm font-medium transition-colors",
             active === opt.id
-              ? "bg-white text-neutral-900"
-              : "text-white/60 hover:text-white border border-white/10 hover:border-white/20"
+              ? "bg-gray-900 text-white"
+              : "text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-300"
           )}
         >
           {opt.label}
@@ -143,8 +143,8 @@ function SortHeader({ label, colKey, sortKey, sortDir, onSort, className }: Sort
   return (
     <th
       className={cn(
-        "px-3 py-2.5 text-left text-xs font-semibold text-white/40 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-white/70 transition-colors",
-        active && "text-white/80",
+        "px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-gray-600 transition-colors",
+        active && "text-gray-700",
         className
       )}
       onClick={() => onSort(colKey)}
@@ -238,10 +238,10 @@ function StocksTab() {
       <PillFilter options={moverOptions} active={moverType} onChange={handleMoverChange} />
       <PillFilter options={capOptions} active={capSize} onChange={setCapSize} />
 
-      <div className="overflow-x-auto rounded-xl border border-white/[0.07]">
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.07] bg-white/[0.03]">
+            <tr className="border-b border-gray-100 bg-black/[0.02]">
               <SortHeader label="Symbol"    colKey="symbol"        sortKey={sortKey} sortDir={sortDir} onSort={handleSort} className="pl-4" />
               <SortHeader label="Name"      colKey="name"          sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
               <SortHeader label="Price"     colKey="price"         sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
@@ -257,25 +257,25 @@ function StocksTab() {
               <tr
                 key={stock.symbol}
                 className={cn(
-                  "border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors",
-                  i % 2 === 0 ? "bg-transparent" : "bg-white/[0.015]"
+                  "border-b border-gray-100 hover:bg-black/[0.03] transition-colors",
+                  i % 2 === 0 ? "bg-transparent" : "bg-black/[0.01]"
                 )}
               >
                 <td className="pl-4 pr-3 py-2.5">
                   <Link
                     href={`/stocks/${stock.symbol}`}
-                    className="font-semibold text-white hover:text-blue-400 transition-colors"
+                    className="font-semibold text-gray-900 hover:text-blue-400 transition-colors"
                   >
                     {stock.symbol}
                   </Link>
                 </td>
-                <td className="px-3 py-2.5 text-white/60 max-w-[180px] truncate">{stock.name}</td>
-                <td className="px-3 py-2.5 text-white tabular-nums font-medium">${fmtPrice(stock.price)}</td>
+                <td className="px-3 py-2.5 text-gray-500 max-w-[180px] truncate">{stock.name}</td>
+                <td className="px-3 py-2.5 text-gray-900 tabular-nums font-medium">${fmtPrice(stock.price)}</td>
                 <td className="px-3 py-2.5 tabular-nums"><PctCell value={stock.changePercent} /></td>
-                <td className="px-3 py-2.5 text-white/60 tabular-nums">{stock.volume}</td>
-                <td className="px-3 py-2.5 text-white/60 tabular-nums">{stock.marketCap}</td>
-                <td className="px-3 py-2.5 text-white/60 tabular-nums">
-                  {stock.pe !== null ? stock.pe : <span className="text-white/30">—</span>}
+                <td className="px-3 py-2.5 text-gray-500 tabular-nums">{stock.volume}</td>
+                <td className="px-3 py-2.5 text-gray-500 tabular-nums">{stock.marketCap}</td>
+                <td className="px-3 py-2.5 text-gray-500 tabular-nums">
+                  {stock.pe !== null ? stock.pe : <span className="text-gray-300">—</span>}
                 </td>
                 <td className="px-3 pr-4 py-2.5"><RatingBadge rating={stock.rating} /></td>
               </tr>
@@ -293,16 +293,16 @@ function StocksTab() {
 
 function ETFsTab() {
   return (
-    <div className="overflow-x-auto rounded-xl border border-white/[0.07]">
+    <div className="overflow-x-auto rounded-xl border border-gray-100">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-white/[0.07] bg-white/[0.03]">
+          <tr className="border-b border-gray-100 bg-black/[0.02]">
             {["Symbol", "Name", "Category", "Price", "1D Change", "1Y Return", "AUM", "Exp. Ratio"].map(
               (h, i) => (
                 <th
                   key={h}
                   className={cn(
-                    "px-3 py-2.5 text-left text-xs font-semibold text-white/40 uppercase tracking-wide whitespace-nowrap",
+                    "px-3 py-2.5 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide whitespace-nowrap",
                     i === 0 && "pl-4",
                     i === 7 && "pr-4"
                   )}
@@ -318,29 +318,29 @@ function ETFsTab() {
             <tr
               key={etf.symbol}
               className={cn(
-                "border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors",
-                i % 2 === 0 ? "bg-transparent" : "bg-white/[0.015]"
+                "border-b border-gray-100 hover:bg-black/[0.03] transition-colors",
+                i % 2 === 0 ? "bg-transparent" : "bg-black/[0.01]"
               )}
             >
               <td className="pl-4 pr-3 py-2.5">
                 <Link
                   href={`/etf/${etf.symbol}`}
-                  className="font-semibold text-white hover:text-blue-400 transition-colors"
+                  className="font-semibold text-gray-900 hover:text-blue-400 transition-colors"
                 >
                   {etf.symbol}
                 </Link>
               </td>
-              <td className="px-3 py-2.5 text-white/60 max-w-[200px] truncate">{etf.name}</td>
+              <td className="px-3 py-2.5 text-gray-500 max-w-[200px] truncate">{etf.name}</td>
               <td className="px-3 py-2.5">
-                <span className="px-2 py-0.5 rounded text-xs font-medium bg-white/[0.07] text-white/60 border border-white/10">
+                <span className="px-2 py-0.5 rounded text-xs font-medium bg-black/[0.04] text-gray-500 border border-gray-200">
                   {etf.category}
                 </span>
               </td>
-              <td className="px-3 py-2.5 text-white tabular-nums font-medium">${fmtPrice(etf.price)}</td>
+              <td className="px-3 py-2.5 text-gray-900 tabular-nums font-medium">${fmtPrice(etf.price)}</td>
               <td className="px-3 py-2.5 tabular-nums"><PctCell value={etf.change1d} /></td>
               <td className="px-3 py-2.5 tabular-nums"><PctCell value={etf.return1y} /></td>
-              <td className="px-3 py-2.5 text-white/60 tabular-nums">${etf.aum}</td>
-              <td className="px-3 pr-4 py-2.5 text-white/60 tabular-nums">{etf.expenseRatio.toFixed(2)}%</td>
+              <td className="px-3 py-2.5 text-gray-500 tabular-nums">${etf.aum}</td>
+              <td className="px-3 pr-4 py-2.5 text-gray-500 tabular-nums">{etf.expenseRatio.toFixed(2)}%</td>
             </tr>
           ))}
         </tbody>
@@ -363,14 +363,14 @@ function IndicesTab() {
           <Link
             key={idx.symbol}
             href={`/indices/${idx.symbol}`}
-            className="group block rounded-xl border border-white/[0.07] bg-white/[0.03] p-5 hover:bg-white/[0.06] hover:border-white/[0.12] transition-all"
+            className="group block rounded-xl border border-gray-100 bg-black/[0.02] p-5 hover:bg-black/[0.04] hover:border-gray-300 transition-all"
           >
             <div className="flex items-start justify-between mb-3">
               <div>
-                <div className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-0.5">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">
                   {idx.exchange}
                 </div>
-                <div className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                <div className="font-semibold text-gray-900 group-hover:text-blue-400 transition-colors">
                   {idx.name}
                 </div>
               </div>
@@ -384,7 +384,7 @@ function IndicesTab() {
               </span>
             </div>
 
-            <div className="text-2xl font-bold text-white tabular-nums mb-1">
+            <div className="text-2xl font-bold text-gray-900 tabular-nums mb-1">
               {idx.level.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
@@ -393,7 +393,7 @@ function IndicesTab() {
               {idx.change.toFixed(2)} today
             </div>
 
-            <div className="flex items-center justify-between text-xs text-white/40">
+            <div className="flex items-center justify-between text-xs text-gray-400">
               <div>
                 YTD{" "}
                 <span className={cn("font-semibold", ytdUp ? "text-emerald-400" : "text-red-400")}>
@@ -427,18 +427,18 @@ export default function ExplorePage() {
   const [activeTab, setActiveTab] = useState<MainTab>("stocks");
 
   return (
-    <div className="min-h-screen bg-[#0f0f11] text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       <SiteNav />
 
       {/* Market summary bar */}
-      <div className="w-full bg-[#18181b] border-b border-white/[0.07]">
+      <div className="w-full bg-gray-50 border-b border-gray-100">
         <div className="max-w-[1436px] mx-auto px-6 py-2.5 flex items-center gap-8 overflow-x-auto">
           {MARKET_INDICES.map((idx) => (
             <div key={idx.name} className="flex items-center gap-2 whitespace-nowrap">
-              <span className="text-xs text-white/50 font-medium">{idx.name}</span>
-              <span className="text-xs text-white/30">·</span>
-              <span className="text-xs text-white/80 tabular-nums font-medium">{idx.level}</span>
-              <span className="text-xs text-white/30">·</span>
+              <span className="text-xs text-gray-400 font-medium">{idx.name}</span>
+              <span className="text-xs text-gray-300">·</span>
+              <span className="text-xs text-gray-700 tabular-nums font-medium">{idx.level}</span>
+              <span className="text-xs text-gray-300">·</span>
               <span
                 className={cn(
                   "text-xs font-semibold tabular-nums",
@@ -456,19 +456,19 @@ export default function ExplorePage() {
       <div className="max-w-[1436px] mx-auto px-6 py-8">
         {/* Page header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Explore Markets</h1>
-          <p className="text-white/50 text-base">Discover US stocks, ETFs, and indices</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Explore Markets</h1>
+          <p className="text-gray-400 text-base">Discover US stocks, ETFs, and indices</p>
         </div>
 
         {/* Main tab bar */}
-        <div className="flex items-end gap-0 border-b border-white/[0.07] mb-6">
+        <div className="flex items-end gap-0 border-b border-gray-100 mb-6">
           {MAIN_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 "relative px-5 py-3 text-sm font-semibold transition-colors",
-                activeTab === tab.id ? "text-white" : "text-white/40 hover:text-white/70"
+                activeTab === tab.id ? "text-gray-900" : "text-gray-400 hover:text-gray-600"
               )}
             >
               {tab.label}

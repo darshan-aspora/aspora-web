@@ -345,15 +345,15 @@ export function AlgoStrategies() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10" />
             <div className="absolute inset-0 z-20 flex items-center justify-center">
               <div className="w-16 h-16 rounded-full bg-black/15 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center transition-transform group-active:scale-90">
-                <Play className="text-zinc-800 dark:text-white ml-0.5 w-7 h-7" fill="currentColor" />
+                <Play className="text-zinc-800 dark:text-gray-900 ml-0.5 w-7 h-7" fill="currentColor" />
               </div>
             </div>
             <div className="absolute top-3 right-3 z-20 bg-black/60 backdrop-blur-sm rounded-md px-2 py-0.5">
-              <span className="text-[12px] font-medium text-white/90 tabular-nums">3:45</span>
+              <span className="text-[12px] font-medium text-gray-900/90 tabular-nums">3:45</span>
             </div>
             <div className="absolute bottom-0 left-0 right-0 z-20 p-4">
-              <p className="text-[17px] font-semibold text-white">How Algo Strategies Work</p>
-              <p className="text-[13px] text-white/70 mt-0.5">A quick explainer</p>
+              <p className="text-[17px] font-semibold text-gray-900">How Algo Strategies Work</p>
+              <p className="text-[13px] text-gray-600 mt-0.5">A quick explainer</p>
             </div>
             <div className="absolute inset-0 opacity-[0.03]">
               <div className="w-full h-full" style={{

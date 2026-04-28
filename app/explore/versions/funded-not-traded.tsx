@@ -1138,7 +1138,7 @@ function HeatmapWidget() {
                   >
                     {showLabel && (
                       <span
-                        className={cn("font-bold leading-none text-center px-1", isDark ? "text-white" : "text-black/80")}
+                        className={cn("font-bold leading-none text-center px-1", isDark ? "text-gray-900" : "text-black/80")}
                         style={{ fontSize: isLarge ? 13 : 10 }}
                       >
                         {r.symbol}
@@ -1146,7 +1146,7 @@ function HeatmapWidget() {
                     )}
                     {showChange && r.symbol !== "Others" && (
                       <span
-                        className={cn("mt-0.5 leading-none", isDark ? "text-white/80" : "text-black/50")}
+                        className={cn("mt-0.5 leading-none", isDark ? "text-gray-700" : "text-black/50")}
                         style={{ fontSize: isLarge ? 11 : 9 }}
                       >
                         {r.change > 0 ? "+" : ""}{r.change.toFixed(1)}%

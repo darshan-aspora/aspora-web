@@ -581,55 +581,55 @@ function GlobalModuleViewer({
             ))}
           </div>
           <div className="flex items-center justify-between px-5 py-2">
-            <span className="text-[12px] font-semibold text-white/50 tracking-wider uppercase">{currentMod.title} · {modIdx + 1}/{globalModules.length}</span>
-            <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="text-white/60 text-[14px] font-semibold active:text-white transition-colors">Close</button>
+            <span className="text-[12px] font-semibold text-gray-400 tracking-wider uppercase">{currentMod.title} · {modIdx + 1}/{globalModules.length}</span>
+            <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="text-gray-500 text-[14px] font-semibold active:text-gray-900 transition-colors">Close</button>
           </div>
           <div className="flex-1 flex items-center justify-center px-8">
             <AnimatePresence mode="wait">
               <motion.div key={story.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }} className="w-full max-w-[380px]">
                 {story.format === "statement" && (
                   <div className="text-center">
-                    <p className="text-[28px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
+                    <p className="text-[28px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
                     <div className="h-px w-10 bg-white/20 mx-auto mb-5" />
-                    <p className="text-[16px] text-white/55 leading-relaxed">{story.body}</p>
+                    <p className="text-[16px] text-gray-400 leading-relaxed">{story.body}</p>
                   </div>
                 )}
                 {story.format === "number" && (
                   <div className="text-center">
-                    <p className="text-[56px] font-black text-white leading-none tracking-tight tabular-nums mb-2">{story.stat}</p>
-                    <p className="text-[14px] text-white/40 mb-8">{story.statCaption}</p>
-                    <p className="text-[24px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-4">{story.headline}</p>
-                    <p className="text-[15px] text-white/50 leading-relaxed">{story.body}</p>
+                    <p className="text-[56px] font-black text-gray-900 leading-none tracking-tight tabular-nums mb-2">{story.stat}</p>
+                    <p className="text-[14px] text-gray-400 mb-8">{story.statCaption}</p>
+                    <p className="text-[24px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-4">{story.headline}</p>
+                    <p className="text-[15px] text-gray-400 leading-relaxed">{story.body}</p>
                   </div>
                 )}
                 {story.format === "comparison" && (
                   <div>
-                    <p className="text-[24px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line text-center mb-6">{story.headline}</p>
+                    <p className="text-[24px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line text-center mb-6">{story.headline}</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-2xl bg-white/8 p-4">
-                        <p className="text-[13px] font-bold text-white/80 uppercase tracking-wider mb-3">{story.leftLabel}</p>
-                        <div className="space-y-2.5">{story.leftPoints?.map((p, i) => (<div key={i} className="flex items-start gap-2"><Check size={14} strokeWidth={3} className="shrink-0 text-white/60 mt-0.5" /><span className="text-[13px] text-white/60 leading-tight">{p}</span></div>))}</div>
+                        <p className="text-[13px] font-bold text-gray-700 uppercase tracking-wider mb-3">{story.leftLabel}</p>
+                        <div className="space-y-2.5">{story.leftPoints?.map((p, i) => (<div key={i} className="flex items-start gap-2"><Check size={14} strokeWidth={3} className="shrink-0 text-gray-500 mt-0.5" /><span className="text-[13px] text-gray-500 leading-tight">{p}</span></div>))}</div>
                       </div>
                       <div className="rounded-2xl bg-white/4 p-4">
-                        <p className="text-[13px] font-bold text-white/40 uppercase tracking-wider mb-3">{story.rightLabel}</p>
-                        <div className="space-y-2.5">{story.rightPoints?.map((p, i) => (<div key={i} className="flex items-start gap-2"><X size={14} strokeWidth={3} className="shrink-0 text-white/30 mt-0.5" /><span className="text-[13px] text-white/40 leading-tight">{p}</span></div>))}</div>
+                        <p className="text-[13px] font-bold text-gray-400 uppercase tracking-wider mb-3">{story.rightLabel}</p>
+                        <div className="space-y-2.5">{story.rightPoints?.map((p, i) => (<div key={i} className="flex items-start gap-2"><X size={14} strokeWidth={3} className="shrink-0 text-gray-300 mt-0.5" /><span className="text-[13px] text-gray-400 leading-tight">{p}</span></div>))}</div>
                       </div>
                     </div>
                   </div>
                 )}
                 {story.format === "action" && (
                   <div className="text-center">
-                    <p className="text-[28px] font-bold text-white leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
+                    <p className="text-[28px] font-bold text-gray-900 leading-[1.2] tracking-tight whitespace-pre-line mb-5">{story.headline}</p>
                     <div className="h-px w-10 bg-white/20 mx-auto mb-5" />
-                    <p className="text-[16px] text-white/55 leading-relaxed">{story.body}</p>
+                    <p className="text-[16px] text-gray-400 leading-relaxed">{story.body}</p>
                   </div>
                 )}
               </motion.div>
             </AnimatePresence>
           </div>
           <div className="px-8 pb-8 text-center space-y-2">
-            <p className="text-[11px] font-semibold text-white/30 uppercase tracking-[0.2em]">{idx + 1} of {total}</p>
-            {modIdx < globalModules.length - 1 && <p className="text-[10px] text-white/20">Swipe up for next module</p>}
+            <p className="text-[11px] font-semibold text-gray-300 uppercase tracking-[0.2em]">{idx + 1} of {total}</p>
+            {modIdx < globalModules.length - 1 && <p className="text-[10px] text-gray-300">Swipe up for next module</p>}
           </div>
         </motion.div>
       </AnimatePresence>

@@ -115,7 +115,7 @@ function PayoffSVG({
     <div>
       {interactive && (
         <div className="mb-5">
-          <div className="text-white/40 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
+          <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
           <div
             className={cn(
               "text-4xl font-bold tabular-nums",
@@ -124,9 +124,9 @@ function PayoffSVG({
           >
             {displayPnl >= 0 ? "+" : ""}${Math.abs(displayPnl * 100).toFixed(0)}
           </div>
-          <div className="text-white/50 text-sm mt-1">
+          <div className="text-gray-400 text-sm mt-1">
             If stock reaches{" "}
-            <span className="text-white font-semibold">${displayPrice.toFixed(2)}</span>
+            <span className="text-gray-900 font-semibold">${displayPrice.toFixed(2)}</span>
             <span className={cn("ml-1.5 text-xs", displayPrice >= underlying ? "text-emerald-400" : "text-red-400")}>
               ({displayPrice >= underlying ? "+" : ""}{(((displayPrice - underlying) / underlying) * 100).toFixed(1)}%)
             </span>
@@ -181,9 +181,9 @@ function PayoffSVG({
         )}
       </svg>
 
-      <div className="flex justify-between text-white/30 text-[11px] mt-1 px-0.5">
+      <div className="flex justify-between text-gray-300 text-[11px] mt-1 px-0.5">
         <span>${Math.round(min)}</span>
-        <span className="text-white/20">Underlying price at expiry</span>
+        <span className="text-gray-300">Underlying price at expiry</span>
         <span>${Math.round(max)}</span>
       </div>
     </div>
@@ -258,10 +258,10 @@ function CandleChart({
   }, [candles]);
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5 space-y-4">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
       {/* Price header */}
       <div>
-        <div className="text-3xl font-bold text-white tabular-nums">
+        <div className="text-3xl font-bold text-gray-900 tabular-nums">
           ${periodClose.toFixed(2)}
         </div>
         <div
@@ -284,8 +284,8 @@ function CandleChart({
             className={cn(
               "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
               tf === t
-                ? "bg-white text-neutral-900"
-                : "bg-white/[0.06] text-white/60 hover:bg-white/10 hover:text-white"
+                ? "bg-gray-900 text-white"
+                : "bg-black/[0.04] text-gray-500 hover:bg-black/[0.05] hover:text-gray-900"
             )}
           >
             {t}
@@ -306,10 +306,10 @@ function CandleChart({
         {[
           { label: "Period High", value: `$${periodHigh.toFixed(2)}`, color: "text-emerald-400" },
           { label: "Period Low", value: `$${periodLow.toFixed(2)}`, color: "text-red-400" },
-          { label: "Open", value: `$${periodOpen.toFixed(2)}`, color: "text-white" },
+          { label: "Open", value: `$${periodOpen.toFixed(2)}`, color: "text-gray-900" },
         ].map((s) => (
-          <div key={s.label} className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4">
-            <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
+          <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4">
+            <div className="text-gray-400 text-xs mb-1.5">{s.label}</div>
             <div className={cn("text-lg font-bold", s.color)}>{s.value}</div>
           </div>
         ))}
@@ -346,9 +346,9 @@ export default function OptionLegDetailPage() {
 
   if (!contract) {
     return (
-      <div className="min-h-screen bg-[#0f0f11] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="text-white/40 text-lg mb-4">Contract not found</div>
+          <div className="text-gray-400 text-lg mb-4">Contract not found</div>
           <Link
             href={`/options/${symbol}`}
             className="text-emerald-400 text-sm hover:underline"
@@ -399,7 +399,7 @@ export default function OptionLegDetailPage() {
   const maxQty = Math.max(...bids.map(b => b.qty), ...asks.map(a => a.qty));
 
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       {/* Sticky top bar */}
       <div
         className="sticky top-0 z-40 px-6 py-3 flex items-center gap-4"
@@ -410,15 +410,15 @@ export default function OptionLegDetailPage() {
       >
         <Link
           href={`/options/${symbol}`}
-          className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors text-sm"
+          className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors text-sm"
         >
           <ArrowLeft size={15} />
           Option Chain
         </Link>
-        <div className="w-px h-4 bg-white/10" />
-        <div className="text-white/60 text-sm">
+        <div className="w-px h-4 bg-black/[0.05]" />
+        <div className="text-gray-500 text-sm">
           {symbol} · {contract.expiry} ·{" "}
-          <span className="font-medium text-white">${contract.strike}</span>{" "}
+          <span className="font-medium text-gray-900">${contract.strike}</span>{" "}
           <span
             className={cn(
               "font-bold",
@@ -441,18 +441,18 @@ export default function OptionLegDetailPage() {
             <CandleChart contract={contract} symbol={symbol} />
 
             {/* Payoff chart */}
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-white font-semibold">Payoff at Expiry</h3>
+                <h3 className="text-gray-900 font-semibold">Payoff at Expiry</h3>
                 {/* Buy / Sell toggle */}
-                <div className="flex items-center bg-white/[0.06] rounded-full p-1 gap-0.5">
+                <div className="flex items-center bg-black/[0.04] rounded-full p-1 gap-0.5">
                   <button
                     onClick={() => setPerspective("buy")}
                     className={cn(
                       "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
                       perspective === "buy"
-                        ? "bg-white text-neutral-900 shadow"
-                        : "text-white/50 hover:text-white"
+                        ? "bg-gray-900 text-white shadow"
+                        : "text-gray-400 hover:text-gray-900"
                     )}
                   >
                     Buy
@@ -462,8 +462,8 @@ export default function OptionLegDetailPage() {
                     className={cn(
                       "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
                       perspective === "sell"
-                        ? "bg-red-500 text-white shadow"
-                        : "text-white/50 hover:text-white"
+                        ? "bg-red-500 text-gray-900 shadow"
+                        : "text-gray-400 hover:text-gray-900"
                     )}
                   >
                     Sell
@@ -473,15 +473,15 @@ export default function OptionLegDetailPage() {
 
               <PayoffSVG contract={contract} underlying={underlying} interactive seller={perspective === "sell"} />
 
-              <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/[0.06]">
+              <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-gray-100">
                 {[
                   { label: "Break-even", value: `$${breakeven.toFixed(2)}` },
                   { label: "Entry Cost", value: `$${(contract.price * 100).toFixed(0)}` },
                   { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
                 ].map((s) => (
-                  <div key={s.label} className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 text-center">
-                    <div className="text-white/40 text-xs mb-1.5">{s.label}</div>
-                    <div className="text-white font-bold">{s.value}</div>
+                  <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4 text-center">
+                    <div className="text-gray-400 text-xs mb-1.5">{s.label}</div>
+                    <div className="text-gray-900 font-bold">{s.value}</div>
                   </div>
                 ))}
               </div>
@@ -491,33 +491,33 @@ export default function OptionLegDetailPage() {
             <div className="grid grid-cols-2 gap-3">
               <Link
                 href={`/stocks/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
               >
                 <div>
-                  <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
-                  <div className="text-white font-semibold text-sm">{symbol}</div>
+                  <div className="text-gray-400 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+                  <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-300 group-hover:text-gray-500 transition-colors">
                   <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
               <Link
                 href={`/options/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07] transition-colors group"
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
               >
                 <div>
-                  <div className="text-white/40 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
-                  <div className="text-white font-semibold text-sm">All strikes</div>
+                  <div className="text-gray-400 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+                  <div className="text-gray-900 font-semibold text-sm">All strikes</div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-white/30 group-hover:text-white/60 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-300 group-hover:text-gray-500 transition-colors">
                   <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </Link>
             </div>
 
             {/* Risk Profile */}
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-4">Risk Profile</h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+              <h3 className="text-gray-900 font-semibold text-sm mb-4">Risk Profile</h3>
               <div className="space-y-0 divide-y divide-white/[0.06]">
                 {[
                   {
@@ -530,11 +530,11 @@ export default function OptionLegDetailPage() {
                     value: `-$${(contract.price * 100).toFixed(0)}`,
                     color: "text-red-400",
                   },
-                  { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-white" },
-                  { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-white" },
+                  { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-gray-900" },
+                  { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-gray-900" },
                 ].map((r) => (
                   <div key={r.label} className="flex justify-between items-center py-3">
-                    <span className="text-white/50 text-sm">{r.label}</span>
+                    <span className="text-gray-400 text-sm">{r.label}</span>
                     <span className={cn("font-semibold text-sm", r.color)}>{r.value}</span>
                   </div>
                 ))}
@@ -546,10 +546,10 @@ export default function OptionLegDetailPage() {
           <div className="w-[400px] shrink-0 sticky top-[57px] space-y-4">
 
             {/* Price header */}
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <div className="text-4xl font-bold text-white tabular-nums mb-1">
+                  <div className="text-4xl font-bold text-gray-900 tabular-nums mb-1">
                     ${contract.price.toFixed(2)}
                   </div>
                   <div className={cn("text-sm font-medium", pos ? "text-emerald-400" : "text-red-400")}>
@@ -558,19 +558,19 @@ export default function OptionLegDetailPage() {
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className={cn(
                       "px-2.5 py-1 rounded-full text-xs font-medium",
-                      contract.itm ? "bg-white/10 text-white/70" : "bg-white/[0.05] text-white/40"
+                      contract.itm ? "bg-black/[0.05] text-gray-600" : "bg-gray-100 text-gray-400"
                     )}>
                       {contract.itm ? "In the Money" : "Out of the Money"}
                     </span>
                     {expiry && (
-                      <span className="text-white/40 text-xs">{expiry.daysToExpiry}d to expiry</span>
+                      <span className="text-gray-400 text-xs">{expiry.daysToExpiry}d to expiry</span>
                     )}
                   </div>
                 </div>
-                <div className="text-right text-sm text-white/40 mt-1">
-                  <div>Bid <span className="text-white/60">${contract.bid}</span></div>
-                  <div className="mt-0.5">Ask <span className="text-white/60">${contract.ask}</span></div>
-                  <div className="mt-0.5">Underlying <span className="text-white/60">${underlying.toLocaleString()}</span></div>
+                <div className="text-right text-sm text-gray-400 mt-1">
+                  <div>Bid <span className="text-gray-500">${contract.bid}</span></div>
+                  <div className="mt-0.5">Ask <span className="text-gray-500">${contract.ask}</span></div>
+                  <div className="mt-0.5">Underlying <span className="text-gray-500">${underlying.toLocaleString()}</span></div>
                 </div>
               </div>
 
@@ -579,32 +579,32 @@ export default function OptionLegDetailPage() {
                 className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
                 style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
               >
-                <Info size={14} className="text-white/30 mt-0.5 shrink-0" />
-                <span className="text-white/40">This is a read-only view. Trading is available on the Aspora mobile app.</span>
+                <Info size={14} className="text-gray-300 mt-0.5 shrink-0" />
+                <span className="text-gray-400">This is a read-only view. Trading is available on the Aspora mobile app.</span>
               </div>
             </div>
 
             {/* Positions widget */}
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-white font-semibold text-sm">Your Position</span>
-                <span className="text-white/40 text-xs px-2 py-0.5 rounded-full bg-white/[0.06]">Active</span>
+                <span className="text-gray-900 font-semibold text-sm">Your Position</span>
+                <span className="text-gray-400 text-xs px-2 py-0.5 rounded-full bg-black/[0.04]">Active</span>
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div>
-                  <div className="text-white/40 text-xs mb-0.5">Qty</div>
-                  <div className="text-white font-semibold">{qty} contracts</div>
+                  <div className="text-gray-400 text-xs mb-0.5">Qty</div>
+                  <div className="text-gray-900 font-semibold">{qty} contracts</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-xs mb-0.5">Avg Cost</div>
-                  <div className="text-white font-semibold">${avgCost.toFixed(2)}</div>
+                  <div className="text-gray-400 text-xs mb-0.5">Avg Cost</div>
+                  <div className="text-gray-900 font-semibold">${avgCost.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-xs mb-0.5">LTP</div>
-                  <div className="text-white font-semibold">${contract.price.toFixed(2)}</div>
+                  <div className="text-gray-400 text-xs mb-0.5">LTP</div>
+                  <div className="text-gray-900 font-semibold">${contract.price.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div className="text-white/40 text-xs mb-0.5">Unrealised P&amp;L</div>
+                  <div className="text-gray-400 text-xs mb-0.5">Unrealised P&amp;L</div>
                   <div className={cn("font-bold", pnlPos ? "text-emerald-400" : "text-red-400")}>
                     {pnlPos ? "+" : ""}${Math.abs(pnl).toFixed(0)}{" "}
                     <span className="text-xs font-medium">({pnlPos ? "+" : ""}{pnlPct.toFixed(1)}%)</span>
@@ -614,41 +614,41 @@ export default function OptionLegDetailPage() {
             </div>
 
             {/* Performance bar */}
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-white/50 text-sm font-medium">52W Range</span>
-                <span className="text-white font-bold text-sm">${underlying.toFixed(2)} LTP</span>
+                <span className="text-gray-400 text-sm font-medium">52W Range</span>
+                <span className="text-gray-900 font-bold text-sm">${underlying.toFixed(2)} LTP</span>
               </div>
-              <div className="relative h-1.5 rounded-full bg-white/10 mb-2">
+              <div className="relative h-1.5 rounded-full bg-black/[0.05] mb-2">
                 <div className="absolute h-full rounded-full bg-gradient-to-r from-red-400 via-yellow-400 to-emerald-400 w-full opacity-30" />
                 <div
                   className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white border-2 border-white shadow-lg"
                   style={{ left: `calc(${perfPct}% - 6px)` }}
                 />
               </div>
-              <div className="flex justify-between text-xs text-white/40 mt-1">
+              <div className="flex justify-between text-xs text-gray-400 mt-1">
                 <span>52W Low · ${Math.round(low52)}</span>
                 <span>52W High · ${Math.round(high52)}</span>
               </div>
             </div>
 
             {/* Greeks compact */}
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
-              <h3 className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
+              <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
                 Greeks
-                <span className="w-3.5 h-3.5 rounded-full bg-white/10 flex items-center justify-center">
-                  <Info size={9} className="text-white/40" />
+                <span className="w-3.5 h-3.5 rounded-full bg-black/[0.05] flex items-center justify-center">
+                  <Info size={9} className="text-gray-400" />
                 </span>
               </h3>
               <div className="grid grid-cols-4 gap-3">
                 {[
                   { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-400" },
                   { label: "Theta", value: String(contract.theta), color: "text-red-400" },
-                  { label: "Gamma", value: String(contract.gamma), color: "text-white" },
-                  { label: "Vega", value: String(contract.vega), color: "text-white" },
+                  { label: "Gamma", value: String(contract.gamma), color: "text-gray-900" },
+                  { label: "Vega", value: String(contract.vega), color: "text-gray-900" },
                 ].map((g) => (
                   <div key={g.label} className="text-center">
-                    <div className="text-white/40 text-[11px] mb-1">{g.label}</div>
+                    <div className="text-gray-400 text-[11px] mb-1">{g.label}</div>
                     <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
                   </div>
                 ))}
@@ -656,9 +656,9 @@ export default function OptionLegDetailPage() {
             </div>
 
             {/* Market depth */}
-            <div className="bg-white/[0.04] border border-white/[0.07] rounded-2xl p-5">
+            <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-white font-semibold text-sm">Market Depth</span>
+                <span className="text-gray-900 font-semibold text-sm">Market Depth</span>
                 <div className="flex items-center gap-3 text-xs">
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Bid</span>
                   <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />Ask</span>
@@ -666,7 +666,7 @@ export default function OptionLegDetailPage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                  <div className="grid grid-cols-2 text-[11px] text-gray-300 font-medium mb-2 px-1">
                     <span>Price</span><span className="text-right">Qty</span>
                   </div>
                   {bids.map((b, i) => (
@@ -674,13 +674,13 @@ export default function OptionLegDetailPage() {
                       <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
                       <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
                         <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
-                        <span className="text-white/60 text-right tabular-nums">{b.qty}</span>
+                        <span className="text-gray-500 text-right tabular-nums">{b.qty}</span>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-white/30 font-medium mb-2 px-1">
+                  <div className="grid grid-cols-2 text-[11px] text-gray-300 font-medium mb-2 px-1">
                     <span>Price</span><span className="text-right">Qty</span>
                   </div>
                   {asks.map((a, i) => (
@@ -688,13 +688,13 @@ export default function OptionLegDetailPage() {
                       <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
                       <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
                         <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
-                        <span className="text-white/60 text-right tabular-nums">{a.qty}</span>
+                        <span className="text-gray-500 text-right tabular-nums">{a.qty}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between text-xs text-white/40">
+              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-400">
                 <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
                 <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
                 <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
@@ -702,8 +702,8 @@ export default function OptionLegDetailPage() {
             </div>
 
             {/* Contract details */}
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-5">
-              <h3 className="text-white font-semibold text-sm mb-4">Contract Details</h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+              <h3 className="text-gray-900 font-semibold text-sm mb-4">Contract Details</h3>
               <div className="space-y-2.5 text-sm">
                 {[
                   ["IV", `${contract.iv}%`],
@@ -714,9 +714,9 @@ export default function OptionLegDetailPage() {
                   ["Contract Size", "100 shares"],
                   ["Exercise Style", "American"],
                 ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between py-1.5 border-b border-white/[0.05] last:border-0">
-                    <span className="text-white/50">{k}</span>
-                    <span className="text-white font-medium">{v}</span>
+                  <div key={k} className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
+                    <span className="text-gray-400">{k}</span>
+                    <span className="text-gray-900 font-medium">{v}</span>
                   </div>
                 ))}
               </div>
@@ -726,19 +726,19 @@ export default function OptionLegDetailPage() {
         </div>
 
         {/* Register nudge — full width below both columns */}
-        <div className="mt-8 bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6">
-          <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-2">
+        <div className="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-6">
+          <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
             Free to join
           </div>
-          <h3 className="text-white font-bold text-base mb-1">
+          <h3 className="text-gray-900 font-bold text-base mb-1">
             Want to trade this option?
           </h3>
-          <p className="text-white/50 text-sm mb-4">
+          <p className="text-gray-400 text-sm mb-4">
             Open your Aspora account in under 15 minutes and start trading options, stocks, and ETFs — no minimums, no fees to start.
           </p>
           <a
             href="https://aspora.com/register"
-            className="inline-block px-5 py-2.5 rounded-xl bg-white text-neutral-900 font-bold text-sm hover:bg-white/90 transition-colors"
+            className="inline-block px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-sm hover:bg-gray-800 transition-colors"
           >
             Create free account →
           </a>
@@ -748,7 +748,7 @@ export default function OptionLegDetailPage() {
         <div className="mt-6 flex justify-center">
           <Link
             href={`/options/${symbol}`}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white/50 hover:text-white transition-colors"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors"
             style={{ border: "1px solid rgba(255,255,255,0.1)" }}
           >
             <ArrowLeft size={14} />

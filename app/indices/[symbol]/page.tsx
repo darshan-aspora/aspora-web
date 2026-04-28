@@ -145,7 +145,7 @@ function IndexChart({
   const TFS: Timeframe[] = ["1D", "1W", "1M", "3M", "1Y", "All"];
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
       <div ref={containerRef} className="w-full" />
       <div className="flex gap-1 mt-4">
         {TFS.map((tf) => (
@@ -154,7 +154,7 @@ function IndexChart({
             onClick={() => onTimeframeChange(tf)}
             className={cn(
               "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-              timeframe === tf ? "bg-white/10 text-white" : "text-white/50 hover:text-white/80"
+              timeframe === tf ? "bg-black/[0.05] text-gray-900" : "text-gray-400 hover:text-gray-700"
             )}
           >
             {tf}
@@ -167,33 +167,33 @@ function IndexChart({
 
 function RegisterCard() {
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.10] rounded-2xl p-6 mt-4">
-      <div className="text-white/40 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
-      <h3 className="text-white font-bold text-lg leading-snug mb-2">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 mt-4">
+      <div className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Free to join</div>
+      <h3 className="text-gray-900 font-bold text-lg leading-snug mb-2">
         Ready to invest or trade?
       </h3>
-      <p className="text-white/50 text-sm leading-relaxed mb-5">
+      <p className="text-gray-400 text-sm leading-relaxed mb-5">
         Open your Aspora account in under 15 minutes — no paperwork, no minimums, and no fees to get started.
       </p>
       <div className="space-y-2.5 mb-5">
         {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
           <div key={item} className="flex items-center gap-2.5">
-            <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+            <div className="w-4 h-4 rounded-full bg-black/[0.05] flex items-center justify-center shrink-0">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
                 <path d="M1.5 4L3 5.5L6.5 2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-white/60 text-xs">{item}</span>
+            <span className="text-gray-500 text-xs">{item}</span>
           </div>
         ))}
       </div>
       <a
         href="https://aspora.com/register"
-        className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:bg-white/90 transition-colors"
+        className="block w-full text-center rounded-xl bg-gray-900 text-white font-bold py-3 text-sm hover:bg-gray-800 transition-colors"
       >
         Create free account →
       </a>
-      <p className="text-white/30 text-xs text-center mt-3">Takes less than 15 minutes</p>
+      <p className="text-gray-300 text-xs text-center mt-3">Takes less than 15 minutes</p>
     </div>
   );
 }
@@ -203,18 +203,18 @@ function IndexSummaryCard({ index }: { index: IndexData }) {
   const isYtdPositive = index.ytdChangePct >= 0;
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-      <div className="text-white/50 text-sm mb-1">{index.exchange} · {index.indexProvider}</div>
-      <div className="text-4xl font-semibold text-white tabular-nums">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+      <div className="text-gray-400 text-sm mb-1">{index.exchange} · {index.indexProvider}</div>
+      <div className="text-4xl font-semibold text-gray-900 tabular-nums">
         {index.level.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
       <div className={cn("mt-1 text-sm font-medium", isPositive ? "text-green-400" : "text-red-400")}>
         {isPositive ? "+" : ""}{index.change.toFixed(2)} ({isPositive ? "+" : ""}{index.changePct.toFixed(2)}%) today
       </div>
 
-      <div className="mt-4 pt-4 border-t border-white/[0.08]">
+      <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex justify-between items-center">
-          <span className="text-white/50 text-sm">YTD Return</span>
+          <span className="text-gray-400 text-sm">YTD Return</span>
           <span className={cn("text-sm font-semibold", isYtdPositive ? "text-green-400" : "text-red-400")}>
             {isYtdPositive ? "+" : ""}{index.ytdChangePct.toFixed(2)}%
           </span>
@@ -238,17 +238,17 @@ function OverviewTab({ index }: { index: IndexData }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-3">About</h3>
-        <p className="text-white/60 text-sm leading-relaxed">{index.description}</p>
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-gray-900 font-semibold mb-3">About</h3>
+        <p className="text-gray-500 text-sm leading-relaxed">{index.description}</p>
       </div>
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
-        <h3 className="text-white font-semibold mb-4">Key Stats</h3>
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-gray-900 font-semibold mb-4">Key Stats</h3>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
           {stats.map((s) => (
-            <div key={s.label} className="flex justify-between border-b border-white/[0.05] pb-3">
-              <span className="text-white/50 text-sm">{s.label}</span>
-              <span className="text-white text-sm font-medium">{s.value}</span>
+            <div key={s.label} className="flex justify-between border-b border-gray-100 pb-3">
+              <span className="text-gray-400 text-sm">{s.label}</span>
+              <span className="text-gray-900 text-sm font-medium">{s.value}</span>
             </div>
           ))}
         </div>
@@ -286,15 +286,15 @@ function NewsTab({ index }: { index: IndexData }) {
   ];
 
   return (
-    <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06]">
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl divide-y divide-white/[0.06]">
       {items.map((item, i) => (
-        <div key={i} className="p-5 hover:bg-white/[0.03] transition-colors cursor-pointer">
+        <div key={i} className="p-5 hover:bg-black/[0.02] transition-colors cursor-pointer">
           <div className="flex justify-between items-start gap-4 mb-1">
-            <h4 className="text-white text-sm font-medium leading-snug">{item.title}</h4>
-            <span className="text-white/40 text-xs shrink-0">{item.time}</span>
+            <h4 className="text-gray-900 text-sm font-medium leading-snug">{item.title}</h4>
+            <span className="text-gray-400 text-xs shrink-0">{item.time}</span>
           </div>
-          <div className="text-white/40 text-xs mb-2">{item.source}</div>
-          <p className="text-white/50 text-xs leading-relaxed">{item.summary}</p>
+          <div className="text-gray-400 text-xs mb-2">{item.source}</div>
+          <p className="text-gray-400 text-xs leading-relaxed">{item.summary}</p>
         </div>
       ))}
     </div>
@@ -315,28 +315,28 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
       {/* Left — Popular options */}
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6">
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold">Popular {symbol} Options</h3>
-          <span className="text-white/40 text-xs">{firstExpiry.label}</span>
+          <h3 className="text-gray-900 font-semibold">Popular {symbol} Options</h3>
+          <span className="text-gray-400 text-xs">{firstExpiry.label}</span>
         </div>
         <div className="divide-y divide-white/[0.06]">
           {options.map((opt) => {
             const pos = opt.change >= 0;
             return (
               <Link key={opt.contractId} href={`/options/${optSymbol}/${opt.contractId}`}
-                className="flex items-center justify-between py-3.5 hover:bg-white/[0.04] -mx-2 px-2 rounded-lg transition-colors">
+                className="flex items-center justify-between py-3.5 hover:bg-black/[0.03] -mx-2 px-2 rounded-lg transition-colors">
                 <div className="flex items-start gap-3">
                   <div className="w-1 self-stretch rounded-full mt-0.5"
                     style={{ background: opt.type === "CALL" ? "#34d399" : "#f87171" }} />
                   <div>
-                    <div className="text-white/40 text-[11px] uppercase tracking-wider">Underlying {opt.symbol}</div>
-                    <div className="text-white font-semibold text-sm mt-0.5">{opt.expiry} {opt.strike} {opt.type}</div>
-                    <div className="text-white/40 text-[11px] mt-0.5">OI: {opt.oi}</div>
+                    <div className="text-gray-400 text-[11px] uppercase tracking-wider">Underlying {opt.symbol}</div>
+                    <div className="text-gray-900 font-semibold text-sm mt-0.5">{opt.expiry} {opt.strike} {opt.type}</div>
+                    <div className="text-gray-400 text-[11px] mt-0.5">OI: {opt.oi}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-white font-bold">${opt.price.toFixed(2)}</div>
+                  <div className="text-gray-900 font-bold">${opt.price.toFixed(2)}</div>
                   <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
                     {pos ? "+" : ""}${opt.change.toFixed(2)} ({pos ? "+" : ""}{opt.changePct}%)
                   </div>
@@ -351,22 +351,22 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
       </div>
 
       {/* Right — CTA card */}
-      <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 flex flex-col gap-4">
+      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 flex flex-col gap-4">
         <div>
-          <h3 className="text-white font-semibold mb-1">Option Chain and Prices</h3>
-          <p className="text-white/50 text-sm leading-relaxed">
+          <h3 className="text-gray-900 font-semibold mb-1">Option Chain and Prices</h3>
+          <p className="text-gray-400 text-sm leading-relaxed">
             {symbol} index options let you hedge or speculate on broad market direction. Explore calls and puts across expiries.
           </p>
         </div>
         <Link href={`/options/${optSymbol}`}
-          className="block w-full text-center rounded-xl bg-white text-neutral-900 font-bold py-3 text-sm hover:opacity-90 transition-opacity">
+          className="block w-full text-center rounded-xl bg-gray-900 text-white font-bold py-3 text-sm hover:opacity-90 transition-opacity">
           Open Full Option Chain →
         </Link>
         <div>
-          <div className="text-white/40 text-xs font-medium uppercase tracking-wider mb-2">Expiries</div>
+          <div className="text-gray-400 text-xs font-medium uppercase tracking-wider mb-2">Expiries</div>
           <div className="flex flex-wrap gap-2">
             {expiries.slice(0, 4).map((e) => (
-              <span key={e.label} className="px-2.5 py-1 rounded-lg bg-white/[0.06] text-white/70 text-xs">{e.label}</span>
+              <span key={e.label} className="px-2.5 py-1 rounded-lg bg-black/[0.04] text-gray-600 text-xs">{e.label}</span>
             ))}
           </div>
         </div>
@@ -379,54 +379,54 @@ function IndexOptionsTab({ symbol }: { symbol: string }) {
 
 function IndexSkeleton() {
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       <SiteNav />
       <div className="max-w-[1436px] mx-auto px-6 pt-6">
         <div className="flex items-center gap-2">
-          <div className="h-4 w-12 bg-white/[0.07] rounded animate-pulse" />
-          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
-          <div className="h-4 w-14 bg-white/[0.07] rounded animate-pulse" />
-          <div className="h-4 w-2 bg-white/[0.04] rounded animate-pulse" />
-          <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+          <div className="h-4 w-12 bg-black/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-black/[0.03] rounded animate-pulse" />
+          <div className="h-4 w-14 bg-black/[0.04] rounded animate-pulse" />
+          <div className="h-4 w-2 bg-black/[0.03] rounded animate-pulse" />
+          <div className="h-4 w-16 bg-black/[0.04] rounded animate-pulse" />
         </div>
       </div>
       <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6 space-y-2">
-          <div className="h-8 w-64 bg-white/[0.08] rounded-lg animate-pulse" />
-          <div className="h-4 w-32 bg-white/[0.05] rounded animate-pulse" />
+          <div className="h-8 w-64 bg-black/[0.05] rounded-lg animate-pulse" />
+          <div className="h-4 w-32 bg-black/[0.04] rounded animate-pulse" />
         </div>
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="flex-1 min-w-0 space-y-4">
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-4">
-              <div className="h-[400px] w-full bg-white/[0.04] rounded-xl animate-pulse" />
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+              <div className="h-[400px] w-full bg-black/[0.03] rounded-xl animate-pulse" />
               <div className="flex gap-2 mt-4">
                 {["1D","1W","1M","3M","1Y","All"].map(tf => (
-                  <div key={tf} className="h-8 w-10 bg-white/[0.06] rounded-lg animate-pulse" />
+                  <div key={tf} className="h-8 w-10 bg-black/[0.04] rounded-lg animate-pulse" />
                 ))}
               </div>
             </div>
-            <div className="flex gap-1 border-b border-white/[0.08] pb-px">
-              {[1,2,3].map(i => <div key={i} className="h-9 w-24 bg-white/[0.05] rounded-t-lg animate-pulse" />)}
+            <div className="flex gap-1 border-b border-gray-200 pb-px">
+              {[1,2,3].map(i => <div key={i} className="h-9 w-24 bg-black/[0.04] rounded-t-lg animate-pulse" />)}
             </div>
             <div className="space-y-3 pt-1">
               {[1,2].map(i => (
-                <div key={i} className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-3">
-                  <div className="h-5 w-32 bg-white/[0.08] rounded animate-pulse" />
-                  <div className="h-4 w-full bg-white/[0.05] rounded animate-pulse" />
-                  <div className="h-4 w-5/6 bg-white/[0.05] rounded animate-pulse" />
+                <div key={i} className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-3">
+                  <div className="h-5 w-32 bg-black/[0.05] rounded animate-pulse" />
+                  <div className="h-4 w-full bg-black/[0.04] rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-black/[0.04] rounded animate-pulse" />
                 </div>
               ))}
             </div>
           </div>
           <div className="w-full md:w-80 shrink-0 space-y-4">
-            <div className="bg-[#1c1c1e] border border-white/[0.08] rounded-2xl p-6 space-y-4">
-              <div className="h-4 w-24 bg-white/[0.06] rounded animate-pulse" />
-              <div className="h-10 w-44 bg-white/[0.08] rounded-lg animate-pulse" />
-              <div className="h-4 w-32 bg-white/[0.06] rounded animate-pulse" />
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 space-y-4">
+              <div className="h-4 w-24 bg-black/[0.04] rounded animate-pulse" />
+              <div className="h-10 w-44 bg-black/[0.05] rounded-lg animate-pulse" />
+              <div className="h-4 w-32 bg-black/[0.04] rounded animate-pulse" />
               {[1,2,3].map(i => (
-                <div key={i} className="flex justify-between py-2 border-b border-white/[0.05]">
-                  <div className="h-4 w-24 bg-white/[0.05] rounded animate-pulse" />
-                  <div className="h-4 w-16 bg-white/[0.07] rounded animate-pulse" />
+                <div key={i} className="flex justify-between py-2 border-b border-gray-100">
+                  <div className="h-4 w-24 bg-black/[0.04] rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-black/[0.04] rounded animate-pulse" />
                 </div>
               ))}
             </div>
@@ -455,25 +455,25 @@ export default function IndexDetailPage() {
   if (!loaded) return <IndexSkeleton />;
 
   return (
-    <div className="min-h-screen bg-[#0f0f11]">
+    <div className="min-h-screen bg-white">
       <SiteNav />
 
       {/* Breadcrumb */}
       <div className="max-w-[1436px] mx-auto px-6 pt-6">
-        <nav className="flex items-center gap-2 text-sm text-white/50">
-          <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
-          <span className="text-white/30">&gt;</span>
-          <Link href="/explore" className="hover:text-white transition-colors">Indices</Link>
-          <span className="text-white/30">&gt;</span>
-          <span className="text-white">{symbol}</span>
+        <nav className="flex items-center gap-2 text-sm text-gray-400">
+          <Link href="/explore" className="hover:text-gray-900 transition-colors">Explore</Link>
+          <span className="text-gray-300">&gt;</span>
+          <Link href="/explore" className="hover:text-gray-900 transition-colors">Indices</Link>
+          <span className="text-gray-300">&gt;</span>
+          <span className="text-gray-900">{symbol}</span>
         </nav>
       </div>
 
       {/* Main content */}
       <div className="max-w-[1436px] mx-auto px-6 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">{index.name}</h1>
-          <div className="text-white/50 text-sm mt-1">{index.symbol} · {index.exchange}</div>
+          <h1 className="text-3xl font-bold text-gray-900">{index.name}</h1>
+          <div className="text-gray-400 text-sm mt-1">{index.symbol} · {index.exchange}</div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -482,7 +482,7 @@ export default function IndexDetailPage() {
             <IndexChart index={index} timeframe={timeframe} onTimeframeChange={setTimeframe} />
 
             {/* Tabs */}
-            <div className="flex gap-1 border-b border-white/[0.08]">
+            <div className="flex gap-1 border-b border-gray-200">
               {(["Overview", "Options", "News"] as const).map((t) => (
                 <button
                   key={t}
@@ -490,8 +490,8 @@ export default function IndexDetailPage() {
                   className={cn(
                     "px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px",
                     tab === t
-                      ? "border-white text-white"
-                      : "border-transparent text-white/50 hover:text-white/80"
+                      ? "border-white text-gray-900"
+                      : "border-transparent text-gray-400 hover:text-gray-700"
                   )}
                 >
                   {t}
