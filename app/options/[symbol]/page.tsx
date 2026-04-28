@@ -55,6 +55,22 @@ export default function OptionsChainPage() {
     [strikes, underlying]
   );
 
+  const maxOI = useMemo(() => {
+    let m = 1;
+    for (const c of contracts) {
+      const v = parseInt(String(c.oi).replace(/[KMk]/g, (s) => s.toLowerCase() === "k" ? "000" : "000000")) || 0;
+      if (v > m) m = v;
+    }
+    return m;
+  }, [contracts]);
+
+  function parseOI(oi: string | number): number {
+    const s = String(oi);
+    if (s.endsWith("M") || s.endsWith("m")) return parseFloat(s) * 1_000_000;
+    if (s.endsWith("K") || s.endsWith("k")) return parseFloat(s) * 1_000;
+    return parseFloat(s) || 0;
+  }
+
   const headerRef = useRef<HTMLDivElement>(null);
   const expiryRowRef = useRef<HTMLDivElement>(null);
   const legendRowRef = useRef<HTMLDivElement>(null);
@@ -83,49 +99,57 @@ export default function OptionsChainPage() {
     container.scrollTo({ top: Math.max(0, scrollTarget), behavior: "smooth" });
   }, [activeCode, tableHeight]);
 
+  function OIBar({ oi, side }: { oi: string | number; side: "call" | "put" }) {
+    const pct = Math.min(100, Math.round((parseOI(oi) / maxOI) * 100));
+    return (
+      <div className="mt-1.5 h-[3px] w-full rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+        <div
+          className={cn("h-full rounded-full", side === "call" ? "bg-red-400/60 ml-auto" : "bg-emerald-400/60")}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    );
+  }
+
   function CallCell({ contract }: { contract?: OptionContract }) {
-    if (!contract) return <td className="px-3 py-3" />;
+    if (!contract) return <td className="px-3 py-2.5" />;
     const pos = contract.change >= 0;
     const itm = contract.itm;
     return (
-      <td className={cn(
-        "px-3 py-3 text-right",
-        itm ? "bg-red-500/[0.08]" : ""
-      )}>
+      <td className={cn("px-3 py-2.5 text-right", itm ? "bg-emerald-500/[0.07]" : "")}>
         <Link
           href={`/options/${symbol}/${contract.contractId}`}
-          className="block hover:bg-white/[0.06] rounded-lg px-2 py-1.5 -mx-2 transition-colors group"
+          className="block hover:bg-white/[0.05] rounded-lg px-2 py-1 -mx-2 transition-colors group"
         >
-          <div className={cn("text-sm font-semibold group-hover:text-red-400 transition-colors", itm ? "text-red-300" : "text-white/70")}>
+          <div className={cn("text-sm font-semibold group-hover:text-white transition-colors", itm ? "text-white" : "text-white/60")}>
             ${contract.price.toFixed(2)}
           </div>
           <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
             {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
           </div>
+          <OIBar oi={contract.oi} side="call" />
         </Link>
       </td>
     );
   }
 
   function PutCell({ contract }: { contract?: OptionContract }) {
-    if (!contract) return <td className="px-3 py-3" />;
+    if (!contract) return <td className="px-3 py-2.5" />;
     const pos = contract.change >= 0;
     const itm = contract.itm;
     return (
-      <td className={cn(
-        "px-3 py-3 text-left",
-        itm ? "bg-emerald-500/[0.08]" : ""
-      )}>
+      <td className={cn("px-3 py-2.5 text-left", itm ? "bg-emerald-500/[0.07]" : "")}>
         <Link
           href={`/options/${symbol}/${contract.contractId}`}
-          className="block hover:bg-white/[0.06] rounded-lg px-2 py-1.5 -mx-2 transition-colors group"
+          className="block hover:bg-white/[0.05] rounded-lg px-2 py-1 -mx-2 transition-colors group"
         >
-          <div className={cn("text-sm font-semibold group-hover:text-emerald-400 transition-colors", itm ? "text-emerald-300" : "text-white/70")}>
+          <div className={cn("text-sm font-semibold group-hover:text-white transition-colors", itm ? "text-white" : "text-white/60")}>
             ${contract.price.toFixed(2)}
           </div>
           <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
             {pos ? "+" : ""}{contract.change.toFixed(2)} ({pos ? "+" : ""}{contract.changePct}%)
           </div>
+          <OIBar oi={contract.oi} side="put" />
         </Link>
       </td>
     );
@@ -215,20 +239,23 @@ export default function OptionsChainPage() {
         </div>
 
         {/* Legend — above the table */}
-        <div ref={legendRowRef} className="flex items-center gap-5 mb-4 text-xs text-white/50">
+        <div ref={legendRowRef} className="flex items-center gap-4 mb-4 text-xs text-white/50">
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/30 inline-block" />
-            In the Money (calls)
+            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+            <span className="text-white/70">ITM</span> In The Money
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-emerald-500/20 border border-emerald-500/30 inline-block" />
-            In the Money (puts)
+            <span className="w-2 h-2 rounded-full bg-white/40 inline-block" />
+            <span className="text-white/70">ATM</span> At The Money
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-sm bg-white/10 border border-emerald-500/30 inline-block" />
-            At the Money
+            <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
+            <span className="text-white/70">OTM</span> Out of Money
           </span>
-          <span className="text-white/30">· Click any cell to view contract details</span>
+          <span className="flex items-center gap-3 ml-2">
+            <span className="flex items-center gap-1"><span className="w-6 h-[3px] rounded-full bg-red-400/60 inline-block" /> Call OI</span>
+            <span className="flex items-center gap-1"><span className="w-6 h-[3px] rounded-full bg-emerald-400/60 inline-block" /> Put OI</span>
+          </span>
         </div>
 
         {/* Chain table */}
@@ -299,37 +326,37 @@ export default function OptionsChainPage() {
                     {(viewMode === "split" || viewMode === "calls") && (
                       <>
                         {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? row.call.gamma : dash}
                           </Link>
                         </td>
                         {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? row.call.vega : dash}
                           </Link>
                         </td>
                         {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-red-400/80", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? row.call.theta : dash}
                           </Link>
                         </td>
                         {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-emerald-400/90 font-medium", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? row.call.delta : dash}
                           </Link>
                         </td>
                         {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/60", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? `${row.call.iv}%` : dash}
                           </Link>
                         </td>
                         {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-red-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-right tabular-nums text-white/50", callItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.call?.contractId ?? ""}`} className={row?.call ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.call ? row.call.oi : dash}
                           </Link>
@@ -354,37 +381,37 @@ export default function OptionsChainPage() {
                         {/* Put LTP */}
                         <PutCell contract={row?.put} />
                         {/* OI */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? row.put.oi : dash}
                           </Link>
                         </td>
                         {/* IV */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/60", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? `${row.put.iv}%` : dash}
                           </Link>
                         </td>
                         {/* Delta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80 font-medium", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? row.put.delta : dash}
                           </Link>
                         </td>
                         {/* Theta */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-red-400/80", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? row.put.theta : dash}
                           </Link>
                         </td>
                         {/* Vega */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? row.put.vega : dash}
                           </Link>
                         </td>
                         {/* Gamma */}
-                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.08]" : "")}>
+                        <td className={cn("px-2 py-2.5 text-left tabular-nums text-white/50", putItm ? "bg-emerald-500/[0.07]" : "")}>
                           <Link href={`/options/${symbol}/${row?.put?.contractId ?? ""}`} className={row?.put ? "block w-full h-full" : "pointer-events-none"}>
                             {row?.put ? row.put.gamma : dash}
                           </Link>
