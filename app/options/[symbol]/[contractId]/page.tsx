@@ -115,7 +115,7 @@ function PayoffSVG({
     <div>
       {interactive && (
         <div className="mb-5">
-          <div className="text-gray-400 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
+          <div className="text-gray-600 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
           <div
             className={cn(
               "text-4xl font-bold tabular-nums",
@@ -124,7 +124,7 @@ function PayoffSVG({
           >
             {displayPnl >= 0 ? "+" : ""}${Math.abs(displayPnl * 100).toFixed(0)}
           </div>
-          <div className="text-gray-400 text-sm mt-1">
+          <div className="text-gray-600 text-sm mt-1">
             If stock reaches{" "}
             <span className="text-gray-900 font-semibold">${displayPrice.toFixed(2)}</span>
             <span className={cn("ml-1.5 text-xs", displayPrice >= underlying ? "text-emerald-400" : "text-red-400")}>
@@ -147,15 +147,15 @@ function PayoffSVG({
         onTouchMove={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
       >
         {/* Zero line */}
-        <line x1={0} y1={zeroSy} x2={W} y2={zeroSy} stroke="rgba(255,255,255,0.12)" strokeDasharray="5,5" />
+        <line x1={0} y1={zeroSy} x2={W} y2={zeroSy} stroke="rgba(0,0,0,0.15)" strokeDasharray="5,5" />
         {/* Color clips */}
         <clipPath id={`pc-${contract.contractId}`}><rect x={0} y={0} width={W} height={zeroSy} /></clipPath>
         <clipPath id={`lc-${contract.contractId}`}><rect x={0} y={zeroSy} width={W} height={H} /></clipPath>
         <path d={profitPath} fill="none" stroke="#34d399" strokeWidth={2.5} clipPath={`url(#pc-${contract.contractId})`} />
         <path d={profitPath} fill="none" stroke="#f87171" strokeWidth={2.5} clipPath={`url(#lc-${contract.contractId})`} />
         {/* Breakeven */}
-        <line x1={beSx} y1={0} x2={beSx} y2={H} stroke="rgba(255,255,255,0.18)" strokeDasharray="4,4" />
-        <text x={beSx + 4} y={13} fill="rgba(255,255,255,0.3)" fontSize={9}>BE ${breakeven.toFixed(0)}</text>
+        <line x1={beSx} y1={0} x2={beSx} y2={H} stroke="rgba(0,0,0,0.20)" strokeDasharray="4,4" />
+        <text x={beSx + 4} y={13} fill="rgba(0,0,0,0.45)" fontSize={9}>BE ${breakeven.toFixed(0)}</text>
         {/* Vertical cursor line */}
         <line
           x1={cursorSvgX} y1={0} x2={cursorSvgX} y2={H}
@@ -168,7 +168,7 @@ function PayoffSVG({
           return <circle cx={cursorSvgX} cy={sy} r={4} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />;
         })()}
         {/* X-axis scrubber track */}
-        <rect x={0} y={H + 8} width={W} height={6} rx={3} fill="rgba(255,255,255,0.08)" />
+        <rect x={0} y={H + 8} width={W} height={6} rx={3} fill="rgba(0,0,0,0.08)" />
         <rect x={0} y={H + 8} width={cursorSvgX} height={6} rx={3} fill={displayPnl >= 0 ? "rgba(52,211,153,0.4)" : "rgba(248,113,113,0.4)"} />
         {/* Scrubber handle */}
         <circle cx={cursorSvgX} cy={H + 11} r={10} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />
@@ -177,13 +177,13 @@ function PayoffSVG({
         <line x1={cursorSvgX + 3} y1={H + 8} x2={cursorSvgX + 3} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
         {/* Underlying marker (non-interactive) */}
         {!interactive && (
-          <text x={underlyingX + 4} y={H - 4} fill="rgba(255,255,255,0.35)" fontSize={9}>Current</text>
+          <text x={underlyingX + 4} y={H - 4} fill="rgba(0,0,0,0.40)" fontSize={9}>Current</text>
         )}
       </svg>
 
-      <div className="flex justify-between text-gray-300 text-[11px] mt-1 px-0.5">
+      <div className="flex justify-between text-gray-500 text-[11px] mt-1 px-0.5">
         <span>${Math.round(min)}</span>
-        <span className="text-gray-300">Underlying price at expiry</span>
+        <span>Underlying price at expiry</span>
         <span>${Math.round(max)}</span>
       </div>
     </div>
@@ -216,19 +216,19 @@ function CandleChart({
       width: containerRef.current.clientWidth,
       height: 280,
       layout: {
-        background: { type: ColorType.Solid, color: "#0f0f11" },
-        textColor: "rgba(255,255,255,0.4)",
+        background: { type: ColorType.Solid, color: "#f9fafb" },
+        textColor: "rgba(0,0,0,0.55)",
       },
       grid: {
-        vertLines: { color: "rgba(255,255,255,0.05)" },
-        horzLines: { color: "rgba(255,255,255,0.05)" },
+        vertLines: { color: "rgba(0,0,0,0.05)" },
+        horzLines: { color: "rgba(0,0,0,0.05)" },
       },
       crosshair: {
-        vertLine: { color: "rgba(255,255,255,0.25)" },
-        horzLine: { color: "rgba(255,255,255,0.25)" },
+        vertLine: { color: "rgba(0,0,0,0.25)" },
+        horzLine: { color: "rgba(0,0,0,0.25)" },
       },
-      timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: true },
-      rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
+      timeScale: { borderColor: "rgba(0,0,0,0.10)", timeVisible: true },
+      rightPriceScale: { borderColor: "rgba(0,0,0,0.10)" },
     });
 
     const series = chart.addSeries(CandlestickSeries, {
@@ -296,7 +296,7 @@ function CandleChart({
       {/* Chart */}
       <div
         className="rounded-2xl overflow-hidden"
-        style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ border: "1px solid rgba(0,0,0,0.08)" }}
       >
         <div ref={containerRef} className="w-full" />
       </div>
@@ -309,7 +309,7 @@ function CandleChart({
           { label: "Open", value: `$${periodOpen.toFixed(2)}`, color: "text-gray-900" },
         ].map((s) => (
           <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4">
-            <div className="text-gray-400 text-xs mb-1.5">{s.label}</div>
+            <div className="text-gray-500 text-xs mb-1.5">{s.label}</div>
             <div className={cn("text-lg font-bold", s.color)}>{s.value}</div>
           </div>
         ))}
@@ -482,7 +482,7 @@ export default function OptionLegDetailPage() {
                   { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
                 ].map((s) => (
                   <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4 text-center">
-                    <div className="text-gray-400 text-xs mb-1.5">{s.label}</div>
+                    <div className="text-gray-500 text-xs mb-1.5">{s.label}</div>
                     <div className="text-gray-900 font-bold">{s.value}</div>
                   </div>
                 ))}
@@ -565,24 +565,24 @@ export default function OptionLegDetailPage() {
                       {contract.itm ? "In the Money" : "Out of the Money"}
                     </span>
                     {expiry && (
-                      <span className="text-gray-400 text-xs">{expiry.daysToExpiry}d to expiry</span>
+                      <span className="text-gray-600 text-xs">{expiry.daysToExpiry}d to expiry</span>
                     )}
                   </div>
                 </div>
-                <div className="text-right text-sm text-gray-400 mt-1">
-                  <div>Bid <span className="text-gray-500">${contract.bid}</span></div>
-                  <div className="mt-0.5">Ask <span className="text-gray-500">${contract.ask}</span></div>
-                  <div className="mt-0.5">Underlying <span className="text-gray-500">${underlying.toLocaleString()}</span></div>
+                <div className="text-right text-sm text-gray-600 mt-1">
+                  <div>Bid <span className="text-gray-800">${contract.bid}</span></div>
+                  <div className="mt-0.5">Ask <span className="text-gray-800">${contract.ask}</span></div>
+                  <div className="mt-0.5">Underlying <span className="text-gray-800">${underlying.toLocaleString()}</span></div>
                 </div>
               </div>
 
               {/* Read-only notice */}
               <div
                 className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+                style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
-                <Info size={14} className="text-gray-300 mt-0.5 shrink-0" />
-                <span className="text-gray-400">This is a read-only view. Trading is available on the Aspora mobile app.</span>
+                <Info size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                <span className="text-gray-600">This is a read-only view. Trading is available on the Aspora mobile app.</span>
               </div>
             </div>
 
@@ -590,23 +590,23 @@ export default function OptionLegDetailPage() {
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-900 font-semibold text-sm">Your Position</span>
-                <span className="text-gray-400 text-xs px-2 py-0.5 rounded-full bg-black/[0.04]">Active</span>
+                <span className="text-gray-600 text-xs px-2 py-0.5 rounded-full bg-black/[0.04]">Active</span>
               </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Qty</div>
+                  <div className="text-gray-500 text-xs mb-0.5">Qty</div>
                   <div className="text-gray-900 font-semibold">{qty} contracts</div>
                 </div>
                 <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Avg Cost</div>
+                  <div className="text-gray-500 text-xs mb-0.5">Avg Cost</div>
                   <div className="text-gray-900 font-semibold">${avgCost.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400 text-xs mb-0.5">LTP</div>
+                  <div className="text-gray-500 text-xs mb-0.5">LTP</div>
                   <div className="text-gray-900 font-semibold">${contract.price.toFixed(2)}</div>
                 </div>
                 <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Unrealised P&amp;L</div>
+                  <div className="text-gray-500 text-xs mb-0.5">Unrealised P&amp;L</div>
                   <div className={cn("font-bold", pnlPos ? "text-emerald-400" : "text-red-400")}>
                     {pnlPos ? "+" : ""}${Math.abs(pnl).toFixed(0)}{" "}
                     <span className="text-xs font-medium">({pnlPos ? "+" : ""}{pnlPct.toFixed(1)}%)</span>
@@ -618,7 +618,7 @@ export default function OptionLegDetailPage() {
             {/* Performance bar */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-gray-400 text-sm font-medium">52W Range</span>
+                <span className="text-gray-600 text-sm font-medium">52W Range</span>
                 <span className="text-gray-900 font-bold text-sm">${underlying.toFixed(2)} LTP</span>
               </div>
               <div className="relative h-1.5 rounded-full bg-black/[0.05] mb-2">
@@ -636,7 +636,7 @@ export default function OptionLegDetailPage() {
 
             {/* Greeks compact */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
-              <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <h3 className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
                 Greeks
                 <span className="w-3.5 h-3.5 rounded-full bg-black/[0.05] flex items-center justify-center">
                   <Info size={9} className="text-gray-400" />
@@ -650,7 +650,7 @@ export default function OptionLegDetailPage() {
                   { label: "Vega", value: String(contract.vega), color: "text-gray-900" },
                 ].map((g) => (
                   <div key={g.label} className="text-center">
-                    <div className="text-gray-400 text-[11px] mb-1">{g.label}</div>
+                    <div className="text-gray-500 text-[11px] mb-1">{g.label}</div>
                     <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
                   </div>
                 ))}
@@ -668,7 +668,7 @@ export default function OptionLegDetailPage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-gray-300 font-medium mb-2 px-1">
+                  <div className="grid grid-cols-2 text-[11px] text-gray-500 font-semibold mb-2 px-1">
                     <span>Price</span><span className="text-right">Qty</span>
                   </div>
                   {bids.map((b, i) => (
@@ -676,13 +676,13 @@ export default function OptionLegDetailPage() {
                       <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
                       <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
                         <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
-                        <span className="text-gray-500 text-right tabular-nums">{b.qty}</span>
+                        <span className="text-gray-700 text-right tabular-nums">{b.qty}</span>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-gray-300 font-medium mb-2 px-1">
+                  <div className="grid grid-cols-2 text-[11px] text-gray-500 font-semibold mb-2 px-1">
                     <span>Price</span><span className="text-right">Qty</span>
                   </div>
                   {asks.map((a, i) => (
@@ -690,7 +690,7 @@ export default function OptionLegDetailPage() {
                       <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
                       <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
                         <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
-                        <span className="text-gray-500 text-right tabular-nums">{a.qty}</span>
+                        <span className="text-gray-700 text-right tabular-nums">{a.qty}</span>
                       </div>
                     </div>
                   ))}
@@ -751,7 +751,7 @@ export default function OptionLegDetailPage() {
           <Link
             href={`/options/${symbol}`}
             className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+            style={{ border: "1px solid rgba(0,0,0,0.10)" }}
           >
             <ArrowLeft size={14} />
             Back to {symbol} Option Chain
