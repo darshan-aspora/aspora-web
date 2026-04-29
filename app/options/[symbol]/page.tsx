@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getContracts,
@@ -71,6 +71,19 @@ export default function OptionsChainPage() {
     if (s.endsWith("K") || s.endsWith("k")) return parseFloat(s) * 1_000;
     return parseFloat(s) || 0;
   }
+
+  const [expiryOpen, setExpiryOpen] = useState(false);
+  const expiryDropdownRef = useRef<HTMLDivElement>(null);
+  const closeOnOutside = useCallback((e: MouseEvent) => {
+    if (expiryDropdownRef.current && !expiryDropdownRef.current.contains(e.target as Node)) {
+      setExpiryOpen(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (expiryOpen) document.addEventListener("mousedown", closeOnOutside);
+    else document.removeEventListener("mousedown", closeOnOutside);
+    return () => document.removeEventListener("mousedown", closeOnOutside);
+  }, [expiryOpen, closeOnOutside]);
 
   const headerRef = useRef<HTMLDivElement>(null);
   const expiryRowRef = useRef<HTMLDivElement>(null);
@@ -178,62 +191,81 @@ export default function OptionsChainPage() {
             </div>
           </div>
 
-          {/* View mode toggle */}
-          <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(0,0,0,0.05)" }}>
-            {(["split", "calls", "puts"] as ViewMode[]).map(v => (
+          <div className="flex items-center gap-3">
+            {/* Expiry dropdown */}
+            <div ref={expiryDropdownRef} className="relative">
               <button
-                key={v}
-                onClick={() => setViewMode(v)}
-                className={cn(
-                  "px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-colors",
-                  viewMode === v ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
-                )}
+                onClick={() => setExpiryOpen(o => !o)}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors border border-gray-200 hover:border-gray-300 bg-white"
               >
-                {v}
+                <span className="text-gray-400 text-xs font-medium">Expiry</span>
+                <span className="text-gray-900">{activeExpiry?.label ?? activeCode}</span>
+                <span className="text-xs text-gray-400">{activeExpiry?.daysToExpiry}d</span>
+                <ChevronDown size={14} className={cn("text-gray-400 transition-transform", expiryOpen && "rotate-180")} />
               </button>
-            ))}
+
+              {expiryOpen && (
+                <div
+                  className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl z-50 overflow-hidden"
+                  style={{ border: "1px solid rgba(0,0,0,0.10)" }}
+                >
+                  <div className="px-4 py-3.5 border-b border-gray-100">
+                    <span className="text-gray-900 font-bold text-base">Options Expiry</span>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto py-2">
+                    {EXPIRY_TYPE_LABELS.map(type => {
+                      const group = expiries.filter(e => e.type === type);
+                      if (!group.length) return null;
+                      return (
+                        <div key={type}>
+                          <div className="px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">{type}</div>
+                          {group.map(e => (
+                            <button
+                              key={e.code}
+                              onClick={() => { setExpiryType(e.type); setSelectedExpiry(e.code); setExpiryOpen(false); }}
+                              className={cn(
+                                "w-full flex items-center justify-between px-4 py-3 text-sm transition-colors",
+                                activeCode === e.code
+                                  ? "bg-gray-900 text-white"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              )}
+                            >
+                              <span className="font-medium">{e.label}</span>
+                              <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", activeCode === e.code ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500")}>
+                                {e.daysToExpiry}D
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* View mode toggle */}
+            <div className="flex items-center gap-1 rounded-lg p-0.5" style={{ background: "rgba(0,0,0,0.05)" }}>
+              {(["split", "calls", "puts"] as ViewMode[]).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setViewMode(v)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-semibold rounded-md capitalize transition-colors",
+                    viewMode === v ? "bg-gray-900 text-white" : "text-gray-500 hover:text-gray-900"
+                  )}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-[1436px] mx-auto px-6 py-6">
-        {/* Combined expiry row: category pills | separator | date pills */}
-        <div ref={expiryRowRef} className="flex items-center gap-2 flex-wrap mb-4">
-          {EXPIRY_TYPE_LABELS.map(type => (
-            <button
-              key={type}
-              onClick={() => {
-                setExpiryType(type);
-                const first = expiries.find(e => e.type === type);
-                if (first) setSelectedExpiry(first.code);
-              }}
-              className={cn(
-                "px-3.5 py-1.5 rounded-full text-sm font-medium transition-colors",
-                expiryType === type
-                  ? "bg-gray-900 text-white"
-                  : "border border-gray-200 text-gray-500 hover:text-gray-900"
-              )}
-            >
-              {type}
-            </button>
-          ))}
-          <div className="w-px h-5 bg-white/20 mx-1" />
-          {filteredExpiries.map(e => (
-            <button
-              key={e.code}
-              onClick={() => setSelectedExpiry(e.code)}
-              className={cn(
-                "px-3.5 py-1.5 rounded-lg text-sm transition-colors",
-                activeCode === e.code
-                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                  : "border border-gray-200 text-gray-400 hover:text-gray-900 hover:border-gray-300"
-              )}
-            >
-              {e.label}
-              <span className="ml-1.5 text-xs opacity-60">{e.daysToExpiry}d</span>
-            </button>
-          ))}
-        </div>
+        {/* Zero-height ref used for table height measurement */}
+        <div ref={expiryRowRef} />
 
         {/* Legend — above the table */}
         <div ref={legendRowRef} className="flex items-center gap-4 mb-4 text-xs text-gray-400">
