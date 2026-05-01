@@ -96,7 +96,15 @@
       "Bash(npx --yes vercel login darshan.suthar@aspora.com)",
       "Bash(npx --yes vercel deploy --prod --yes)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl -sI https://aspora-wealth-web.vercel.app)",
+      "Bash(curl -sI https://aspora-web-nu.vercel.app)",
+      "Bash(npx --yes vercel inspect aspora-wealth-web.vercel.app --scope darshansuthar-8705s-projects)",
+      "Bash(npx --yes vercel link --yes --project aspora-wealth-web --scope darshansuthar-8705s-projects)",
+      "Bash(npx --yes vercel inspect aspora-wealth-mgfnuzfpl-darshansuthar-8705s-projects.vercel.app --scope darshansuthar-8705s-projects)",
+      "Bash(npx --yes vercel logs aspora-wealth-mgfnuzfpl-darshansuthar-8705s-projects.vercel.app --scope darshansuthar-8705s-projects)",
+      "Bash(git ls-remote *)"
     ],
     "additionalDirectories": [
       "/Users/apple/Dev/02-US-Equity/app/baskets",
