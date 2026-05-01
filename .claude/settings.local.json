@@ -84,7 +84,19 @@
       "Bash(xargs ls:*)",
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
       "Bash(ls -la /Users/apple/Dev/02-US-Equity/app/order-flow/*/page.tsx)",
-      "Bash(curl -s http://localhost:3000/stocks -o /dev/null -w \"%{http_code}\")"
+      "Bash(curl -s http://localhost:3000/stocks -o /dev/null -w \"%{http_code}\")",
+      "Bash(lsof -ti:3000)",
+      "Bash(lsof -ti:3001)",
+      "Bash(lsof -ti:3002)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(gh auth *)",
+      "Bash(vercel whoami *)",
+      "Bash(brew --version)",
+      "Bash(npx --yes vercel --version)",
+      "Bash(npx --yes vercel login darshan.suthar@aspora.com)",
+      "Bash(npx --yes vercel deploy --prod --yes)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ],
     "additionalDirectories": [
       "/Users/apple/Dev/02-US-Equity/app/baskets",
