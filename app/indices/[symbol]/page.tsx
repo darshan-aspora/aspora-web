@@ -178,9 +178,9 @@ function RegisterCard() {
       <div className="space-y-2.5 mb-5">
         {["Stocks, ETFs & options in one place", "Real-time data and smart analytics", "Secure, regulated and FCA authorised"].map((item) => (
           <div key={item} className="flex items-center gap-2.5">
-            <div className="w-4 h-4 rounded-full bg-black/[0.05] flex items-center justify-center shrink-0">
+            <div className="w-4 h-4 rounded-full bg-gray-900 flex items-center justify-center shrink-0">
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                <path d="M1.5 4L3 5.5L6.5 2" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1.5 4L3 5.5L6.5 2" stroke="white" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <span className="text-gray-500 text-xs">{item}</span>
