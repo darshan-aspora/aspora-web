@@ -45,16 +45,26 @@ function generateCandleData(symbol: string, expiryCode: string, strike: number, 
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
+interface ScrubInfo {
+  pnl: number;       // PnL per share (× 100 = per contract)
+  price: number;     // underlying price at expiry
+  pricePct: number;  // % move from current underlying
+}
+
 function PayoffSVG({
   contract,
   underlying,
   interactive,
   seller,
+  onScrub,
+  height = 220,
 }: {
   contract: OptionContract;
   underlying: number;
   interactive?: boolean;
   seller?: boolean;
+  onScrub?: (info: ScrubInfo) => void;
+  height?: number;
 }) {
   const isCall = contract.type === "CALL";
   const strike = contract.strike;
@@ -103,6 +113,12 @@ function PayoffSVG({
   const rawIntrinsic = isCall ? Math.max(0, displayPrice - strike) : Math.max(0, strike - displayPrice);
   const rawPnl = rawIntrinsic - premium;
   const displayPnl = seller ? -rawPnl : rawPnl;
+  const pricePct = ((displayPrice - underlying) / underlying) * 100;
+
+  // Publish scrub state to parent so it can render the inline P&L readout in the card header.
+  useEffect(() => {
+    onScrub?.({ pnl: displayPnl, price: displayPrice, pricePct });
+  }, [displayPnl, displayPrice, pricePct, onScrub]);
 
   const updateDrag = (clientX: number) => {
     if (!svgRef.current) return;
@@ -113,32 +129,12 @@ function PayoffSVG({
 
   return (
     <div>
-      {interactive && (
-        <div className="mb-5">
-          <div className="text-gray-600 text-xs uppercase tracking-wider mb-1">Expected P&amp;L</div>
-          <div
-            className={cn(
-              "text-4xl font-bold tabular-nums",
-              displayPnl >= 0 ? "text-emerald-400" : "text-red-400"
-            )}
-          >
-            {displayPnl >= 0 ? "+" : ""}${Math.abs(displayPnl * 100).toFixed(0)}
-          </div>
-          <div className="text-gray-600 text-sm mt-1">
-            If stock reaches{" "}
-            <span className="text-gray-900 font-semibold">${displayPrice.toFixed(2)}</span>
-            <span className={cn("ml-1.5 text-xs", displayPrice >= underlying ? "text-emerald-400" : "text-red-400")}>
-              ({displayPrice >= underlying ? "+" : ""}{(((displayPrice - underlying) / underlying) * 100).toFixed(1)}%)
-            </span>
-          </div>
-        </div>
-      )}
-
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${TOTAL_H}`}
+        preserveAspectRatio="none"
         className="w-full select-none"
-        style={{ height: interactive ? 240 : 180, cursor: interactive ? "ew-resize" : "default" }}
+        style={{ height, cursor: interactive ? "ew-resize" : "default" }}
         onMouseDown={(e) => { if (interactive) { setIsDragging(true); updateDrag(e.clientX); } }}
         onMouseMove={(e) => { if (interactive && isDragging) updateDrag(e.clientX); }}
         onMouseUp={() => setIsDragging(false)}
@@ -258,39 +254,52 @@ function CandleChart({
   }, [candles]);
 
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-4">
-      {/* Price header */}
-      <div>
-        <div className="text-3xl font-bold text-gray-900 tabular-nums">
-          ${periodClose.toFixed(2)}
-        </div>
-        <div
-          className={cn(
-            "text-sm mt-0.5 font-medium",
-            periodChangePct >= 0 ? "text-emerald-400" : "text-red-400"
-          )}
-        >
-          {periodChangePct >= 0 ? "+" : ""}
-          {periodChangePct.toFixed(1)}% this period
-        </div>
-      </div>
-
-      {/* Timeframe pills */}
-      <div className="flex gap-2">
-        {(["1D", "1W", "1M", "3M"] as CandleTF[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTf(t)}
+    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
+      {/* Single-row header: LTP + period H/L/O on left, timeframe toggle on right */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <span className="text-2xl font-bold text-gray-900 tabular-nums">
+            ${periodClose.toFixed(2)}
+          </span>
+          <span
             className={cn(
-              "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
-              tf === t
-                ? "bg-gray-900 text-white"
-                : "bg-black/[0.04] text-gray-500 hover:bg-black/[0.05] hover:text-gray-900"
+              "text-xs font-medium",
+              periodChangePct >= 0 ? "text-emerald-500" : "text-red-400"
             )}
           >
-            {t}
-          </button>
-        ))}
+            {periodChangePct >= 0 ? "+" : ""}
+            {periodChangePct.toFixed(1)}%
+          </span>
+          <span className="flex items-center gap-3 text-xs tabular-nums ml-1">
+            <span className="text-gray-500">
+              H <span className="text-emerald-500 font-semibold">${periodHigh.toFixed(2)}</span>
+            </span>
+            <span className="text-gray-500">
+              L <span className="text-red-400 font-semibold">${periodLow.toFixed(2)}</span>
+            </span>
+            <span className="text-gray-500">
+              O <span className="text-gray-900 font-semibold">${periodOpen.toFixed(2)}</span>
+            </span>
+          </span>
+        </div>
+
+        {/* Timeframe toggle — matches Buy/Sell pill style on the payoff card */}
+        <div className="flex items-center bg-black/[0.04] rounded-full p-1 gap-0.5">
+          {(["1D", "1W", "1M", "3M"] as CandleTF[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTf(t)}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-sm font-semibold transition-all",
+                tf === t
+                  ? "bg-gray-900 text-white shadow"
+                  : "text-gray-400 hover:text-gray-900"
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Chart */}
@@ -299,20 +308,6 @@ function CandleChart({
         style={{ border: "1px solid rgba(0,0,0,0.08)" }}
       >
         <div ref={containerRef} className="w-full" />
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Period High", value: `$${periodHigh.toFixed(2)}`, color: "text-emerald-400" },
-          { label: "Period Low", value: `$${periodLow.toFixed(2)}`, color: "text-red-400" },
-          { label: "Open", value: `$${periodOpen.toFixed(2)}`, color: "text-gray-900" },
-        ].map((s) => (
-          <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4">
-            <div className="text-gray-500 text-xs mb-1.5">{s.label}</div>
-            <div className={cn("text-lg font-bold", s.color)}>{s.value}</div>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -331,6 +326,7 @@ export default function OptionLegDetailPage() {
   const underlying = getBasePrice(symbol);
   const expiries = getExpiries(symbol);
   const [perspective, setPerspective] = useState<"buy" | "sell">("buy");
+  const [scrub, setScrub] = useState<ScrubInfo>({ pnl: 0, price: underlying, pricePct: 0 });
 
   const contract: OptionContract | undefined = useMemo(() => {
     const parts = contractId.split("-");
@@ -385,19 +381,6 @@ export default function OptionLegDetailPage() {
   const high52 = underlying * 1.28;
   const perfPct = ((underlying - low52) / (high52 - low52)) * 100;
 
-  // Market depth
-  const depthRng = seededRandom(hashSymbol(contract.contractId));
-  const mid = contract.price;
-  const bids = Array.from({ length: 5 }, (_, i) => ({
-    price: parseFloat((mid - (i + 1) * 0.02).toFixed(2)),
-    qty: Math.floor(50 + depthRng() * 200),
-  }));
-  const asks = Array.from({ length: 5 }, (_, i) => ({
-    price: parseFloat((mid + (i + 1) * 0.02).toFixed(2)),
-    qty: Math.floor(50 + depthRng() * 200),
-  }));
-  const maxQty = Math.max(...bids.map(b => b.qty), ...asks.map(a => a.qty));
-
   return (
     <div className="min-h-screen bg-white">
       {/* Sticky top bar */}
@@ -439,13 +422,26 @@ export default function OptionLegDetailPage() {
           {/* ── LEFT COLUMN ── */}
           <div className="flex-1 min-w-0 space-y-6">
 
-            {/* Candle Chart */}
-            <CandleChart contract={contract} symbol={symbol} />
-
-            {/* Payoff chart */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-gray-900 font-semibold">Payoff at Expiry</h3>
+            {/* Payoff chart — at the top, fills full column width */}
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4">
+              <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <h3 className="text-gray-900 font-semibold">Payoff at Expiry</h3>
+                  <span
+                    className={cn(
+                      "text-xl font-bold tabular-nums",
+                      scrub.pnl >= 0 ? "text-emerald-500" : "text-red-400"
+                    )}
+                  >
+                    {scrub.pnl >= 0 ? "+" : ""}${Math.abs(scrub.pnl * 100).toFixed(0)}
+                  </span>
+                  <span className="text-gray-500 text-xs">
+                    @ <span className="text-gray-900 font-semibold">${scrub.price.toFixed(2)}</span>
+                    <span className={cn("ml-1", scrub.pricePct >= 0 ? "text-emerald-500" : "text-red-400")}>
+                      ({scrub.pricePct >= 0 ? "+" : ""}{scrub.pricePct.toFixed(1)}%)
+                    </span>
+                  </span>
+                </div>
                 {/* Buy / Sell toggle */}
                 <div className="flex items-center bg-black/[0.04] rounded-full p-1 gap-0.5">
                   <button
@@ -473,71 +469,37 @@ export default function OptionLegDetailPage() {
                 </div>
               </div>
 
-              <PayoffSVG contract={contract} underlying={underlying} interactive seller={perspective === "sell"} />
-
-              <div className="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-gray-100">
-                {[
-                  { label: "Break-even", value: `$${breakeven.toFixed(2)}` },
-                  { label: "Entry Cost", value: `$${(contract.price * 100).toFixed(0)}` },
-                  { label: "Time Left", value: `${daysLeft} day${daysLeft !== 1 ? "s" : ""}` },
-                ].map((s) => (
-                  <div key={s.label} className="bg-black/[0.03] border border-gray-100 rounded-xl p-4 text-center">
-                    <div className="text-gray-500 text-xs mb-1.5">{s.label}</div>
-                    <div className="text-gray-900 font-bold">{s.value}</div>
-                  </div>
-                ))}
-              </div>
+              <PayoffSVG
+                contract={contract}
+                underlying={underlying}
+                interactive
+                seller={perspective === "sell"}
+                onScrub={setScrub}
+                height={280}
+              />
             </div>
 
-            {/* Quick nav links */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href={`/stocks/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
-              >
-                <div>
-                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
-                  <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-              <Link
-                href={`/options/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
-              >
-                <div>
-                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
-                  <div className="text-gray-900 font-semibold text-sm">All strikes</div>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-            </div>
+            {/* Candle Chart — below payoff */}
+            <CandleChart contract={contract} symbol={symbol} />
 
-            {/* Risk Profile */}
+            {/* Greeks — moved into left column */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
-              <h3 className="text-gray-900 font-semibold text-sm mb-4">Risk Profile</h3>
-              <div className="space-y-0 divide-y divide-gray-100">
+              <h3 className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                Greeks
+                <span className="w-3.5 h-3.5 rounded-full bg-black/[0.05] flex items-center justify-center">
+                  <Info size={9} className="text-gray-400" />
+                </span>
+              </h3>
+              <div className="grid grid-cols-4 gap-3">
                 {[
-                  {
-                    label: "Max Profit",
-                    value: isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`,
-                    color: "text-emerald-600",
-                  },
-                  {
-                    label: "Max Loss",
-                    value: `-$${(contract.price * 100).toFixed(0)}`,
-                    color: "text-red-500",
-                  },
-                  { label: "Breakeven at Expiry", value: `$${breakeven.toFixed(2)}`, color: "text-gray-900" },
-                  { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-gray-900" },
-                ].map((r) => (
-                  <div key={r.label} className="flex justify-between items-center py-3">
-                    <span className="text-gray-500 text-sm">{r.label}</span>
-                    <span className={cn("font-semibold text-sm", r.color)}>{r.value}</span>
+                  { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-500" },
+                  { label: "Theta", value: String(contract.theta), color: "text-red-400" },
+                  { label: "Gamma", value: String(contract.gamma), color: "text-gray-900" },
+                  { label: "Vega", value: String(contract.vega), color: "text-gray-900" },
+                ].map((g) => (
+                  <div key={g.label} className="bg-white border border-gray-100 rounded-xl px-3 py-2.5 text-center">
+                    <div className="text-gray-500 text-[11px] mb-1">{g.label}</div>
+                    <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
                   </div>
                 ))}
               </div>
@@ -615,6 +577,34 @@ export default function OptionLegDetailPage() {
               </div>
             </div>
 
+            {/* Quick nav — Underlying + Options Chain */}
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href={`/stocks/${symbol}`}
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
+              >
+                <div>
+                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+                  <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <Link
+                href={`/options/${symbol}`}
+                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
+              >
+                <div>
+                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+                  <div className="text-gray-900 font-semibold text-sm">All strikes</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
+                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+
             {/* Performance bar */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex justify-between items-center mb-3">
@@ -634,116 +624,52 @@ export default function OptionLegDetailPage() {
               </div>
             </div>
 
-            {/* Greeks compact */}
+            {/* Risk Profile — single row of 4 mini-cards */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
-              <h3 className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                Greeks
-                <span className="w-3.5 h-3.5 rounded-full bg-black/[0.05] flex items-center justify-center">
-                  <Info size={9} className="text-gray-400" />
-                </span>
-              </h3>
-              <div className="grid grid-cols-4 gap-3">
+              <h3 className="text-gray-900 font-semibold text-sm mb-3">Risk Profile</h3>
+              <div className="grid grid-cols-4 gap-2">
                 {[
-                  { label: "Delta", value: String(contract.delta), color: contract.delta < 0 ? "text-red-400" : "text-emerald-400" },
-                  { label: "Theta", value: String(contract.theta), color: "text-red-400" },
-                  { label: "Gamma", value: String(contract.gamma), color: "text-gray-900" },
-                  { label: "Vega", value: String(contract.vega), color: "text-gray-900" },
-                ].map((g) => (
-                  <div key={g.label} className="text-center">
-                    <div className="text-gray-500 text-[11px] mb-1">{g.label}</div>
-                    <div className={cn("text-base font-bold tabular-nums", g.color)}>{g.value}</div>
+                  {
+                    label: "Max Profit",
+                    value: isCall ? "Unlimited" : `$${((contract.strike - contract.price) * 100).toFixed(0)}`,
+                    color: "text-emerald-600",
+                  },
+                  {
+                    label: "Max Loss",
+                    value: `-$${(contract.price * 100).toFixed(0)}`,
+                    color: "text-red-500",
+                  },
+                  { label: "Breakeven", value: `$${breakeven.toFixed(2)}`, color: "text-gray-900" },
+                  { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-gray-900" },
+                ].map((r) => (
+                  <div key={r.label} className="bg-white border border-gray-100 rounded-xl px-2.5 py-2">
+                    <div className="text-gray-500 text-[11px] mb-0.5 truncate">{r.label}</div>
+                    <div className={cn("font-bold text-sm tabular-nums", r.color)}>{r.value}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Market depth */}
-            <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-gray-900 font-semibold text-sm">Market Depth</span>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />Bid</span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block" />Ask</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-gray-500 font-semibold mb-2 px-1">
-                    <span>Price</span><span className="text-right">Qty</span>
-                  </div>
-                  {bids.map((b, i) => (
-                    <div key={i} className="relative rounded-md overflow-hidden">
-                      <div className="absolute inset-y-0 right-0 bg-emerald-500/10 rounded-md" style={{ width: `${(b.qty / maxQty) * 100}%` }} />
-                      <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
-                        <span className="text-emerald-400 font-medium tabular-nums">${b.price.toFixed(2)}</span>
-                        <span className="text-gray-700 text-right tabular-nums">{b.qty}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-1">
-                  <div className="grid grid-cols-2 text-[11px] text-gray-500 font-semibold mb-2 px-1">
-                    <span>Price</span><span className="text-right">Qty</span>
-                  </div>
-                  {asks.map((a, i) => (
-                    <div key={i} className="relative rounded-md overflow-hidden">
-                      <div className="absolute inset-y-0 left-0 bg-red-500/10 rounded-md" style={{ width: `${(a.qty / maxQty) * 100}%` }} />
-                      <div className="relative grid grid-cols-2 px-2 py-1.5 text-xs">
-                        <span className="text-red-400 font-medium tabular-nums">${a.price.toFixed(2)}</span>
-                        <span className="text-gray-700 text-right tabular-nums">{a.qty}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-500">
-                <span>Spread: ${(asks[0].price - bids[0].price).toFixed(2)}</span>
-                <span>Total Bid: {bids.reduce((s, b) => s + b.qty, 0).toLocaleString()}</span>
-                <span>Total Ask: {asks.reduce((s, a) => s + a.qty, 0).toLocaleString()}</span>
-              </div>
-            </div>
-
-            {/* Contract details */}
+            {/* Register nudge — at bottom of right column */}
             <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
-              <h3 className="text-gray-900 font-semibold text-sm mb-4">Contract Details</h3>
-              <div className="space-y-2.5 text-sm">
-                {[
-                  ["IV", `${contract.iv}%`],
-                  ["Open Interest", contract.oi],
-                  ["Volume", contract.volume],
-                  ["Bid / Ask", `$${contract.bid} / $${contract.ask}`],
-                  ["Strike Price", `$${contract.strike.toLocaleString()}`],
-                  ["Contract Size", "100 shares"],
-                  ["Exercise Style", "American"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="text-gray-500">{k}</span>
-                    <span className="text-gray-900 font-medium">{v}</span>
-                  </div>
-                ))}
+              <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
+                Free to join
               </div>
+              <h3 className="text-gray-900 font-bold text-base mb-1">
+                Want to trade this option?
+              </h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Open your Aspora account in under 15 minutes and start trading options, stocks, and ETFs — no minimums, no fees to start.
+              </p>
+              <a
+                href="https://aspora.com/register"
+                className="inline-block px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-sm hover:bg-gray-800 transition-colors"
+              >
+                Create free account →
+              </a>
             </div>
 
           </div>
-        </div>
-
-        {/* Register nudge — full width below both columns */}
-        <div className="mt-8 bg-gray-50 border border-gray-200 rounded-2xl p-6">
-          <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-2">
-            Free to join
-          </div>
-          <h3 className="text-gray-900 font-bold text-base mb-1">
-            Want to trade this option?
-          </h3>
-          <p className="text-gray-600 text-sm mb-4">
-            Open your Aspora account in under 15 minutes and start trading options, stocks, and ETFs — no minimums, no fees to start.
-          </p>
-          <a
-            href="https://aspora.com/register"
-            className="inline-block px-5 py-2.5 rounded-xl bg-gray-900 text-white font-bold text-sm hover:bg-gray-800 transition-colors"
-          >
-            Create free account →
-          </a>
         </div>
 
         {/* Back link */}
