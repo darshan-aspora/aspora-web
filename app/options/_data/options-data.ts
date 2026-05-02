@@ -11,7 +11,9 @@ export interface OptionContract {
   change: number;
   changePct: number;
   oi: string;         // "1.21M"
+  oiRaw: number;      // raw OI count for aggregation
   volume: string;     // "284K"
+  volumeRaw: number;  // raw volume count for aggregation
   iv: number;         // implied volatility %
   delta: number;
   gamma: number;
@@ -145,7 +147,9 @@ export function getContracts(symbol: string, expiryCode: string): OptionContract
         change,
         changePct,
         oi: fmtCount(oiN),
+        oiRaw: oiN,
         volume: fmtCount(volN),
+        volumeRaw: volN,
         iv,
         delta,
         gamma: +(rng() * 0.05).toFixed(4),
@@ -160,9 +164,63 @@ export function getContracts(symbol: string, expiryCode: string): OptionContract
   return contracts;
 }
 
+/** Aggregate Open Interest stats across the full chain for a given expiry */
+export interface OIStats {
+  totalCallOI: number;
+  totalPutOI: number;
+  putCallRatio: number; // putOI / callOI, 2dp
+  callPct: number;      // 0-100, integer
+  putPct: number;       // 0-100, integer
+}
+
+export function getOIStats(symbol: string, expiryCode: string): OIStats {
+  const contracts = getContracts(symbol, expiryCode);
+  let callOI = 0;
+  let putOI = 0;
+  for (const c of contracts) {
+    if (c.type === "CALL") callOI += c.oiRaw;
+    else putOI += c.oiRaw;
+  }
+  const total = callOI + putOI || 1;
+  const callPct = Math.round((callOI / total) * 100);
+  return {
+    totalCallOI: callOI,
+    totalPutOI: putOI,
+    putCallRatio: +(putOI / (callOI || 1)).toFixed(2),
+    callPct,
+    putPct: 100 - callPct,
+  };
+}
+
+/**
+ * Cumulative OI stats across the entire option chain — every expiry, every strike.
+ * Used by detail-page Key Information panels which should reflect overall positioning,
+ * not the slice currently shown in a popular-options list.
+ */
+export function getCumulativeOIStats(symbol: string): OIStats {
+  let callOI = 0;
+  let putOI = 0;
+  for (const expiry of getExpiries(symbol)) {
+    for (const c of getContracts(symbol, expiry.code)) {
+      if (c.type === "CALL") callOI += c.oiRaw;
+      else putOI += c.oiRaw;
+    }
+  }
+  const total = callOI + putOI || 1;
+  const callPct = Math.round((callOI / total) * 100);
+  return {
+    totalCallOI: callOI,
+    totalPutOI: putOI,
+    putCallRatio: +(putOI / (callOI || 1)).toFixed(2),
+    callPct,
+    putPct: 100 - callPct,
+  };
+}
+
 /** Popular/highlighted options for the instrument detail tab */
-export function getPopularOptions(symbol: string, count = 7): OptionContract[] {
-  const expiry = getExpiries(symbol)[0];
+export function getPopularOptions(symbol: string, count = 7, expiryCode?: string): OptionContract[] {
+  const expiries = getExpiries(symbol);
+  const expiry = (expiryCode && expiries.find(e => e.code === expiryCode)) || expiries[0];
   const all = getContracts(symbol, expiry.code);
   const underlying = getBasePrice(symbol);
 

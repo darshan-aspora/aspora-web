@@ -8,7 +8,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { SiteNav } from "@/components/marketing/site-nav";
 import { hashSymbol, seededRandom } from "@/app/shared-components/mock-data";
-import { getPopularOptions, getExpiries } from "@/app/options/_data/options-data";
+import { InstrumentOptionsTab } from "@/app/shared-components/instrument-options-tab";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -363,90 +363,6 @@ function NewsTab({ stock }: { stock: StockData }) {
   );
 }
 
-function OptionsTab({ symbol }: { symbol: string }) {
-  const options = getPopularOptions(symbol);
-  const expiries = getExpiries(symbol);
-  const firstExpiry = expiries[0];
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-      {/* Left — Popular options list */}
-      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-gray-900 font-semibold">Popular {symbol} Options</h3>
-          <span className="text-gray-400 text-xs">{firstExpiry.label}</span>
-        </div>
-        <div className="divide-y divide-white/[0.06]">
-          {options.map((opt) => {
-            const pos = opt.change >= 0;
-            return (
-              <Link
-                key={opt.contractId}
-                href={`/options/${symbol}/${opt.contractId}`}
-                className="flex items-center justify-between py-3.5 hover:bg-black/[0.03] -mx-2 px-2 rounded-lg transition-colors"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="w-1 self-stretch rounded-full mt-0.5"
-                    style={{ background: opt.type === "CALL" ? "#34d399" : "#f87171" }}
-                  />
-                  <div>
-                    <div className="text-gray-400 text-[11px] uppercase tracking-wider">
-                      Underlying {opt.symbol} {opt.strike}
-                    </div>
-                    <div className="text-gray-900 font-semibold text-sm mt-0.5">
-                      {opt.expiry} {opt.strike} {opt.type}
-                    </div>
-                    <div className="text-gray-400 text-[11px] mt-0.5">OI: {opt.oi}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-gray-900 font-bold">${opt.price.toFixed(2)}</div>
-                  <div className={cn("text-xs mt-0.5", pos ? "text-emerald-400" : "text-red-400")}>
-                    {pos ? "+" : ""}${opt.change.toFixed(2)} ({pos ? "+" : ""}{opt.changePct}%)
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-        <Link href={`/options/${symbol}`} className="block mt-4 text-center text-sm text-emerald-400 hover:text-emerald-300 transition-colors">
-          View all strikes →
-        </Link>
-      </div>
-
-      {/* Right — Option Chain CTA */}
-      <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 flex flex-col gap-4">
-        <div>
-          <h3 className="text-gray-900 font-semibold mb-1">Option Chain and Prices</h3>
-          <p className="text-gray-400 text-sm leading-relaxed">
-            Explore options data like calls, puts, and strike prices. Understand market expectations for future price movements.
-          </p>
-        </div>
-        <Link
-          href={`/options/${symbol}`}
-          className="block w-full text-center rounded-xl bg-gray-900 text-white font-bold py-3 text-sm hover:opacity-90 transition-opacity"
-        >
-          Open Full Option Chain →
-        </Link>
-        {/* Quick expiry pills */}
-        <div className="pt-2 border-t border-gray-100">
-          <div className="text-gray-400 text-xs mb-3 uppercase tracking-wider">Available Expiries</div>
-          <div className="flex flex-wrap gap-2">
-            {expiries.slice(0, 5).map(e => (
-              <Link key={e.code} href={`/options/${symbol}?expiry=${e.code}`}
-                className="px-3 py-1.5 rounded-lg text-xs border border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300 transition-colors">
-                {e.label}
-                <span className="ml-1.5 text-gray-300">{e.daysToExpiry}d</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Page ───────────────────────────────────────────────────────────────────
 
 function StockSkeleton() {
@@ -574,7 +490,7 @@ export default function StockDetailPage() {
             <div className="pt-1">
               {tab === "Overview" && <OverviewTab stock={stock} />}
               {tab === "Financials" && <FinancialsTab stock={stock} />}
-              {tab === "Options" && <OptionsTab symbol={stock.symbol} />}
+              {tab === "Options" && <InstrumentOptionsTab symbol={stock.symbol} />}
               {tab === "News" && <NewsTab stock={stock} />}
             </div>
           </div>
