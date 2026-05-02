@@ -104,7 +104,13 @@
       "Bash(npx --yes vercel link --yes --project aspora-wealth-web --scope darshansuthar-8705s-projects)",
       "Bash(npx --yes vercel inspect aspora-wealth-mgfnuzfpl-darshansuthar-8705s-projects.vercel.app --scope darshansuthar-8705s-projects)",
       "Bash(npx --yes vercel logs aspora-wealth-mgfnuzfpl-darshansuthar-8705s-projects.vercel.app --scope darshansuthar-8705s-projects)",
-      "Bash(git ls-remote *)"
+      "Bash(git ls-remote *)",
+      "Bash(npx --yes vercel ls --scope darshansuthar-8705s-projects aspora-wealth-web)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:64212/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:64212/etf/SPY\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:64212/stocks/PLTR\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:64212/options/PLTR/PLTR-20250425-235-PUT\")",
+      "Bash(grep -n \"Greeks compact\\\\|Greeks$\\\\|FREE TO JOIN\\\\|Free to join\" app/options/\\\\[symbol\\\\]/\\\\[contractId\\\\]/page.tsx)"
     ],
     "additionalDirectories": [
       "/Users/apple/Dev/02-US-Equity/app/baskets",
