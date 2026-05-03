@@ -127,55 +127,69 @@ function PayoffSVG({
     setDragX(Math.min(W - 1, Math.max(1, px)));
   };
 
+  // Compute the dot's y-position (payoff line) for HTML overlay placement.
+  const { sy: dotSy } = toSvg(displayPrice, displayPnl);
+  const cursorPctX = (cursorSvgX / W) * 100;
+  const dotPctY = (dotSy / TOTAL_H) * 100;
+  const handlePctY = ((H + 11) / TOTAL_H) * 100;
+  const dotColor = displayPnl >= 0 ? "#34d399" : "#f87171";
+
   return (
     <div>
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${W} ${TOTAL_H}`}
-        preserveAspectRatio="none"
-        className="w-full select-none"
-        style={{ height, cursor: interactive ? "ew-resize" : "default" }}
-        onMouseDown={(e) => { if (interactive) { setIsDragging(true); updateDrag(e.clientX); } }}
-        onMouseMove={(e) => { if (interactive && isDragging) updateDrag(e.clientX); }}
-        onMouseUp={() => setIsDragging(false)}
-        onMouseLeave={() => { if (interactive) setIsDragging(false); }}
-        onTouchStart={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
-        onTouchMove={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
-      >
-        {/* Zero line */}
-        <line x1={0} y1={zeroSy} x2={W} y2={zeroSy} stroke="rgba(0,0,0,0.15)" strokeDasharray="5,5" />
-        {/* Color clips */}
-        <clipPath id={`pc-${contract.contractId}`}><rect x={0} y={0} width={W} height={zeroSy} /></clipPath>
-        <clipPath id={`lc-${contract.contractId}`}><rect x={0} y={zeroSy} width={W} height={H} /></clipPath>
-        <path d={profitPath} fill="none" stroke="#34d399" strokeWidth={2.5} clipPath={`url(#pc-${contract.contractId})`} />
-        <path d={profitPath} fill="none" stroke="#f87171" strokeWidth={2.5} clipPath={`url(#lc-${contract.contractId})`} />
-        {/* Breakeven */}
-        <line x1={beSx} y1={0} x2={beSx} y2={H} stroke="rgba(0,0,0,0.20)" strokeDasharray="4,4" />
-        <text x={beSx + 4} y={13} fill="rgba(0,0,0,0.45)" fontSize={9}>BE ${breakeven.toFixed(0)}</text>
-        {/* Vertical cursor line */}
-        <line
-          x1={cursorSvgX} y1={0} x2={cursorSvgX} y2={H}
-          stroke={displayPnl >= 0 ? "#34d399" : "#f87171"}
-          strokeWidth={1.5} strokeOpacity={0.5}
+      <div className="relative" style={{ height }}>
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${TOTAL_H}`}
+          preserveAspectRatio="none"
+          className="w-full h-full select-none"
+          style={{ cursor: interactive ? "ew-resize" : "default" }}
+          onMouseDown={(e) => { if (interactive) { setIsDragging(true); updateDrag(e.clientX); } }}
+          onMouseMove={(e) => { if (interactive && isDragging) updateDrag(e.clientX); }}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => { if (interactive) setIsDragging(false); }}
+          onTouchStart={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
+          onTouchMove={(e) => { if (interactive) updateDrag(e.touches[0].clientX); }}
+        >
+          {/* Zero line */}
+          <line x1={0} y1={zeroSy} x2={W} y2={zeroSy} stroke="rgba(0,0,0,0.15)" strokeDasharray="5,5" />
+          {/* Color clips */}
+          <clipPath id={`pc-${contract.contractId}`}><rect x={0} y={0} width={W} height={zeroSy} /></clipPath>
+          <clipPath id={`lc-${contract.contractId}`}><rect x={0} y={zeroSy} width={W} height={H} /></clipPath>
+          <path d={profitPath} fill="none" stroke="#34d399" strokeWidth={2.5} clipPath={`url(#pc-${contract.contractId})`} />
+          <path d={profitPath} fill="none" stroke="#f87171" strokeWidth={2.5} clipPath={`url(#lc-${contract.contractId})`} />
+          {/* Breakeven */}
+          <line x1={beSx} y1={0} x2={beSx} y2={H} stroke="rgba(0,0,0,0.20)" strokeDasharray="4,4" />
+          <text x={beSx + 4} y={13} fill="rgba(0,0,0,0.45)" fontSize={9}>BE ${breakeven.toFixed(0)}</text>
+          {/* Vertical cursor line */}
+          <line
+            x1={cursorSvgX} y1={0} x2={cursorSvgX} y2={H}
+            stroke={dotColor}
+            strokeWidth={1.5} strokeOpacity={0.5}
+          />
+          {/* X-axis scrubber track (rounded pill — fine to stretch) */}
+          <rect x={0} y={H + 8} width={W} height={6} rx={3} fill="rgba(0,0,0,0.08)" />
+          <rect x={0} y={H + 8} width={cursorSvgX} height={6} rx={3} fill={displayPnl >= 0 ? "rgba(52,211,153,0.4)" : "rgba(248,113,113,0.4)"} />
+          {/* Underlying marker (non-interactive) */}
+          {!interactive && (
+            <text x={underlyingX + 4} y={H - 4} fill="rgba(0,0,0,0.40)" fontSize={9}>Current</text>
+          )}
+        </svg>
+
+        {/* HTML overlays — kept out of the SVG so non-uniform stretching does
+            not turn the dot into an ellipse or the handle into a wide oval. */}
+        <div
+          className="absolute w-2.5 h-2.5 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none ring-2 ring-white"
+          style={{ left: `${cursorPctX}%`, top: `${dotPctY}%`, backgroundColor: dotColor }}
         />
-        {/* Dot on payoff line */}
-        {(() => {
-          const { sy } = toSvg(displayPrice, displayPnl);
-          return <circle cx={cursorSvgX} cy={sy} r={4} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />;
-        })()}
-        {/* X-axis scrubber track */}
-        <rect x={0} y={H + 8} width={W} height={6} rx={3} fill="rgba(0,0,0,0.08)" />
-        <rect x={0} y={H + 8} width={cursorSvgX} height={6} rx={3} fill={displayPnl >= 0 ? "rgba(52,211,153,0.4)" : "rgba(248,113,113,0.4)"} />
-        {/* Scrubber handle */}
-        <circle cx={cursorSvgX} cy={H + 11} r={10} fill={displayPnl >= 0 ? "#34d399" : "#f87171"} />
-        <line x1={cursorSvgX - 3} y1={H + 8} x2={cursorSvgX - 3} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
-        <line x1={cursorSvgX} y1={H + 8} x2={cursorSvgX} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
-        <line x1={cursorSvgX + 3} y1={H + 8} x2={cursorSvgX + 3} y2={H + 14} stroke="white" strokeWidth={1.5} strokeLinecap="round" />
-        {/* Underlying marker (non-interactive) */}
-        {!interactive && (
-          <text x={underlyingX + 4} y={H - 4} fill="rgba(0,0,0,0.40)" fontSize={9}>Current</text>
-        )}
-      </svg>
+        <div
+          className="absolute h-3.5 w-7 rounded-md -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-[2px] pointer-events-none shadow"
+          style={{ left: `${cursorPctX}%`, top: `${handlePctY}%`, backgroundColor: dotColor }}
+        >
+          <span className="w-px h-2 bg-white/85" />
+          <span className="w-px h-2 bg-white/85" />
+          <span className="w-px h-2 bg-white/85" />
+        </div>
+      </div>
 
       <div className="flex justify-between text-gray-500 text-[11px] mt-1 px-0.5">
         <span>${Math.round(min)}</span>
@@ -255,9 +269,10 @@ function CandleChart({
 
   return (
     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-3">
-      {/* Single-row header: LTP + period H/L/O on left, timeframe toggle on right */}
+      {/* Single-row header: title + LTP + period H/L/O on left, timeframe toggle on right */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-baseline gap-3 flex-wrap">
+          <h3 className="text-gray-900 font-semibold">Contract Price</h3>
           <span className="text-2xl font-bold text-gray-900 tabular-nums">
             ${periodClose.toFixed(2)}
           </span>
@@ -540,11 +555,39 @@ export default function OptionLegDetailPage() {
 
               {/* Read-only notice */}
               <div
-                className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm"
+                className="flex items-start gap-2 rounded-xl px-4 py-3 text-sm mb-3"
                 style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Info size={14} className="text-gray-400 mt-0.5 shrink-0" />
                 <span className="text-gray-600">This is a read-only view. Trading is available on the Aspora mobile app.</span>
+              </div>
+
+              {/* Quick nav — Underlying + Options Chain */}
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href={`/stocks/${symbol}`}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 transition-colors group"
+                >
+                  <div>
+                    <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
+                    <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
+                    <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
+                <Link
+                  href={`/options/${symbol}`}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl bg-white hover:bg-gray-100 border border-gray-200 transition-colors group"
+                >
+                  <div>
+                    <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
+                    <div className="text-gray-900 font-semibold text-sm">All strikes</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
+                    <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Link>
               </div>
             </div>
 
@@ -577,34 +620,6 @@ export default function OptionLegDetailPage() {
               </div>
             </div>
 
-            {/* Quick nav — Underlying + Options Chain */}
-            <div className="grid grid-cols-2 gap-3">
-              <Link
-                href={`/stocks/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
-              >
-                <div>
-                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Underlying</div>
-                  <div className="text-gray-900 font-semibold text-sm">{symbol}</div>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-              <Link
-                href={`/options/${symbol}`}
-                className="flex items-center justify-between px-4 py-3 rounded-xl bg-black/[0.03] hover:bg-black/[0.05] border border-gray-100 transition-colors group"
-              >
-                <div>
-                  <div className="text-gray-500 text-[11px] uppercase tracking-wider mb-0.5">Options Chain</div>
-                  <div className="text-gray-900 font-semibold text-sm">All strikes</div>
-                </div>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-gray-400 group-hover:text-gray-700 transition-colors">
-                  <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-            </div>
-
             {/* Performance bar */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
               <div className="flex justify-between items-center mb-3">
@@ -624,10 +639,15 @@ export default function OptionLegDetailPage() {
               </div>
             </div>
 
-            {/* Risk Profile — single row of 4 mini-cards */}
+            {/* Risk Profile — same visual structure as Your Position */}
             <div className="bg-black/[0.03] border border-gray-100 rounded-2xl p-5">
-              <h3 className="text-gray-900 font-semibold text-sm mb-3">Risk Profile</h3>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-gray-900 font-semibold text-sm">Risk Profile</span>
+                <span className="text-gray-600 text-xs px-2 py-0.5 rounded-full bg-black/[0.04]">
+                  {isCall ? "Long Call" : "Long Put"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
                 {[
                   {
                     label: "Max Profit",
@@ -642,9 +662,9 @@ export default function OptionLegDetailPage() {
                   { label: "Breakeven", value: `$${breakeven.toFixed(2)}`, color: "text-gray-900" },
                   { label: "Strike", value: `$${contract.strike.toLocaleString()}`, color: "text-gray-900" },
                 ].map((r) => (
-                  <div key={r.label} className="bg-white border border-gray-100 rounded-xl px-2.5 py-2">
-                    <div className="text-gray-500 text-[11px] mb-0.5 truncate">{r.label}</div>
-                    <div className={cn("font-bold text-sm tabular-nums", r.color)}>{r.value}</div>
+                  <div key={r.label}>
+                    <div className="text-gray-500 text-xs mb-0.5">{r.label}</div>
+                    <div className={cn("font-semibold tabular-nums", r.color)}>{r.value}</div>
                   </div>
                 ))}
               </div>
